@@ -5,7 +5,7 @@ package org.irods.jargon.rest.security;
 
 import org.irods.jargon.core.connection.IRODSSession;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
-import org.irods.jargon.rest.configuration.RestConfiguration;
+import org.irods.jargon.rest.configuration.DosConfiguration;
 import org.irods.jargon.rest.security.ConnectionCloseFilter;
 import org.irods.jargon.rest.security.IrodsAuthenticationProvider;
 import org.irods.jargon.rest.security.IrodsBasicAuthEntryPoint;
@@ -29,7 +29,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private RestConfiguration restConfiguration;
+	private DosConfiguration restConfiguration;
 	@Autowired
 	private IRODSSession irodsSession;
 	@Autowired
@@ -46,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	/**
 	 * @return the restConfiguration
 	 */
-	public RestConfiguration getRestConfiguration() {
+	public DosConfiguration getRestConfiguration() {
 		return restConfiguration;
 	}
 
@@ -54,7 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * @param restConfiguration
 	 *            the restConfiguration to set
 	 */
-	public void setRestConfiguration(RestConfiguration restConfiguration) {
+	public void setRestConfiguration(DosConfiguration restConfiguration) {
 		this.restConfiguration = restConfiguration;
 	}
 

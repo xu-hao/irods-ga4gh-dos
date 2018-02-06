@@ -6,4 +6,4 @@
  * Exceptions for REST API
  *
  */
-package org.irods.jargon.rest.exception;
+package gov.nih.niehs.ods.ga4gh.dos.exception;

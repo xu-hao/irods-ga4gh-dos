@@ -15,13 +15,13 @@ import org.irods.jargon.core.connection.ClientServerNegotiationPolicy;
  * @author Mike Conway - DICE (www.irods.org)
  * 
  */
-public class RestConfiguration {
+public class DosConfiguration {
 
 	private String irodsHost = "";
 	private int irodsPort = 1247;
 	private String irodsZone = "";
 	private String defaultStorageResource = "";
-	private String realm = "irods-rest";
+	private String realm = "irods-ga4gh";
 
 	/**
 	 * Utilize the read ahead and write behind streams in jargon to optimize
@@ -55,8 +55,8 @@ public class RestConfiguration {
 	private List<String> corsAllowedHeaders = new ArrayList<String>();
 
 	/**
-	 * Optional URL for a web interface to access grid data (typically an
-	 * idrop-web installation pointing to the same grid)
+	 * Optional URL for a web interface to access grid data (typically an idrop-web
+	 * installation pointing to the same grid)
 	 */
 	private String webInterfaceURL = "";
 
@@ -223,7 +223,7 @@ public class RestConfiguration {
 	public String toString() {
 		final int maxLen = 100;
 		StringBuilder builder = new StringBuilder();
-		builder.append("RestConfiguration [");
+		builder.append("DosConfiguration [");
 		if (irodsHost != null) {
 			builder.append("irodsHost=").append(irodsHost).append(", ");
 		}
@@ -232,43 +232,34 @@ public class RestConfiguration {
 			builder.append("irodsZone=").append(irodsZone).append(", ");
 		}
 		if (defaultStorageResource != null) {
-			builder.append("defaultStorageResource=")
-					.append(defaultStorageResource).append(", ");
+			builder.append("defaultStorageResource=").append(defaultStorageResource).append(", ");
 		}
 		if (realm != null) {
 			builder.append("realm=").append(realm).append(", ");
 		}
-		builder.append("utilizePackingStreams=").append(utilizePackingStreams)
-				.append(", ");
+		builder.append("utilizePackingStreams=").append(utilizePackingStreams).append(", ");
 		if (authType != null) {
 			builder.append("authType=").append(authType).append(", ");
 		}
 		builder.append("allowCors=").append(allowCors).append(", ");
 		if (corsOrigins != null) {
-			builder.append("corsOrigins=")
-					.append(corsOrigins.subList(0,
-							Math.min(corsOrigins.size(), maxLen))).append(", ");
+			builder.append("corsOrigins=").append(corsOrigins.subList(0, Math.min(corsOrigins.size(), maxLen)))
+					.append(", ");
 		}
 		if (corsMethods != null) {
-			builder.append("corsMethods=")
-					.append(corsMethods.subList(0,
-							Math.min(corsMethods.size(), maxLen))).append(", ");
+			builder.append("corsMethods=").append(corsMethods.subList(0, Math.min(corsMethods.size(), maxLen)))
+					.append(", ");
 		}
-		builder.append("corsAllowCredentials=").append(corsAllowCredentials)
-				.append(", ");
+		builder.append("corsAllowCredentials=").append(corsAllowCredentials).append(", ");
 		if (corsAllowedHeaders != null) {
 			builder.append("corsAllowedHeaders=")
-					.append(corsAllowedHeaders.subList(0,
-							Math.min(corsAllowedHeaders.size(), maxLen)))
-					.append(", ");
+					.append(corsAllowedHeaders.subList(0, Math.min(corsAllowedHeaders.size(), maxLen))).append(", ");
 		}
 		if (webInterfaceURL != null) {
-			builder.append("webInterfaceURL=").append(webInterfaceURL)
-					.append(", ");
+			builder.append("webInterfaceURL=").append(webInterfaceURL).append(", ");
 		}
 		if (sslNegotiationPolicy != null) {
-			builder.append("sslNegotiationPolicy=")
-					.append(sslNegotiationPolicy).append(", ");
+			builder.append("sslNegotiationPolicy=").append(sslNegotiationPolicy).append(", ");
 		}
 		builder.append("computeChecksum=").append(computeChecksum).append("]");
 		return builder.toString();

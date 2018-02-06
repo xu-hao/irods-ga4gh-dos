@@ -18,14 +18,15 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.irods.jargon.core.connection.AuthScheme;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.JargonException;
-import org.irods.jargon.rest.configuration.RestConfiguration;
-import org.irods.jargon.rest.exception.IrodsRestException;
+import org.irods.jargon.rest.configuration.DosConfiguration;
 import org.irods.jargon.rest.utils.DefaultHttpClientAndContext;
 import org.irods.jargon.rest.utils.RestTestingProperties;
 import org.irods.jargon.testutils.TestConfigurationException;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gov.nih.niehs.ods.ga4gh.dos.exception.DosRuntimeException;
 
 /**
  * @author Mike Conway - DICE (www.irods.org)
@@ -62,7 +63,7 @@ public class RestAuthUtils {
 	 * @throws JargonException
 	 */
 	public static IRODSAccount getIRODSAccountFromUserPassword(final String user, final String password,
-			final RestConfiguration restConfiguration) throws JargonException {
+			final DosConfiguration restConfiguration) {
 		log.info("getIRODSAccountFromUserPassword()");
 		if (user == null || user.isEmpty()) {
 			throw new IllegalArgumentException("null user");
@@ -95,9 +96,14 @@ public class RestAuthUtils {
 			myUser = user.substring(AuthScheme.PAM.toString().length() + 1);
 		}
 
-		return IRODSAccount.instance(restConfiguration.getIrodsHost(), restConfiguration.getIrodsPort(), myUser,
-				password, "", restConfiguration.getIrodsZone(), restConfiguration.getDefaultStorageResource(),
-				authScheme);
+		try {
+			return IRODSAccount.instance(restConfiguration.getIrodsHost(), restConfiguration.getIrodsPort(), myUser,
+					password, "", restConfiguration.getIrodsZone(), restConfiguration.getDefaultStorageResource(),
+					authScheme);
+		} catch (JargonException e) {
+			log.error("Jargon exception building irods account", e);
+			throw new DosRuntimeException("error creating irods account", e);
+		}
 
 	}
 
@@ -111,7 +117,7 @@ public class RestAuthUtils {
 	 * @throws JargonException
 	 */
 	public static IRODSAccount getIRODSAccountFromBasicAuthValues(final String basicAuthData,
-			final RestConfiguration restConfiguration) throws JargonException {
+			final DosConfiguration restConfiguration) throws JargonException {
 
 		log.info("getIRODSAccountFromBasicAuthValues");
 
@@ -170,8 +176,7 @@ public class RestAuthUtils {
 
 	}
 
-	private static AuthScheme determineAuthSchemeFromConfig(final RestConfiguration restConfiguration)
-			throws IrodsRestException {
+	private static AuthScheme determineAuthSchemeFromConfig(final DosConfiguration restConfiguration) {
 		AuthScheme authScheme;
 		if (restConfiguration.getAuthType() == null || restConfiguration.getAuthType().isEmpty()) {
 			log.info("unspecified authType, use STANDARD");
@@ -184,7 +189,7 @@ public class RestAuthUtils {
 			authScheme = AuthScheme.PAM;
 		} else {
 			log.error("cannot support authScheme:{}", restConfiguration);
-			throw new IrodsRestException("unknown or unsupported auth scheme");
+			throw new DosRuntimeException("unknown or unsupported auth scheme");
 		}
 		return authScheme;
 	}
@@ -196,7 +201,7 @@ public class RestAuthUtils {
 	 * @return <code>IRODSAccount</code> suitable for anonymous access
 	 * @throws JargonException
 	 */
-	public static IRODSAccount instanceForAnonymous(final RestConfiguration restConfiguration) throws JargonException {
+	public static IRODSAccount instanceForAnonymous(final DosConfiguration restConfiguration) throws JargonException {
 
 		if (restConfiguration == null) {
 			throw new IllegalArgumentException("null restConfiguration");

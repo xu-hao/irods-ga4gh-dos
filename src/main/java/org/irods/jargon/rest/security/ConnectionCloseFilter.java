@@ -13,7 +13,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
-import org.irods.jargon.rest.configuration.RestConfiguration;
+import org.irods.jargon.rest.configuration.DosConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class ConnectionCloseFilter implements Filter {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
-	private RestConfiguration restConfiguration;
+	private DosConfiguration restConfiguration;
 	@Autowired
 	private IRODSAccessObjectFactory irodsAccessObjectFactory;
 
@@ -75,7 +75,7 @@ public class ConnectionCloseFilter implements Filter {
 	/**
 	 * @return the restConfiguration
 	 */
-	public RestConfiguration getRestConfiguration() {
+	public DosConfiguration getRestConfiguration() {
 		return restConfiguration;
 	}
 
@@ -83,7 +83,7 @@ public class ConnectionCloseFilter implements Filter {
 	 * @param restConfiguration
 	 *            the restConfiguration to set
 	 */
-	public void setRestConfiguration(final RestConfiguration restConfiguration) {
+	public void setRestConfiguration(final DosConfiguration restConfiguration) {
 		this.restConfiguration = restConfiguration;
 	}
 

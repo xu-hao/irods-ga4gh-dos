@@ -3,7 +3,7 @@
  */
 package org.irods.jargon.rest.utils;
 
-import org.irods.jargon.rest.configuration.RestConfiguration;
+import org.irods.jargon.rest.configuration.DosConfiguration;
 
 /**
  * Various utils for handling REST configuration information
@@ -23,7 +23,7 @@ public class ConfigurationUtils {
 	 * @return
 	 */
 	public static String buildIrodsEnvForConfigAndUser(
-			final RestConfiguration restConfiguration, final String userName) {
+			final DosConfiguration restConfiguration, final String userName) {
 
 		if (restConfiguration == null) {
 			throw new IllegalArgumentException("null restConfiguration");

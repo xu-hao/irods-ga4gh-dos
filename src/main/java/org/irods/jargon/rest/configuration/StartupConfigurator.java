@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StartupConfigurator {
 
-	private RestConfiguration restConfiguration;
+	private DosConfiguration restConfiguration;
 	private IRODSSession irodsSession;
 	private IRODSAccessObjectFactory irodsAccessObjectFactory;
 
@@ -33,7 +33,7 @@ public class StartupConfigurator {
 	/**
 	 * @return the restConfiguration
 	 */
-	public RestConfiguration getRestConfiguration() {
+	public DosConfiguration getRestConfiguration() {
 		return restConfiguration;
 	}
 
@@ -41,7 +41,7 @@ public class StartupConfigurator {
 	 * @param restConfiguration
 	 *            the restConfiguration to set
 	 */
-	public void setRestConfiguration(RestConfiguration restConfiguration) {
+	public void setRestConfiguration(DosConfiguration restConfiguration) {
 		this.restConfiguration = restConfiguration;
 	}
 
