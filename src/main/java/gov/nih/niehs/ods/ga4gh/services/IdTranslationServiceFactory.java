@@ -5,8 +5,9 @@ package gov.nih.niehs.ods.ga4gh.services;
 
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
-import org.irods.jargon.rest.configuration.DosConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 
 /**
  * @author Mike Conway - NIEHS

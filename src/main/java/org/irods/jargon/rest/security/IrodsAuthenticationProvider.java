@@ -7,7 +7,6 @@ import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.connection.IRODSSession;
 import org.irods.jargon.core.connection.auth.AuthResponse;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
-import org.irods.jargon.rest.configuration.DosConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
+
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 
 /**
  * Spring security authentication provider for iRODS

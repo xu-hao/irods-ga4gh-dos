@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.irods.jargon.rest.configuration;
+package gov.nih.niehs.ods.ga4gh.rest.configuration;
 
 import org.irods.jargon.core.connection.ClientServerNegotiationPolicy;
 import org.irods.jargon.core.connection.ClientServerNegotiationPolicy.SslNegotiationPolicy;

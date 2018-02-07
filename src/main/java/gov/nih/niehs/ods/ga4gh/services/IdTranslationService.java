@@ -5,9 +5,9 @@ package gov.nih.niehs.ods.ga4gh.services;
 
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
-import org.irods.jargon.rest.configuration.DosConfiguration;
 
 import gov.nih.niehs.ods.ga4gh.dos.exception.DosDataNotFoundException;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 
 /**
  * Abstract definition of a service to bi-directionally resolve object and other

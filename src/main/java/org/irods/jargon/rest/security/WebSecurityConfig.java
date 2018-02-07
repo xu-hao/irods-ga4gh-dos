@@ -5,7 +5,6 @@ package org.irods.jargon.rest.security;
 
 import org.irods.jargon.core.connection.IRODSSession;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
-import org.irods.jargon.rest.configuration.DosConfiguration;
 import org.irods.jargon.rest.security.ConnectionCloseFilter;
 import org.irods.jargon.rest.security.IrodsAuthenticationProvider;
 import org.irods.jargon.rest.security.IrodsBasicAuthEntryPoint;
@@ -18,6 +17,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 
 /**
  * Spring security configurer

@@ -3,4 +3,4 @@
  * @author Mike Conway - DICE (www.irods.org)
  *
  */
-package org.irods.jargon.rest.configuration;
+package gov.nih.niehs.ods.ga4gh.rest.configuration;

@@ -18,15 +18,16 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.irods.jargon.core.connection.AuthScheme;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.JargonException;
-import org.irods.jargon.rest.configuration.DosConfiguration;
 import org.irods.jargon.rest.utils.DefaultHttpClientAndContext;
 import org.irods.jargon.rest.utils.RestTestingProperties;
 import org.irods.jargon.testutils.TestConfigurationException;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import gov.nih.niehs.ods.ga4gh.dos.exception.DosRuntimeException;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 
 /**
  * @author Mike Conway - DICE (www.irods.org)
@@ -36,6 +37,18 @@ import gov.nih.niehs.ods.ga4gh.dos.exception.DosRuntimeException;
 public class RestAuthUtils {
 
 	private static Logger log = LoggerFactory.getLogger(RestAuthUtils.class);
+
+	/**
+	 * Retreive the account information from the security context
+	 * 
+	 * @return {@link IRODSAccount} for the logged in iRODS user
+	 */
+	public static IRODSAccount irodsAccountFromContext() {
+		log.info("authentication:{}", SecurityContextHolder.getContext().getAuthentication());
+		IrodsAuthentication irodsAuthentication = (IrodsAuthentication) SecurityContextHolder.getContext()
+				.getAuthentication();
+		return irodsAuthentication.getIrodsAccount();
+	}
 
 	public static String basicAuthTokenFromIRODSAccount(final IRODSAccount irodsAccount) {
 		if (irodsAccount == null) {

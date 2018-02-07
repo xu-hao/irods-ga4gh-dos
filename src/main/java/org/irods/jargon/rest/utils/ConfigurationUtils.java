@@ -3,7 +3,7 @@
  */
 package org.irods.jargon.rest.utils;
 
-import org.irods.jargon.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 
 /**
  * Various utils for handling REST configuration information

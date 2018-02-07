@@ -3,7 +3,8 @@ package gov.nih.niehs.ods.ga4gh.services;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.service.AbstractJargonService;
-import org.irods.jargon.rest.configuration.DosConfiguration;
+
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 
 /**
  * Abstract superclass for a service layer object within DOS
