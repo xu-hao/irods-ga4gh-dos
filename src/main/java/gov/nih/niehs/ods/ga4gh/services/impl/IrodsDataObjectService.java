@@ -3,6 +3,10 @@
  */
 package gov.nih.niehs.ods.ga4gh.services.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.irods.jargon.core.checksum.ChecksumValue;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.FileNotFoundException;
 import org.irods.jargon.core.exception.JargonException;
@@ -10,11 +14,14 @@ import org.irods.jargon.core.pub.DataObjectAO;
 import org.irods.jargon.core.pub.DataObjectChecksumUtilitiesAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.domain.DataObject;
+import org.irods.jargon.core.pub.io.IRODSFile;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.nih.niehs.ods.ga4gh.dos.exception.DosDataNotFoundException;
 import gov.nih.niehs.ods.ga4gh.dos.exception.DosSystemException;
+import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghChecksum;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghDataObject;
 import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 import gov.nih.niehs.ods.ga4gh.services.DataObjectService;
@@ -27,6 +34,8 @@ public class IrodsDataObjectService extends DataObjectService {
 
 	public static final Logger log = LoggerFactory.getLogger(IrodsDataObjectService.class);
 
+	private final DataTypeResolutionService dataTypeResolutionService;
+
 	/**
 	 * @param irodsAccessObjectFactory
 	 *            {@link IRODSAccessObjectFactory} to produce jargon service objects
@@ -36,7 +45,7 @@ public class IrodsDataObjectService extends DataObjectService {
 	 *            {@link DosConfiguration} that sets site-specific properties
 	 **/
 	public IrodsDataObjectService(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
-			DosConfiguration dosConfiguration) {
+			DosConfiguration dosConfiguration, DataTypeResolutionService dataTypeResolutionService) {
 		super(irodsAccessObjectFactory, irodsAccount, dosConfiguration);
 	}
 
@@ -77,13 +86,25 @@ public class IrodsDataObjectService extends DataObjectService {
 		}
 
 		log.info("dataObject:{}", irodsDataObject);
-		
-		DataObjectChecksumUtilitiesAO dataObjectChecksumUtilitiesAO = irodsAccessObjectFactory.getDataObjectChecksumUtilitiesAO(irodsAccount);
-		compute checksum stuff here
+		log.debug("getting checksum");
+		DataObjectChecksumUtilitiesAO dataObjectChecksumUtilitiesAO = irodsAccessObjectFactory
+				.getDataObjectChecksumUtilitiesAO(irodsAccount);
+		IRODSFile irodsFile = this.getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
+				.instanceIRODSFile(irodsDataObject.getAbsolutePath());
+
+		ChecksumValue checksumValue = dataObjectChecksumUtilitiesAO.computeChecksumOnDataObject(irodsFile);
+		Ga4ghChecksum ga4ghChecksum = new Ga4ghChecksum(); // TODO: might need to update checksum to give hex encoded
+															// value in jargon
+		ga4ghChecksum.setChecksum(checksumValue.getChecksumStringValue());
+		ga4ghChecksum.setType(checksumValue.getChecksumEncoding().toString());
+		List<Ga4ghChecksum> checksums = new ArrayList<Ga4ghChecksum>();
+		checksums.add(ga4ghChecksum);
 
 		Ga4ghDataObject ga4ghDataObject = new Ga4ghDataObject();
 		ga4ghDataObject.setId(null); // TODO: add id txltn service to reverse map
-		ga4ghDataObject.set
+		ga4ghDataObject.setChecksums(checksums);
+		ga4ghDataObject.setCreated(new DateTime(irodsDataObject.getCreatedAt()));
+		ga4ghDataObject.setDescription("irods data object"); // TODO: consider other metadata value?
 
 	}
 
