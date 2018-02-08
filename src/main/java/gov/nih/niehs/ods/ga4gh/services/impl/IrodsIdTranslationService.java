@@ -25,9 +25,12 @@ public class IrodsIdTranslationService extends IdTranslationService {
 
 	/**
 	 * @param irodsAccessObjectFactory
+	 *            {@link IRODSAccessObjectFactory} to produce jargon service objects
 	 * @param irodsAccount
+	 *            {@link IRODSAccount} associated with this user
 	 * @param dosConfiguration
-	 */
+	 *            {@link DosConfiguration} that sets site-specific properties
+	 **/
 	public IrodsIdTranslationService(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
 			DosConfiguration dosConfiguration) {
 		super(irodsAccessObjectFactory, irodsAccount, dosConfiguration);
