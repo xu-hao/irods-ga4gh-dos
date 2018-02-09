@@ -22,6 +22,11 @@ public class DosConfiguration {
 	private String irodsZone = "";
 	private String defaultStorageResource = "";
 	private String realm = "irods-ga4gh";
+	/**
+	 * Prefix (of MetaLnx by default) of the HTTP proxy for the data object or
+	 * collection
+	 */
+	private String urlPrefix = "";
 
 	/**
 	 * Utilize the read ahead and write behind streams in jargon to optimize
@@ -214,14 +219,9 @@ public class DosConfiguration {
 		this.corsAllowCredentials = corsAllowCredentials;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
-		final int maxLen = 100;
+		final int maxLen = 10;
 		StringBuilder builder = new StringBuilder();
 		builder.append("DosConfiguration [");
 		if (irodsHost != null) {
@@ -236,6 +236,9 @@ public class DosConfiguration {
 		}
 		if (realm != null) {
 			builder.append("realm=").append(realm).append(", ");
+		}
+		if (urlPrefix != null) {
+			builder.append("urlPrefix=").append(urlPrefix).append(", ");
 		}
 		builder.append("utilizePackingStreams=").append(utilizePackingStreams).append(", ");
 		if (authType != null) {
@@ -331,6 +334,14 @@ public class DosConfiguration {
 	 */
 	public void setComputeChecksum(boolean computeChecksum) {
 		this.computeChecksum = computeChecksum;
+	}
+
+	public String getUrlPrefix() {
+		return urlPrefix;
+	}
+
+	public void setUrlPrefix(String urlPrefix) {
+		this.urlPrefix = urlPrefix;
 	}
 
 }
