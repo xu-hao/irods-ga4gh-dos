@@ -4,50 +4,12 @@
 package gov.nih.niehs.ods.ga4gh.services;
 
 import org.irods.jargon.core.connection.IRODSAccount;
-import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 
 /**
  * @author Mike Conway - NIEHS
  *
  */
-public abstract class IdTranslationServiceFactory {
-
-	/**
-	 * Required factory for Jargon service objects {@link IRODSAccessObjectFactory}
-	 */
-	@Autowired
-	private IRODSAccessObjectFactory irodsAccessObjectFactory;
-
-	/**
-	 * Required {@link DosConfiguration} with properties and settings
-	 */
-	@Autowired
-	private DosConfiguration dosConfiguration;
-
-	/**
-	 * 
-	 */
-	public IdTranslationServiceFactory() {
-	}
-
-	public IRODSAccessObjectFactory getIrodsAccessObjectFactory() {
-		return irodsAccessObjectFactory;
-	}
-
-	public void setIrodsAccessObjectFactory(IRODSAccessObjectFactory irodsAccessObjectFactory) {
-		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
-	}
-
-	public DosConfiguration getDosConfiguration() {
-		return dosConfiguration;
-	}
-
-	public void setDosConfiguration(DosConfiguration dosConfiguration) {
-		this.dosConfiguration = dosConfiguration;
-	}
+public abstract class IdTranslationServiceFactory extends ServiceFactory {
 
 	/**
 	 * Create an instance of the underlying service
@@ -56,6 +18,6 @@ public abstract class IdTranslationServiceFactory {
 	 *            {@link IRODSAccount} for the authenticated user
 	 * @return {@link IdTranslationService} instance
 	 */
-	public abstract IdTranslationService insance(final IRODSAccount irodsAccount);
+	public abstract IdTranslationService instance(final IRODSAccount irodsAccount);
 
 }

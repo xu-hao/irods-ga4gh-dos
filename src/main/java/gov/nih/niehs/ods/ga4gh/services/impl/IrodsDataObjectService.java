@@ -121,7 +121,8 @@ public class IrodsDataObjectService extends DataObjectService {
 		ga4ghDataObject.setSize(String.valueOf(irodsDataObject.getDataSize()));
 		ga4ghDataObject.setUpdated(new DateTime(irodsDataObject.getUpdatedAt()));
 		ga4ghDataObject.setUrls(determineUrls(irodsDataObject.getAbsolutePath()));
-
+		ga4ghDataObject.setVersion("0");
+		return ga4ghDataObject;
 	}
 
 	protected String determineMimeType(final String irodsPath) throws DataNotFoundException, JargonException {
@@ -151,7 +152,15 @@ public class IrodsDataObjectService extends DataObjectService {
 		} else {
 
 			Ga4ghURL ga4ghUrl = new Ga4ghURL();
+			StringBuilder sb = new StringBuilder();
+			sb.append(this.getDosConfiguration().getUrlPrefix());
+			sb.append(irodsPath);
+			ga4ghUrl.setUrl(sb.toString());
+			urls.add(ga4ghUrl);
+			// TODO: add system and user metadata?
 		}
+
+		return urls;
 
 	}
 

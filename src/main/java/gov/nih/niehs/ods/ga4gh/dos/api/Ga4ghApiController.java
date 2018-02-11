@@ -28,7 +28,7 @@ import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataBundleRequest;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataBundleResponse;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataObjectRequest;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataObjectResponse;
-import gov.nih.niehs.ods.ga4gh.services.IdTranslationServiceFactory;
+import gov.nih.niehs.ods.ga4gh.services.ServiceFactory;
 import io.swagger.annotations.ApiParam;
 
 @javax.annotation.Generated(value = "gov.nih.niehs.ods.ga4gh.dos.codegen.languages.SpringCodegen", date = "2018-02-03T00:47:18.655Z")
@@ -41,7 +41,7 @@ public class Ga4ghApiController implements Ga4ghApi {
 	 * ids to iRODS paths and vice versa
 	 */
 	@Autowired
-	IdTranslationServiceFactory idTranslationServiceFactory;
+	ServiceFactory idTranslationServiceFactory;
 
 	@Override
 	public ResponseEntity<Ga4ghCreateDataBundleResponse> createDataBundle(
@@ -131,11 +131,11 @@ public class Ga4ghApiController implements Ga4ghApi {
 		return new ResponseEntity<Ga4ghUpdateDataObjectResponse>(HttpStatus.OK);
 	}
 
-	public IdTranslationServiceFactory getIdTranslationServiceFactory() {
+	public ServiceFactory getIdTranslationServiceFactory() {
 		return idTranslationServiceFactory;
 	}
 
-	public void setIdTranslationServiceFactory(IdTranslationServiceFactory idTranslationServiceFactory) {
+	public void setIdTranslationServiceFactory(ServiceFactory idTranslationServiceFactory) {
 		this.idTranslationServiceFactory = idTranslationServiceFactory;
 	}
 

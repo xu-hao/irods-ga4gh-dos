@@ -17,7 +17,7 @@ import gov.nih.niehs.ods.ga4gh.services.IdTranslationServiceFactory;
 public class IrodsIdTranslationServiceFactory extends IdTranslationServiceFactory {
 
 	@Override
-	public IdTranslationService insance(IRODSAccount irodsAccount) {
+	public IdTranslationService instance(IRODSAccount irodsAccount) {
 		if (irodsAccount == null) {
 			throw new IllegalArgumentException("null irodsAccount");
 		}
