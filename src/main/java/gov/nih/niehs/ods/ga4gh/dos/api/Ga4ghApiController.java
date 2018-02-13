@@ -2,6 +2,9 @@ package gov.nih.niehs.ods.ga4gh.dos.api;
 
 import javax.validation.Valid;
 
+import org.irods.jargon.rest.security.RestAuthUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,10 +13,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import gov.nih.niehs.ods.ga4gh.dos.exception.DosDataNotFoundException;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghCreateDataBundleRequest;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghCreateDataBundleResponse;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghCreateDataObjectRequest;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghCreateDataObjectResponse;
+import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghDataObject;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghDeleteDataBundleResponse;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghDeleteDataObjectResponse;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghGetDataBundleResponse;
@@ -28,7 +33,11 @@ import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataBundleRequest;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataBundleResponse;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataObjectRequest;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataObjectResponse;
-import gov.nih.niehs.ods.ga4gh.services.ServiceFactory;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.services.DataObjectService;
+import gov.nih.niehs.ods.ga4gh.services.DataObjectServiceFactory;
+import gov.nih.niehs.ods.ga4gh.services.IdTranslationService;
+import gov.nih.niehs.ods.ga4gh.services.IdTranslationServiceFactory;
 import io.swagger.annotations.ApiParam;
 
 @javax.annotation.Generated(value = "gov.nih.niehs.ods.ga4gh.dos.codegen.languages.SpringCodegen", date = "2018-02-03T00:47:18.655Z")
@@ -37,11 +46,26 @@ import io.swagger.annotations.ApiParam;
 public class Ga4ghApiController implements Ga4ghApi {
 
 	/**
-	 * Spring injected factory {@lin IdTranslationServiceFactory} for translating
+	 * Spring injected factory {@link IdTranslationServiceFactory} for translating
 	 * ids to iRODS paths and vice versa
 	 */
 	@Autowired
-	ServiceFactory idTranslationServiceFactory;
+	IdTranslationServiceFactory idTranslationServiceFactory;
+
+	/**
+	 * {@link DataObjectServiceFactory} for the data object service which is the
+	 * primary vehicle for iRODS access
+	 */
+	@Autowired
+	DataObjectServiceFactory dataObjectServiceFactory;
+
+	/**
+	 * {@link DosConfiguration} with general configs
+	 */
+	@Autowired
+	DosConfiguration dosConfiguration;
+
+	public static final Logger log = LoggerFactory.getLogger(Ga4ghApiController.class);
 
 	@Override
 	public ResponseEntity<Ga4ghCreateDataBundleResponse> createDataBundle(
@@ -90,8 +114,37 @@ public class Ga4ghApiController implements Ga4ghApi {
 	public ResponseEntity<Ga4ghGetDataObjectResponse> getDataObject(
 			@ApiParam(value = "", required = true) @PathVariable("data_object_id") String dataObjectId,
 			@ApiParam(value = "OPTIONAL If provided will return the requested version of the selected Data Object.") @RequestParam(value = "version", required = false) String version) {
-		// do some magic!
-		return new ResponseEntity<Ga4ghGetDataObjectResponse>(HttpStatus.OK);
+
+		log.info("getDataObject()");
+
+		if (dataObjectId == null || dataObjectId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty dataObjectId");
+		}
+
+		log.info("dataObjectId:{}", dataObjectId);
+
+		log.debug("translating id to iRODS path");
+		IdTranslationService idTranslationService = this.getIdTranslationServiceFactory()
+				.instance(RestAuthUtils.irodsAccountFromContext());
+		DataObjectService dataObjectService = this.getDataObjectServiceFactory()
+				.instance(RestAuthUtils.irodsAccountFromContext());
+
+		ResponseEntity<Ga4ghGetDataObjectResponse> responseEntity;
+		try {
+			String irodsPath = idTranslationService.irodsPathFromIdentifier(dataObjectId);
+			log.debug("translated path:{}", irodsPath);
+			Ga4ghDataObject dataObject = dataObjectService.retrieveDataObjectFromIrodsPath(irodsPath);
+			Ga4ghGetDataObjectResponse response = new Ga4ghGetDataObjectResponse();
+			response.setDataObject(dataObject);
+			log.debug("data object response:{}", response);
+			responseEntity = new ResponseEntity<Ga4ghGetDataObjectResponse>(response, HttpStatus.OK);
+
+		} catch (DosDataNotFoundException e) {
+			log.warn("unable to find iRODS path from id:{}", dataObjectId);
+			responseEntity = new ResponseEntity<Ga4ghGetDataObjectResponse>(HttpStatus.NOT_FOUND);
+		}
+
+		return responseEntity;
 	}
 
 	@Override
@@ -131,12 +184,28 @@ public class Ga4ghApiController implements Ga4ghApi {
 		return new ResponseEntity<Ga4ghUpdateDataObjectResponse>(HttpStatus.OK);
 	}
 
-	public ServiceFactory getIdTranslationServiceFactory() {
+	public IdTranslationServiceFactory getIdTranslationServiceFactory() {
 		return idTranslationServiceFactory;
 	}
 
-	public void setIdTranslationServiceFactory(ServiceFactory idTranslationServiceFactory) {
+	public void setIdTranslationServiceFactory(IdTranslationServiceFactory idTranslationServiceFactory) {
 		this.idTranslationServiceFactory = idTranslationServiceFactory;
+	}
+
+	public DataObjectServiceFactory getDataObjectServiceFactory() {
+		return dataObjectServiceFactory;
+	}
+
+	public void setDataObjectServiceFactory(DataObjectServiceFactory dataObjectServiceFactory) {
+		this.dataObjectServiceFactory = dataObjectServiceFactory;
+	}
+
+	public DosConfiguration getDosConfiguration() {
+		return dosConfiguration;
+	}
+
+	public void setDosConfiguration(DosConfiguration dosConfiguration) {
+		this.dosConfiguration = dosConfiguration;
 	}
 
 }

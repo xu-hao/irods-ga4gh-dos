@@ -117,7 +117,7 @@ public class IrodsDataObjectService extends DataObjectService {
 		ga4ghDataObject.setCreated(new DateTime(irodsDataObject.getCreatedAt()));
 		ga4ghDataObject.setDescription("irods data object"); // TODO: consider other metadata value?
 		ga4ghDataObject.setMimeType(determineMimeType(irodsDataObject.getAbsolutePath()));
-		ga4ghDataObject.setName(irodsDataObject.getDataName());
+		ga4ghDataObject.setName(irodsDataObject.getAbsolutePath());
 		ga4ghDataObject.setSize(String.valueOf(irodsDataObject.getDataSize()));
 		ga4ghDataObject.setUpdated(new DateTime(irodsDataObject.getUpdatedAt()));
 		ga4ghDataObject.setUrls(determineUrls(irodsDataObject.getAbsolutePath()));
