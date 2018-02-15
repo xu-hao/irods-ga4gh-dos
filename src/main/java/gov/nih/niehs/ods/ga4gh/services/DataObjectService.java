@@ -8,7 +8,8 @@ import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 
 import gov.nih.niehs.ods.ga4gh.dos.exception.DosDataNotFoundException;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghDataObject;
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.PropsBasedDosConfiguration;
 
 /**
  * @author Mike Conway - NIEHS
@@ -22,10 +23,10 @@ public abstract class DataObjectService extends AbstractDosService {
 	 * @param irodsAccount
 	 *            {@link IRODSAccount} associated with this user
 	 * @param dosConfiguration
-	 *            {@link DosConfiguration} that sets site-specific properties
+	 *            {@link PropsBasedDosConfiguration} that sets site-specific properties
 	 */
 	public DataObjectService(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
-			DosConfiguration dosConfiguration) {
+			DosConfigInterface dosConfiguration) {
 		super(irodsAccessObjectFactory, irodsAccount, dosConfiguration);
 	}
 

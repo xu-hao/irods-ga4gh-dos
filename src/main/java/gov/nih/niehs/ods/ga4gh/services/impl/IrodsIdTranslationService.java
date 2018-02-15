@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.nih.niehs.ods.ga4gh.dos.exception.DosDataNotFoundException;
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.PropsBasedDosConfiguration;
 import gov.nih.niehs.ods.ga4gh.services.IdTranslationService;
 
 /**
@@ -29,10 +30,10 @@ public class IrodsIdTranslationService extends IdTranslationService {
 	 * @param irodsAccount
 	 *            {@link IRODSAccount} associated with this user
 	 * @param dosConfiguration
-	 *            {@link DosConfiguration} that sets site-specific properties
+	 *            {@link PropsBasedDosConfiguration} that sets site-specific properties
 	 **/
 	public IrodsIdTranslationService(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
-			DosConfiguration dosConfiguration) {
+			DosConfigInterface dosConfiguration) {
 		super(irodsAccessObjectFactory, irodsAccount, dosConfiguration);
 	}
 

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import gov.nih.niehs.ods.ga4gh.dos.exception.DosRuntimeException;
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
 
 /**
  * @author Mike Conway - DICE (www.irods.org)
@@ -76,7 +76,7 @@ public class RestAuthUtils {
 	 * @throws JargonException
 	 */
 	public static IRODSAccount getIRODSAccountFromUserPassword(final String user, final String password,
-			final DosConfiguration restConfiguration) {
+			final DosConfigInterface restConfiguration) {
 		log.info("getIRODSAccountFromUserPassword()");
 		if (user == null || user.isEmpty()) {
 			throw new IllegalArgumentException("null user");
@@ -130,7 +130,7 @@ public class RestAuthUtils {
 	 * @throws JargonException
 	 */
 	public static IRODSAccount getIRODSAccountFromBasicAuthValues(final String basicAuthData,
-			final DosConfiguration restConfiguration) throws JargonException {
+			final DosConfigInterface restConfiguration) throws JargonException {
 
 		log.info("getIRODSAccountFromBasicAuthValues");
 
@@ -189,22 +189,8 @@ public class RestAuthUtils {
 
 	}
 
-	private static AuthScheme determineAuthSchemeFromConfig(final DosConfiguration restConfiguration) {
-		AuthScheme authScheme;
-		if (restConfiguration.getAuthType() == null || restConfiguration.getAuthType().isEmpty()) {
-			log.info("unspecified authType, use STANDARD");
-			authScheme = AuthScheme.STANDARD;
-		} else if (restConfiguration.getAuthType().equals(AuthScheme.STANDARD.toString())) {
-			log.info("using standard auth");
-			authScheme = AuthScheme.STANDARD;
-		} else if (restConfiguration.getAuthType().equals(AuthScheme.PAM.toString())) {
-			log.info("using PAM");
-			authScheme = AuthScheme.PAM;
-		} else {
-			log.error("cannot support authScheme:{}", restConfiguration);
-			throw new DosRuntimeException("unknown or unsupported auth scheme");
-		}
-		return authScheme;
+	private static AuthScheme determineAuthSchemeFromConfig(final DosConfigInterface restConfiguration) {
+		return restConfiguration.getAuthScheme();
 	}
 
 	/**
@@ -214,7 +200,7 @@ public class RestAuthUtils {
 	 * @return <code>IRODSAccount</code> suitable for anonymous access
 	 * @throws JargonException
 	 */
-	public static IRODSAccount instanceForAnonymous(final DosConfiguration restConfiguration) throws JargonException {
+	public static IRODSAccount instanceForAnonymous(final DosConfigInterface restConfiguration) throws JargonException {
 
 		if (restConfiguration == null) {
 			throw new IllegalArgumentException("null restConfiguration");

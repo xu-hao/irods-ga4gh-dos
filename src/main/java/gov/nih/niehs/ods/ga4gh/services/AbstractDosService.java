@@ -4,7 +4,8 @@ import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.service.AbstractJargonService;
 
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.PropsBasedDosConfiguration;
 
 /**
  * Abstract superclass for a service layer object within DOS
@@ -15,9 +16,9 @@ import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 public abstract class AbstractDosService extends AbstractJargonService {
 
 	/**
-	 * {@link DosConfiguration} with site-specific config parameters
+	 * {@link PropsBasedDosConfiguration} with site-specific config parameters
 	 */
-	private final DosConfiguration dosConfiguration;
+	private final DosConfigInterface dosConfiguration;
 
 	/**
 	 * Base constructor
@@ -27,10 +28,10 @@ public abstract class AbstractDosService extends AbstractJargonService {
 	 * @param irodsAccount
 	 *            {@link IRODSAccount} associated with this user
 	 * @param dosConfiguration
-	 *            {@link DosConfiguration} that sets site-specific properties
+	 *            {@link PropsBasedDosConfiguration} that sets site-specific properties
 	 */
 	public AbstractDosService(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
-			DosConfiguration dosConfiguration) {
+			DosConfigInterface dosConfiguration) {
 		super(irodsAccessObjectFactory, irodsAccount);
 		if (dosConfiguration == null) {
 			throw new IllegalArgumentException("null dosConfiguration");
@@ -38,7 +39,7 @@ public abstract class AbstractDosService extends AbstractJargonService {
 		this.dosConfiguration = dosConfiguration;
 	}
 
-	public DosConfiguration getDosConfiguration() {
+	public DosConfigInterface getDosConfiguration() {
 		return dosConfiguration;
 	}
 

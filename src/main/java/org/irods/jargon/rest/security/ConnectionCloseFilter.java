@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
 
 /**
  * Servlet filter implements basic auth
@@ -31,7 +31,7 @@ public class ConnectionCloseFilter implements Filter {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
-	private DosConfiguration restConfiguration;
+	private DosConfigInterface restConfiguration;
 	@Autowired
 	private IRODSAccessObjectFactory irodsAccessObjectFactory;
 
@@ -76,7 +76,7 @@ public class ConnectionCloseFilter implements Filter {
 	/**
 	 * @return the restConfiguration
 	 */
-	public DosConfiguration getRestConfiguration() {
+	public DosConfigInterface getRestConfiguration() {
 		return restConfiguration;
 	}
 
@@ -84,7 +84,7 @@ public class ConnectionCloseFilter implements Filter {
 	 * @param restConfiguration
 	 *            the restConfiguration to set
 	 */
-	public void setRestConfiguration(final DosConfiguration restConfiguration) {
+	public void setRestConfiguration(final DosConfigInterface restConfiguration) {
 		this.restConfiguration = restConfiguration;
 	}
 

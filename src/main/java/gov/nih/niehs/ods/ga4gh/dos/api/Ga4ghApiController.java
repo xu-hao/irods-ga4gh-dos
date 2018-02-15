@@ -33,7 +33,8 @@ import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataBundleRequest;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataBundleResponse;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataObjectRequest;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghUpdateDataObjectResponse;
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.PropsBasedDosConfiguration;
 import gov.nih.niehs.ods.ga4gh.services.DataObjectService;
 import gov.nih.niehs.ods.ga4gh.services.DataObjectServiceFactory;
 import gov.nih.niehs.ods.ga4gh.services.IdTranslationService;
@@ -60,10 +61,10 @@ public class Ga4ghApiController implements Ga4ghApi {
 	DataObjectServiceFactory dataObjectServiceFactory;
 
 	/**
-	 * {@link DosConfiguration} with general configs
+	 * {@link PropsBasedDosConfiguration} with general configs
 	 */
 	@Autowired
-	DosConfiguration dosConfiguration;
+	DosConfigInterface dosConfiguration;
 
 	public static final Logger log = LoggerFactory.getLogger(Ga4ghApiController.class);
 
@@ -200,11 +201,11 @@ public class Ga4ghApiController implements Ga4ghApi {
 		this.dataObjectServiceFactory = dataObjectServiceFactory;
 	}
 
-	public DosConfiguration getDosConfiguration() {
+	public DosConfigInterface getDosConfiguration() {
 		return dosConfiguration;
 	}
 
-	public void setDosConfiguration(DosConfiguration dosConfiguration) {
+	public void setDosConfiguration(DosConfigInterface dosConfiguration) {
 		this.dosConfiguration = dosConfiguration;
 	}
 

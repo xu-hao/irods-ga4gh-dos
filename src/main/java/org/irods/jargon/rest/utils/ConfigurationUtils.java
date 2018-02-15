@@ -3,7 +3,7 @@
  */
 package org.irods.jargon.rest.utils;
 
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
 
 /**
  * Various utils for handling REST configuration information
@@ -23,7 +23,7 @@ public class ConfigurationUtils {
 	 * @return
 	 */
 	public static String buildIrodsEnvForConfigAndUser(
-			final DosConfiguration restConfiguration, final String userName) {
+			final DosConfigInterface restConfiguration, final String userName) {
 
 		if (restConfiguration == null) {
 			throw new IllegalArgumentException("null restConfiguration");

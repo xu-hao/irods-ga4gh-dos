@@ -18,7 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghDataObject;
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfig;
 import gov.nih.niehs.ods.ga4gh.services.DataObjectService;
 
 public class IrodsDataObjectServiceTest {
@@ -69,7 +69,7 @@ public class IrodsDataObjectServiceTest {
 		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
 
 		DataTyperSettings dataTyperSettings = new DataTyperSettings();
-		DosConfiguration dosConfig = new DosConfiguration();
+		DosConfig dosConfig = new DosConfig();
 		dosConfig.setUrlPrefix("https://localhost/emc-metalnx-irods/collectionInfo");
 
 		IrodsextDataTypeResolutionServiceFactoryImpl dataTypeResolutionServiceFactory = new IrodsextDataTypeResolutionServiceFactoryImpl();

@@ -18,7 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
 
 /**
  * Spring security configurer
@@ -30,7 +30,7 @@ import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private DosConfiguration restConfiguration;
+	private DosConfigInterface restConfiguration;
 	@Autowired
 	private IRODSSession irodsSession;
 	@Autowired
@@ -47,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	/**
 	 * @return the restConfiguration
 	 */
-	public DosConfiguration getRestConfiguration() {
+	public DosConfigInterface getRestConfiguration() {
 		return restConfiguration;
 	}
 
@@ -55,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * @param restConfiguration
 	 *            the restConfiguration to set
 	 */
-	public void setRestConfiguration(DosConfiguration restConfiguration) {
+	public void setRestConfiguration(DosConfigInterface restConfiguration) {
 		this.restConfiguration = restConfiguration;
 	}
 

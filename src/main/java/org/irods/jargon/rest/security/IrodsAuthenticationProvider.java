@@ -16,7 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
 
 /**
  * Spring security authentication provider for iRODS
@@ -28,7 +28,7 @@ import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
 public class IrodsAuthenticationProvider implements AuthenticationProvider {
 
 	@Autowired
-	private DosConfiguration restConfiguration;
+	private DosConfigInterface restConfiguration;
 	@Autowired
 	private IRODSSession irodsSession;
 	@Autowired
@@ -86,7 +86,7 @@ public class IrodsAuthenticationProvider implements AuthenticationProvider {
 	/**
 	 * @return the restConfiguration
 	 */
-	public DosConfiguration getRestConfiguration() {
+	public DosConfigInterface getRestConfiguration() {
 		return restConfiguration;
 	}
 
@@ -94,7 +94,7 @@ public class IrodsAuthenticationProvider implements AuthenticationProvider {
 	 * @param restConfiguration
 	 *            the restConfiguration to set
 	 */
-	public void setRestConfiguration(DosConfiguration restConfiguration) {
+	public void setRestConfiguration(DosConfigInterface restConfiguration) {
 		this.restConfiguration = restConfiguration;
 	}
 

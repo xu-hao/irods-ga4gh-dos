@@ -11,7 +11,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfiguration;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.PropsBasedDosConfiguration;
 
 public class IrodsIdTranslationServiceTest {
 
@@ -34,7 +35,7 @@ public class IrodsIdTranslationServiceTest {
 		String testPath = "/a/test/path";
 		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
 		IRODSAccessObjectFactory irodsAccessObjectFactory = Mockito.mock(IRODSAccessObjectFactory.class);
-		DosConfiguration dosConfiguration = new DosConfiguration();
+		DosConfigInterface dosConfiguration = new PropsBasedDosConfiguration();
 		IrodsIdTranslationService txlate = new IrodsIdTranslationService(irodsAccessObjectFactory, irodsAccount,
 				dosConfiguration);
 		String actual = txlate.irodsPathFromIdentifier(testPath);

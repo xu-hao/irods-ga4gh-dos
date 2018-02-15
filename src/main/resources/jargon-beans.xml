@@ -22,46 +22,10 @@
 		<beans:constructor-arg ref="irodsSession" />
 	</beans:bean>
 
-	<beans:bean id="restConfiguration"
-		class="org.irods.jargon.rest.configuration.RestConfiguration">
-		<beans:property name="irodsHost" value="${irods.host}" />
-		<beans:property name="irodsPort" value="${irods.port}" />
-		<beans:property name="irodsZone" value="${irods.zone}" />
-		<beans:property name="utilizePackingStreams" value="${utilize.packing.streams}"/>
-		<beans:property name="authType" value="${auth.type}" /> <!--  STANDARD,PAM -->
-		<beans:property name="defaultStorageResource" value="${default.storage.resource}" />
-		<beans:property name="webInterfaceURL"
-			value="${web.interface.url}" />
-		<beans:property name="allowCors" value="true" />
-		<beans:property name="corsAllowCredentials" value="${cors.allow}" />
-		<beans:property name="corsOrigins">
-			<util:list id="myList" value-type="java.lang.String">
-				<beans:value>*</beans:value>
-			</util:list>
-		</beans:property>
-		<beans:property name="corsMethods">
-			<util:list id="methodsList" value-type="java.lang.String">
-				<beans:value>GET</beans:value>
-				<beans:value>POST</beans:value>
-				<beans:value>DELETE</beans:value>
-				<beans:value>PUT</beans:value>
-			</util:list>
-		</beans:property>
-		<beans:property name="corsAllowedHeaders">
-			<util:list id="headersList" value-type="java.lang.String">
-				<beans:value>x-requested-with</beans:value>
-				<beans:value>x-requested-by</beans:value>
-			</util:list>
-		</beans:property>
-		<beans:property name="sslNegotiationPolicy" value="${ssl.negotiation.policy}" />
-		<beans:property name="computeChecksum" value="${compute.checksum}" />
-
-	</beans:bean>
-	
     <beans:bean id="startupConfigurator" class="org.irods.jargon.rest.configuration.StartupConfigurator" init-method="init">
     	<beans:property name="irodsSession" ref="irodsSession" />
     	<beans:property name="irodsAccessObjectFactory" ref="irodsAccessObjectFactory" />
-         <beans:property name="restConfiguration" ref="restConfiguration" />
+         <beans:property name="dosConfiguration" ref="dosConfiguration" />
     </beans:bean>
 
 </beans:beans>
