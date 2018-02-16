@@ -24,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghGetDataObjectResponse;
 import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfig;
 import gov.nih.niehs.ods.ga4gh.services.DataObjectService;
-import gov.nih.niehs.ods.ga4gh.services.IdTranslationServiceFactory;
 import gov.nih.niehs.ods.ga4gh.services.impl.IrodsDataObjectServiceFactory;
 import gov.nih.niehs.ods.ga4gh.services.impl.IrodsIdTranslationServiceFactory;
 
@@ -90,13 +89,13 @@ public class Ga4ghApiControllerTest {
 
 		DataObjectService dos = dataObjectServiceFactory.instance(irodsAccount);
 
-		IdTranslationServiceFactory idTranslationServiceFactory = new IrodsIdTranslationServiceFactory();
+		IrodsIdTranslationServiceFactory idTranslationServiceFactory = new IrodsIdTranslationServiceFactory();
 		idTranslationServiceFactory.setDosConfiguration(dosConfig);
 		idTranslationServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
 
 		Ga4ghApiController ga4ghApiController = new Ga4ghApiController();
-		ga4ghApiController.setDataObjectServiceFactory(dataObjectServiceFactory);
-		ga4ghApiController.setIdTranslationServiceFactory(idTranslationServiceFactory);
+		ga4ghApiController.setIrodsDataObjectServiceFactory(dataObjectServiceFactory);
+		ga4ghApiController.setIrodsIdTranslationServiceFactory(idTranslationServiceFactory);
 		AuthResponse resp = irodsFileSystem.getIRODSAccessObjectFactory().authenticateIRODSAccount(irodsAccount);
 		IrodsAuthentication auth = new IrodsAuthentication(irodsAccount, resp);
 		SecurityContextHolder.getContext().setAuthentication(auth);

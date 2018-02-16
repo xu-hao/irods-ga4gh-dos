@@ -22,10 +22,23 @@
 		<beans:constructor-arg ref="irodsSession" />
 	</beans:bean>
 
-    <beans:bean id="startupConfigurator" class="org.irods.jargon.rest.configuration.StartupConfigurator" init-method="init">
+    <beans:bean id="startupConfigurator" class="gov.nih.niehs.ods.ga4gh.rest.configuration.StartupConfigurator" init-method="init">
     	<beans:property name="irodsSession" ref="irodsSession" />
     	<beans:property name="irodsAccessObjectFactory" ref="irodsAccessObjectFactory" />
          <beans:property name="dosConfiguration" ref="dosConfiguration" />
     </beans:bean>
+    
+    <!-- settings to influence the behavior of the 'home pages' for data objects 
+		and collections -->
+	<beans:bean id="dataTyperSettings" class="org.irods.jargon.extensions.datatyper.DataTyperSettings">
+		<beans:property name="persistDataTypes" value="${irodsext.datatyper.persist.data.types}" />
+		<beans:property name="detailedDetermination" value="${irodsext.datatyper.detailed.determination}" />
+	</beans:bean>
+
+	<beans:bean id="dataTypeResolutionServiceFactory"
+		class="org.irodsext.datatyper.IrodsextDataTypeResolutionServiceFactoryImpl">
+		<beans:property name="irodsAccessObjectFactory" ref="irodsAccessObjectFactory" />
+		<beans:property name="dataTyperSettings" ref="dataTyperSettings" />
+	</beans:bean>
 
 </beans:beans>

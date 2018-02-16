@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfig
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ImportResource;
 
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -17,7 +18,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication(exclude = { HibernateJpaAutoConfiguration.class, JpaRepositoriesAutoConfiguration.class })
 @EnableSwagger2
-@ComponentScan(basePackages = { "gov.nih.niehs.ods.ga4gh.dos", "gov.nih.niehs.ods.ga4gh.dos.api" })
+@ImportResource(locations = { "classpath:/jargon-beans.xml" })
+@ComponentScan(basePackages = { "gov.nih.niehs.ods.ga4gh.dos.*", "org.irods.jargon.rest.*",
+		"gov.nih.niehs.ods.ga4gh.rest.*", "gov.nih.niehs.ods.ga4gh.services.*" })
 public class Swagger2SpringBoot implements CommandLineRunner {
 
 	@Bean

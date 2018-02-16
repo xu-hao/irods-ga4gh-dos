@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfigInterface;
+import gov.nih.niehs.ods.ga4gh.rest.configuration.PropsBasedDosConfiguration;
 
 /**
  * Servlet filter implements basic auth
@@ -31,7 +31,7 @@ public class ConnectionCloseFilter implements Filter {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
-	private DosConfigInterface restConfiguration;
+	private PropsBasedDosConfiguration propsBasedDosConfiguration;
 	@Autowired
 	private IRODSAccessObjectFactory irodsAccessObjectFactory;
 
@@ -58,8 +58,7 @@ public class ConnectionCloseFilter implements Filter {
 	 * javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
 	@Override
-	public void doFilter(final ServletRequest request,
-			final ServletResponse response, final FilterChain chain)
+	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
 			throws IOException, ServletException {
 
 		log.info("doFilter()");
@@ -74,21 +73,6 @@ public class ConnectionCloseFilter implements Filter {
 	}
 
 	/**
-	 * @return the restConfiguration
-	 */
-	public DosConfigInterface getRestConfiguration() {
-		return restConfiguration;
-	}
-
-	/**
-	 * @param restConfiguration
-	 *            the restConfiguration to set
-	 */
-	public void setRestConfiguration(final DosConfigInterface restConfiguration) {
-		this.restConfiguration = restConfiguration;
-	}
-
-	/**
 	 * @return the irodsAccessObjectFactory
 	 */
 	public IRODSAccessObjectFactory getIrodsAccessObjectFactory() {
@@ -99,14 +83,21 @@ public class ConnectionCloseFilter implements Filter {
 	 * @param irodsAccessObjectFactory
 	 *            the irodsAccessObjectFactory to set
 	 */
-	public void setIrodsAccessObjectFactory(
-			final IRODSAccessObjectFactory irodsAccessObjectFactory) {
+	public void setIrodsAccessObjectFactory(final IRODSAccessObjectFactory irodsAccessObjectFactory) {
 		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
 	}
 
 	@Override
 	public void destroy() {
 
+	}
+
+	public PropsBasedDosConfiguration getPropsBasedDosConfiguration() {
+		return propsBasedDosConfiguration;
+	}
+
+	public void setPropsBasedDosConfiguration(PropsBasedDosConfiguration propsBasedDosConfiguration) {
+		this.propsBasedDosConfiguration = propsBasedDosConfiguration;
 	}
 
 }

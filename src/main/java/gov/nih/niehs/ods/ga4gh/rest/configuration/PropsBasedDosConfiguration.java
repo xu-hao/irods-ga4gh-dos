@@ -5,9 +5,9 @@ package gov.nih.niehs.ods.ga4gh.rest.configuration;
 
 import org.irods.jargon.core.connection.AuthScheme;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import gov.nih.niehs.ods.ga4gh.dos.exception.DosSystemException;
 
@@ -17,7 +17,7 @@ import gov.nih.niehs.ods.ga4gh.dos.exception.DosSystemException;
  * @author mconway
  *
  */
-@Configuration // FIXME: make source a prop that can be in test/resources
+@Component // FIXME: make source a prop that can be in test/resources
 @PropertySource("file:///Users/conwaymc/Documents/docker/ga4gh/etc/irods-ext/ga4gh.properties")
 public class PropsBasedDosConfiguration implements DosConfigInterface {
 

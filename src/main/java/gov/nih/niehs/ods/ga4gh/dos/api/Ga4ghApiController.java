@@ -39,6 +39,8 @@ import gov.nih.niehs.ods.ga4gh.services.DataObjectService;
 import gov.nih.niehs.ods.ga4gh.services.DataObjectServiceFactory;
 import gov.nih.niehs.ods.ga4gh.services.IdTranslationService;
 import gov.nih.niehs.ods.ga4gh.services.IdTranslationServiceFactory;
+import gov.nih.niehs.ods.ga4gh.services.impl.IrodsDataObjectServiceFactory;
+import gov.nih.niehs.ods.ga4gh.services.impl.IrodsIdTranslationServiceFactory;
 import io.swagger.annotations.ApiParam;
 
 @javax.annotation.Generated(value = "gov.nih.niehs.ods.ga4gh.dos.codegen.languages.SpringCodegen", date = "2018-02-03T00:47:18.655Z")
@@ -51,14 +53,14 @@ public class Ga4ghApiController implements Ga4ghApi {
 	 * ids to iRODS paths and vice versa
 	 */
 	@Autowired
-	IdTranslationServiceFactory idTranslationServiceFactory;
+	IrodsIdTranslationServiceFactory irodsIdTranslationServiceFactory;
 
 	/**
 	 * {@link DataObjectServiceFactory} for the data object service which is the
 	 * primary vehicle for iRODS access
 	 */
 	@Autowired
-	DataObjectServiceFactory dataObjectServiceFactory;
+	IrodsDataObjectServiceFactory irodsDataObjectServiceFactory;
 
 	/**
 	 * {@link PropsBasedDosConfiguration} with general configs
@@ -125,9 +127,9 @@ public class Ga4ghApiController implements Ga4ghApi {
 		log.info("dataObjectId:{}", dataObjectId);
 
 		log.debug("translating id to iRODS path");
-		IdTranslationService idTranslationService = this.getIdTranslationServiceFactory()
+		IdTranslationService idTranslationService = this.getIrodsIdTranslationServiceFactory()
 				.instance(RestAuthUtils.irodsAccountFromContext());
-		DataObjectService dataObjectService = this.getDataObjectServiceFactory()
+		DataObjectService dataObjectService = this.getIrodsDataObjectServiceFactory()
 				.instance(RestAuthUtils.irodsAccountFromContext());
 
 		ResponseEntity<Ga4ghGetDataObjectResponse> responseEntity;
@@ -185,28 +187,28 @@ public class Ga4ghApiController implements Ga4ghApi {
 		return new ResponseEntity<Ga4ghUpdateDataObjectResponse>(HttpStatus.OK);
 	}
 
-	public IdTranslationServiceFactory getIdTranslationServiceFactory() {
-		return idTranslationServiceFactory;
-	}
-
-	public void setIdTranslationServiceFactory(IdTranslationServiceFactory idTranslationServiceFactory) {
-		this.idTranslationServiceFactory = idTranslationServiceFactory;
-	}
-
-	public DataObjectServiceFactory getDataObjectServiceFactory() {
-		return dataObjectServiceFactory;
-	}
-
-	public void setDataObjectServiceFactory(DataObjectServiceFactory dataObjectServiceFactory) {
-		this.dataObjectServiceFactory = dataObjectServiceFactory;
-	}
-
 	public DosConfigInterface getDosConfiguration() {
 		return dosConfiguration;
 	}
 
 	public void setDosConfiguration(DosConfigInterface dosConfiguration) {
 		this.dosConfiguration = dosConfiguration;
+	}
+
+	public IrodsIdTranslationServiceFactory getIrodsIdTranslationServiceFactory() {
+		return irodsIdTranslationServiceFactory;
+	}
+
+	public void setIrodsIdTranslationServiceFactory(IrodsIdTranslationServiceFactory irodsIdTranslationServiceFactory) {
+		this.irodsIdTranslationServiceFactory = irodsIdTranslationServiceFactory;
+	}
+
+	public IrodsDataObjectServiceFactory getIrodsDataObjectServiceFactory() {
+		return irodsDataObjectServiceFactory;
+	}
+
+	public void setIrodsDataObjectServiceFactory(IrodsDataObjectServiceFactory irodsDataObjectServiceFactory) {
+		this.irodsDataObjectServiceFactory = irodsDataObjectServiceFactory;
 	}
 
 }

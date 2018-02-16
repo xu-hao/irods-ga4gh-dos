@@ -7,6 +7,7 @@ import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.extensions.datatyper.DataTypeResolutionService;
 import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import gov.nih.niehs.ods.ga4gh.services.DataObjectService;
 import gov.nih.niehs.ods.ga4gh.services.DataObjectServiceFactory;
@@ -17,6 +18,7 @@ import gov.nih.niehs.ods.ga4gh.services.DataObjectServiceFactory;
  * @author Mike Conway - NIEHS
  *
  */
+@Component("dataObjectServiceFactory")
 public class IrodsDataObjectServiceFactory extends DataObjectServiceFactory {
 
 	@Autowired
