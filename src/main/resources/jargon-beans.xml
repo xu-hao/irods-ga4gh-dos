@@ -11,6 +11,11 @@
 		class="org.irods.jargon.core.connection.IRODSSimpleProtocolManager"
 		factory-method="instance" init-method="initialize" destroy-method="destroy" />
 
+	<context:property-placeholder
+		location="file:///Users/conwaymc/Documents/docker/ga4gh/etc/irods-ext/ga4gh.properties" />
+
+	<context:component-scan base-package="org.irods.jargon.ga4gh.dos" />
+
 	<beans:bean id="irodsSession"
 		class="org.irods.jargon.core.connection.IRODSSession" factory-method="instance">
 		<beans:constructor-arg
@@ -22,17 +27,22 @@
 		<beans:constructor-arg ref="irodsSession" />
 	</beans:bean>
 
-    <beans:bean id="startupConfigurator" class="gov.nih.niehs.ods.ga4gh.rest.configuration.StartupConfigurator" init-method="init">
-    	<beans:property name="irodsSession" ref="irodsSession" />
-    	<beans:property name="irodsAccessObjectFactory" ref="irodsAccessObjectFactory" />
-         <beans:property name="dosConfiguration" ref="dosConfiguration" />
-    </beans:bean>
-    
-    <!-- settings to influence the behavior of the 'home pages' for data objects 
+	<beans:bean id="startupConfigurator"
+		class="org.irods.jargon.ga4gh.dos.configuration.StartupConfigurator"
+		init-method="init">
+		<beans:property name="irodsSession" ref="irodsSession" />
+		<beans:property name="irodsAccessObjectFactory" ref="irodsAccessObjectFactory" />
+		<beans:property name="dosConfiguration" ref="dosConfiguration" />
+	</beans:bean>
+
+	<!-- settings to influence the behavior of the 'home pages' for data objects 
 		and collections -->
-	<beans:bean id="dataTyperSettings" class="org.irods.jargon.extensions.datatyper.DataTyperSettings">
-		<beans:property name="persistDataTypes" value="${irodsext.datatyper.persist.data.types}" />
-		<beans:property name="detailedDetermination" value="${irodsext.datatyper.detailed.determination}" />
+	<beans:bean id="dataTyperSettings"
+		class="org.irods.jargon.extensions.datatyper.DataTyperSettings">
+		<beans:property name="persistDataTypes"
+			value="${irodsext.datatyper.persist.data.types}" />
+		<beans:property name="detailedDetermination"
+			value="${irodsext.datatyper.detailed.determination}" />
 	</beans:bean>
 
 	<beans:bean id="dataTypeResolutionServiceFactory"

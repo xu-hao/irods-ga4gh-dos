@@ -7,7 +7,13 @@ import org.irods.jargon.core.connection.auth.AuthResponse;
 import org.irods.jargon.core.pub.DataTransferOperations;
 import org.irods.jargon.core.pub.IRODSFileSystem;
 import org.irods.jargon.extensions.datatyper.DataTyperSettings;
-import org.irods.jargon.rest.security.IrodsAuthentication;
+import org.irods.jargon.ga4gh.dos.api.Ga4ghApiController;
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
+import org.irods.jargon.ga4gh.dos.model.Ga4ghGetDataObjectResponse;
+import org.irods.jargon.ga4gh.dos.security.IrodsAuthentication;
+import org.irods.jargon.ga4gh.dos.services.DataObjectService;
+import org.irods.jargon.ga4gh.dos.services.impl.IrodsDataObjectServiceFactory;
+import org.irods.jargon.ga4gh.dos.services.impl.IrodsIdTranslationServiceFactory;
 import org.irods.jargon.testutils.IRODSTestSetupUtilities;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
@@ -20,12 +26,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import gov.nih.niehs.ods.ga4gh.dos.model.Ga4ghGetDataObjectResponse;
-import gov.nih.niehs.ods.ga4gh.rest.configuration.DosConfig;
-import gov.nih.niehs.ods.ga4gh.services.DataObjectService;
-import gov.nih.niehs.ods.ga4gh.services.impl.IrodsDataObjectServiceFactory;
-import gov.nih.niehs.ods.ga4gh.services.impl.IrodsIdTranslationServiceFactory;
 
 public class Ga4ghApiControllerTest {
 
@@ -75,7 +75,7 @@ public class Ga4ghApiControllerTest {
 		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
 
 		DataTyperSettings dataTyperSettings = new DataTyperSettings();
-		DosConfig dosConfig = new DosConfig();
+		DosConfiguration dosConfig = new DosConfiguration();
 		dosConfig.setUrlPrefix("https://localhost/emc-metalnx-irods/collectionInfo");
 
 		IrodsextDataTypeResolutionServiceFactoryImpl dataTypeResolutionServiceFactory = new IrodsextDataTypeResolutionServiceFactoryImpl();
