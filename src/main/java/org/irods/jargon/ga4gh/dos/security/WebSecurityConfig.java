@@ -6,10 +6,10 @@ package org.irods.jargon.ga4gh.dos.security;
 import org.irods.jargon.core.connection.IRODSSession;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
-import org.irods.jargon.ga4gh.dos.utils.RestConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -22,6 +22,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
  * @author mconway
  *
  */
+@Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -82,8 +83,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		log.info("configure()");
 
 		http.authenticationProvider(irodsAuthenticationProvider).authorizeRequests().anyRequest().authenticated().and()
-				.httpBasic().realmName(RestConstants.DFC_REALM).authenticationEntryPoint(irodsBasicAuthEntryPoint).and()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.httpBasic().realmName(dosConfiguration.getRealm()).authenticationEntryPoint(irodsBasicAuthEntryPoint)
+				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(connectionCloseFilter, SecurityContextPersistenceFilter.class);
 	}
 
