@@ -4,6 +4,7 @@
 package org.irods.jargon.ga4gh.dos.services.impl;
 
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.extensions.datatyper.DataTypeResolutionService;
 import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.irods.jargon.ga4gh.dos.services.DataObjectService;
@@ -22,6 +23,9 @@ public class IrodsDataObjectServiceFactory extends DataObjectServiceFactory {
 
 	@Autowired
 	DataTypeResolutionServiceFactory dataTypeResolutionServiceFactory;
+
+	@Autowired
+	IRODSAccessObjectFactory irodsAccessObjectFactory;
 
 	@Override
 	public DataObjectService instance(IRODSAccount irodsAccount) {
@@ -43,6 +47,16 @@ public class IrodsDataObjectServiceFactory extends DataObjectServiceFactory {
 
 	public void setDataTypeResolutionServiceFactory(DataTypeResolutionServiceFactory dataTypeResolutionServiceFactory) {
 		this.dataTypeResolutionServiceFactory = dataTypeResolutionServiceFactory;
+	}
+
+	@Override
+	public IRODSAccessObjectFactory getIrodsAccessObjectFactory() {
+		return irodsAccessObjectFactory;
+	}
+
+	@Override
+	public void setIrodsAccessObjectFactory(IRODSAccessObjectFactory irodsAccessObjectFactory) {
+		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
 	}
 
 }

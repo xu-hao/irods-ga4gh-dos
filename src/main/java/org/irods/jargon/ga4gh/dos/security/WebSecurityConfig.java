@@ -9,12 +9,16 @@ import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
 
 /**
  * Spring security configurer
@@ -40,6 +44,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private ConnectionCloseFilter connectionCloseFilter;
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	@Bean
+	public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+		DefaultHttpFirewall firewall = new DefaultHttpFirewall();
+		firewall.setAllowUrlEncodedSlash(true);
+		return firewall;
+	}
+
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
+	}
 
 	/**
 	 * @return the irodsSession
