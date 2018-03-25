@@ -7,6 +7,7 @@ import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.extensions.datatyper.DataTypeResolutionService;
 import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.services.DataObjectService;
 import org.irods.jargon.ga4gh.dos.services.DataObjectServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class IrodsDataObjectServiceFactory extends DataObjectServiceFactory {
 
 	@Autowired
 	IRODSAccessObjectFactory irodsAccessObjectFactory;
+
+	@Autowired
+	DosConfiguration dosConfiguration;
 
 	@Override
 	public DataObjectService instance(IRODSAccount irodsAccount) {
@@ -57,6 +61,16 @@ public class IrodsDataObjectServiceFactory extends DataObjectServiceFactory {
 	@Override
 	public void setIrodsAccessObjectFactory(IRODSAccessObjectFactory irodsAccessObjectFactory) {
 		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
+	}
+
+	@Override
+	public DosConfiguration getDosConfiguration() {
+		return dosConfiguration;
+	}
+
+	@Override
+	public void setDosConfiguration(DosConfiguration dosConfiguration) {
+		this.dosConfiguration = dosConfiguration;
 	}
 
 }

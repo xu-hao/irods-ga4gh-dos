@@ -1,34 +1,32 @@
-package gov.nih.niehs.ods.ga4gh.services.impl;
+package org.irods.jargon.ga4gh.dos.services.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.pub.DataObjectAO;
 import org.irods.jargon.core.pub.DataTransferOperations;
 import org.irods.jargon.core.pub.IRODSFileSystem;
-import org.irods.jargon.extensions.datatyper.DataTyperSettings;
-import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
-import org.irods.jargon.ga4gh.dos.model.Ga4ghDataObject;
-import org.irods.jargon.ga4gh.dos.services.DataObjectService;
-import org.irods.jargon.ga4gh.dos.services.impl.GuidService;
-import org.irods.jargon.ga4gh.dos.services.impl.GuidServiceImpl;
-import org.irods.jargon.ga4gh.dos.services.impl.IrodsDataObjectServiceFactory;
+import org.irods.jargon.core.query.AVUQueryElement;
+import org.irods.jargon.core.query.MetaDataAndDomainData;
+import org.irods.jargon.core.query.QueryConditionOperators;
 import org.irods.jargon.testutils.IRODSTestSetupUtilities;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
 import org.irods.jargon.testutils.filemanip.ScratchFileUtils;
-import org.irodsext.datatyper.IrodsextDataTypeResolutionServiceFactoryImpl;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class IrodsDataObjectServiceTest {
+public class GuidServiceImplTest {
 
 	private static Properties testingProperties = new Properties();
 	private static TestingPropertiesHelper testingPropertiesHelper = new TestingPropertiesHelper();
 	private static ScratchFileUtils scratchFileUtils = null;
-	public static final String IRODS_TEST_SUBDIR_PATH = "IrodsDataObjectServiceTest";
+	public static final String IRODS_TEST_SUBDIR_PATH = "GuidServiceImplTest";
 	private static IRODSTestSetupUtilities irodsTestSetupUtilities = null;
 	private static IRODSFileSystem irodsFileSystem;
 
@@ -55,9 +53,9 @@ public class IrodsDataObjectServiceTest {
 	}
 
 	@Test
-	public void testGa4ghDataObjectFromIrodsDataObject() throws Exception {
+	public void testCreateGuidOnDataObject() throws Exception {
 		// generate a local scratch file
-		String testFileName = "testGa4ghDataObjectFromIrodsDataObject.txt";
+		String testFileName = "testCreateGuidOnDataObject.txt";
 		String absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
 		String localFileName = FileGenerator.generateFileOfFixedLengthGivenName(absPath, testFileName, 1);
 
@@ -67,32 +65,23 @@ public class IrodsDataObjectServiceTest {
 		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
 		DataTransferOperations dto = irodsFileSystem.getIRODSAccessObjectFactory()
 				.getDataTransferOperations(irodsAccount);
+		DataObjectAO dao = irodsFileSystem.getIRODSAccessObjectFactory().getDataObjectAO(irodsAccount);
 
 		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
 
 		GuidService guidService = new GuidServiceImpl(irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
 		String guid = guidService.createGuidOnDataObject(targetIrodsFile);
+		Assert.assertFalse("guid not returned", guid == null || guid.isEmpty());
+		List<AVUQueryElement> queryElements = new ArrayList<>();
 
-		DataTyperSettings dataTyperSettings = new DataTyperSettings();
-		DosConfiguration dosConfig = new DosConfiguration();
-		dosConfig.setUrlPrefix("https://localhost/emc-metalnx-irods/collectionInfo");
+		queryElements.add(AVUQueryElement.instanceForValueQuery(AVUQueryElement.AVUQueryPart.ATTRIBUTE,
+				QueryConditionOperators.EQUAL, GuidService.GUID_ATTRIBUTE));
 
-		IrodsextDataTypeResolutionServiceFactoryImpl dataTypeResolutionServiceFactory = new IrodsextDataTypeResolutionServiceFactoryImpl();
-		dataTypeResolutionServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
-		dataTypeResolutionServiceFactory.setDataTyperSettings(dataTyperSettings);
-
-		IrodsDataObjectServiceFactory dataObjectServiceFactory = new IrodsDataObjectServiceFactory();
-		dataObjectServiceFactory.setDosConfiguration(dosConfig);
-		dataObjectServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
-		dataObjectServiceFactory.setDataTypeResolutionServiceFactory(dataTypeResolutionServiceFactory);
-
-		DataObjectService dos = dataObjectServiceFactory.instance(irodsAccount);
-		Ga4ghDataObject actual = dos.retrieveDataObjectFromId(guid);
-		Assert.assertNotNull("no data object retrieved", actual);
-		Assert.assertEquals(targetIrodsFile, actual.getName());
-		Assert.assertNotNull(actual.getSize());
-		Assert.assertFalse(actual.getChecksums().isEmpty());
-		Assert.assertFalse(actual.getUrls().isEmpty());
+		List<MetaDataAndDomainData> result = dao.findMetadataValuesForDataObjectUsingAVUQuery(queryElements,
+				targetIrodsFile);
+		Assert.assertFalse("no guid avu found", result.isEmpty());
+		String actual = result.get(0).getAvuValue();
+		Assert.assertEquals(guid, actual);
 
 	}
 

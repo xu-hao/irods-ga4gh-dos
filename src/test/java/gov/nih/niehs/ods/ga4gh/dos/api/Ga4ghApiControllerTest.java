@@ -12,8 +12,9 @@ import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghGetDataObjectResponse;
 import org.irods.jargon.ga4gh.dos.security.IrodsAuthentication;
 import org.irods.jargon.ga4gh.dos.services.DataObjectService;
+import org.irods.jargon.ga4gh.dos.services.impl.GuidService;
+import org.irods.jargon.ga4gh.dos.services.impl.GuidServiceImpl;
 import org.irods.jargon.ga4gh.dos.services.impl.IrodsDataObjectServiceFactory;
-import org.irods.jargon.ga4gh.dos.services.impl.IrodsIdTranslationServiceFactory;
 import org.irods.jargon.testutils.IRODSTestSetupUtilities;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
@@ -74,6 +75,9 @@ public class Ga4ghApiControllerTest {
 
 		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
 
+		GuidService guidService = new GuidServiceImpl(irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
+		String guid = guidService.createGuidOnDataObject(targetIrodsFile);
+
 		DataTyperSettings dataTyperSettings = new DataTyperSettings();
 		DosConfiguration dosConfig = new DosConfiguration();
 		dosConfig.setUrlPrefix("https://localhost/emc-metalnx-irods/collectionInfo");
@@ -89,18 +93,13 @@ public class Ga4ghApiControllerTest {
 
 		DataObjectService dos = dataObjectServiceFactory.instance(irodsAccount);
 
-		IrodsIdTranslationServiceFactory idTranslationServiceFactory = new IrodsIdTranslationServiceFactory();
-		idTranslationServiceFactory.setDosConfiguration(dosConfig);
-		idTranslationServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
-
 		Ga4ghApiController ga4ghApiController = new Ga4ghApiController();
 		ga4ghApiController.setIrodsDataObjectServiceFactory(dataObjectServiceFactory);
-		ga4ghApiController.setIrodsIdTranslationServiceFactory(idTranslationServiceFactory);
 		AuthResponse resp = irodsFileSystem.getIRODSAccessObjectFactory().authenticateIRODSAccount(irodsAccount);
 		IrodsAuthentication auth = new IrodsAuthentication(irodsAccount, resp);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		ResponseEntity<Ga4ghGetDataObjectResponse> actual = ga4ghApiController.getDataObject(targetIrodsFile, null);
+		ResponseEntity<Ga4ghGetDataObjectResponse> actual = ga4ghApiController.getDataObject(guid, null);
 		Assert.assertNotNull("no response", actual);
 
 	}

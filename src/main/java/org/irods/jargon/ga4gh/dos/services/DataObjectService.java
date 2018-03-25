@@ -29,14 +29,13 @@ public abstract class DataObjectService extends AbstractDosService {
 	}
 
 	/**
-	 * Given a resolved iRODS absolute path, return a ga4gh data object
+	 * Given an id, return the Ga4ghDataObject
 	 * 
-	 * @param irodsAbsolutePath
-	 *            {@link String} with the absolute path
-	 * @return {@link Ga4ghDataObject} corresponding to that path
+	 * @param id
+	 *            {@link String} with the id for the data object
+	 * @return {@link Ga4ghDataObject} corresponding to that id
 	 * @throws DosDataNotFoundException
 	 */
-	public abstract Ga4ghDataObject retrieveDataObjectFromIrodsPath(final String irodsAbsolutePath)
-			throws DosDataNotFoundException;
+	public abstract Ga4ghDataObject retrieveDataObjectFromId(final String id) throws DosDataNotFoundException;
 
 }

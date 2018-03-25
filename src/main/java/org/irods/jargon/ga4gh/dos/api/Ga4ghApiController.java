@@ -26,10 +26,7 @@ import org.irods.jargon.ga4gh.dos.model.Ga4ghUpdateDataObjectResponse;
 import org.irods.jargon.ga4gh.dos.security.RestAuthUtils;
 import org.irods.jargon.ga4gh.dos.services.DataObjectService;
 import org.irods.jargon.ga4gh.dos.services.DataObjectServiceFactory;
-import org.irods.jargon.ga4gh.dos.services.IdTranslationService;
-import org.irods.jargon.ga4gh.dos.services.IdTranslationServiceFactory;
 import org.irods.jargon.ga4gh.dos.services.impl.IrodsDataObjectServiceFactory;
-import org.irods.jargon.ga4gh.dos.services.impl.IrodsIdTranslationServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,13 +43,6 @@ import io.swagger.annotations.ApiParam;
 
 @Controller
 public class Ga4ghApiController implements Ga4ghApi {
-
-	/**
-	 * Spring injected factory {@link IdTranslationServiceFactory} for translating
-	 * ids to iRODS paths and vice versa
-	 */
-	@Autowired
-	IrodsIdTranslationServiceFactory irodsIdTranslationServiceFactory;
 
 	/**
 	 * {@link DataObjectServiceFactory} for the data object service which is the
@@ -125,17 +115,13 @@ public class Ga4ghApiController implements Ga4ghApi {
 
 		log.info("dataObjectId:{}", dataObjectId);
 
-		log.debug("translating id to iRODS path");
-		IdTranslationService idTranslationService = this.getIrodsIdTranslationServiceFactory()
-				.instance(RestAuthUtils.irodsAccountFromContext());
 		DataObjectService dataObjectService = this.getIrodsDataObjectServiceFactory()
 				.instance(RestAuthUtils.irodsAccountFromContext());
 
 		ResponseEntity<Ga4ghGetDataObjectResponse> responseEntity;
 		try {
-			String irodsPath = idTranslationService.irodsPathFromIdentifier(dataObjectId);
-			log.debug("translated path:{}", irodsPath);
-			Ga4ghDataObject dataObject = dataObjectService.retrieveDataObjectFromIrodsPath(irodsPath);
+
+			Ga4ghDataObject dataObject = dataObjectService.retrieveDataObjectFromId(dataObjectId);
 			Ga4ghGetDataObjectResponse response = new Ga4ghGetDataObjectResponse();
 			response.setDataObject(dataObject);
 			log.debug("data object response:{}", response);
@@ -192,14 +178,6 @@ public class Ga4ghApiController implements Ga4ghApi {
 
 	public void setDosConfiguration(DosConfiguration dosConfiguration) {
 		this.dosConfiguration = dosConfiguration;
-	}
-
-	public IrodsIdTranslationServiceFactory getIrodsIdTranslationServiceFactory() {
-		return irodsIdTranslationServiceFactory;
-	}
-
-	public void setIrodsIdTranslationServiceFactory(IrodsIdTranslationServiceFactory irodsIdTranslationServiceFactory) {
-		this.irodsIdTranslationServiceFactory = irodsIdTranslationServiceFactory;
 	}
 
 	public IrodsDataObjectServiceFactory getIrodsDataObjectServiceFactory() {
