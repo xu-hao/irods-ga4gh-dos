@@ -11,9 +11,11 @@ import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.DataNotFoundException;
 import org.irods.jargon.core.exception.FileNotFoundException;
 import org.irods.jargon.core.exception.JargonException;
+import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.DataObjectAO;
 import org.irods.jargon.core.pub.DataObjectChecksumUtilitiesAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
+import org.irods.jargon.core.pub.domain.Collection;
 import org.irods.jargon.core.pub.domain.DataObject;
 import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.query.PagingAwareCollectionListing;
@@ -23,6 +25,7 @@ import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghChecksum;
+import org.irods.jargon.ga4gh.dos.model.Ga4ghDataBundle;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghDataObject;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghURL;
 import org.irods.jargon.ga4gh.dos.services.DataObjectService;
@@ -64,21 +67,20 @@ public class IrodsDataObjectService extends DataObjectService {
 		this.dataTypeResolutionService = dataTypeResolutionService;
 	}
 
-	@Override
-	public Ga4ghDataObject retrieveDataObjectFromId(String id) throws DosDataNotFoundException {
-		log.info("retrieveDataObjectFromIrodsPath()");
+	public Ga4ghDataBundle retrieveDataBundleFromId(String id) throws DosDataNotFoundException {
+		log.info("retrieveDataBundleFromId()");
 		if (id == null || id.isEmpty()) {
-			throw new IllegalArgumentException("null or empty irodsAbsolutePath");
+			throw new IllegalArgumentException("null or empty id");
 		}
 
-		log.info("irodsAbsolutePath:{}", id);
+		log.info("id:{}", id);
 
 		try {
-			String irodsPath = irodsPathFromDataObjectId(id);
+			String irodsPath = irodsPathFromCollectionId(id);
 			log.info("resolved to path:{}", irodsPath);
-			DataObjectAO dataObjectAO = irodsAccessObjectFactory.getDataObjectAO(irodsAccount);
-			DataObject dataObject = dataObjectAO.findByAbsolutePath(irodsPath);
-			return ga4ghDataObjectFromIrodsDataObject(dataObject);
+			CollectionAO collectionAO = irodsAccessObjectFactory.getCollectionAO(getIrodsAccount());
+			Collection collection = collectionAO.findByAbsolutePath(irodsPath);
+			return ga4ghDataBundleFromIrodsCollection(collection, id);
 		} catch (FileNotFoundException fnf) {
 			log.warn("file not found:{}", id, fnf);
 			throw new DosDataNotFoundException(fnf);
@@ -89,17 +91,35 @@ public class IrodsDataObjectService extends DataObjectService {
 
 	}
 
-	private String irodsPathFromDataObjectId(final String id) throws DataNotFoundException {
+	private Ga4ghDataBundle ga4ghDataBundleFromIrodsCollection(Collection collection, String id) {
+		log.info("ga4ghDataBundleFromIrodsCollection()");
+		log.debug("collection:{}", collection);
+		Ga4ghDataBundle dataBundle = new Ga4ghDataBundle();
+		dataBundle.setId(id);
 
-		log.info("irodsPathFromDataObjectId()");
+		return null;
+	}
+
+	private String irodsPathFromCollectionId(String id) throws DataNotFoundException {
+		log.info("irodsPathFromCollectionId()");
 		if (id == null || id.isEmpty()) {
 			throw new IllegalArgumentException("null or empty id");
 		}
 
 		log.info("id:{}", id);
 
-		/* do a metadata query on the data object id AVU */
+		/* do a metadata query on the collection id AVU */
 
+		return executeMetadataQueryForPath(id, QueryType.COLLECTIONS);
+
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 * @throws DataNotFoundException
+	 */
+	private String executeMetadataQueryForPath(String id, QueryType queryType) throws DataNotFoundException {
 		MetadataQueryService metadataQueryService = new MetadataQueryServiceImpl(this.getIrodsAccessObjectFactory(),
 				irodsAccount);
 
@@ -115,7 +135,7 @@ public class IrodsDataObjectService extends DataObjectService {
 		};
 		element.setAttributeValue(vals);
 
-		metadataQuery.setQueryType(QueryType.DATA);
+		metadataQuery.setQueryType(queryType);
 		metadataQuery.getMetadataQueryElements().add(element);
 
 		try {
@@ -131,6 +151,38 @@ public class IrodsDataObjectService extends DataObjectService {
 			log.error("metadata query exception finding id for data object", e);
 			throw new DosSystemException("exception in metadata query", e);
 		}
+	}
+
+	@Override
+	public Ga4ghDataObject retrieveDataObjectFromId(String id) throws DosDataNotFoundException {
+		log.info("retrieveDataObjectFromIrodsPath()");
+		if (id == null || id.isEmpty()) {
+			throw new IllegalArgumentException("null or empty id");
+		}
+
+		log.info("id:{}", id);
+
+		try {
+			String irodsPath = irodsPathFromDataObjectId(id);
+			log.info("resolved to path:{}", irodsPath);
+			DataObjectAO dataObjectAO = irodsAccessObjectFactory.getDataObjectAO(irodsAccount);
+			DataObject dataObject = dataObjectAO.findByAbsolutePath(irodsPath);
+			return ga4ghDataObjectFromIrodsDataObject(dataObject, id);
+		} catch (FileNotFoundException fnf) {
+			log.warn("file not found:{}", id, fnf);
+			throw new DosDataNotFoundException(fnf);
+		} catch (JargonException e) {
+			log.error("error accessing iRODS", e);
+			throw new DosSystemException("exception connecting to iRODS", e);
+		}
+
+	}
+
+	private String irodsPathFromDataObjectId(final String id) throws DataNotFoundException {
+
+		log.info("irodsPathFromDataObjectId()");
+
+		return executeMetadataQueryForPath(id, QueryType.DATA);
 
 	}
 
@@ -143,7 +195,7 @@ public class IrodsDataObjectService extends DataObjectService {
 	 * @throws DataNotFoundException,
 	 *             JargonException
 	 */
-	private Ga4ghDataObject ga4ghDataObjectFromIrodsDataObject(final DataObject irodsDataObject)
+	private Ga4ghDataObject ga4ghDataObjectFromIrodsDataObject(final DataObject irodsDataObject, final String id)
 			throws DataNotFoundException, JargonException {
 		log.info("ga4ghDataObjectFromIrodsDataObject()");
 		if (irodsDataObject == null) {
@@ -166,7 +218,7 @@ public class IrodsDataObjectService extends DataObjectService {
 		checksums.add(ga4ghChecksum);
 
 		Ga4ghDataObject ga4ghDataObject = new Ga4ghDataObject();
-		ga4ghDataObject.setId(null); // TODO: add id txltn service to reverse map
+		ga4ghDataObject.setId(id);
 		ga4ghDataObject.setChecksums(checksums);
 		ga4ghDataObject.setCreated(new DateTime(irodsDataObject.getCreatedAt()));
 		ga4ghDataObject.setDescription("irods data object"); // TODO: consider other metadata value?
