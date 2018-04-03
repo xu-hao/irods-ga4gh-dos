@@ -15,7 +15,9 @@ import org.springframework.stereotype.Component;
  * @author Mike Conway - NIEHS
  *
  */
-@PropertySource("file:///Users/conwaymc/Documents/docker/ga4gh/etc/irods-ext/ga4gh.properties")
+@PropertySource("file:///etc/irods-ext/ga4gh.properties")
+// @PropertySource("file:///Users/conwaymc/Documents/docker/ga4gh/etc/irods-ext/ga4gh.properties")
+
 @Component
 public class DosConfiguration {
 
