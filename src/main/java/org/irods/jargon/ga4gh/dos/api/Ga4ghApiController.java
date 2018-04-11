@@ -8,6 +8,7 @@ import org.irods.jargon.ga4gh.dos.model.Ga4ghCreateDataBundleRequest;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghCreateDataBundleResponse;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghCreateDataObjectRequest;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghCreateDataObjectResponse;
+import org.irods.jargon.ga4gh.dos.model.Ga4ghDataBundle;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghDataObject;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghDeleteDataBundleResponse;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghDeleteDataObjectResponse;
@@ -91,8 +92,33 @@ public class Ga4ghApiController implements Ga4ghApi {
 	public ResponseEntity<Ga4ghGetDataBundleResponse> getDataBundle(
 			@ApiParam(value = "", required = true) @PathVariable("data_bundle_id") String dataBundleId,
 			@ApiParam(value = "OPTIONAL If provided will return the requested version of the selected Data Bundle. Otherwise, only the latest version is returned.") @RequestParam(value = "version", required = false) String version) {
-		// do some magic!
-		return new ResponseEntity<Ga4ghGetDataBundleResponse>(HttpStatus.OK);
+
+		log.info("getDataBundle()");
+		if (dataBundleId == null || dataBundleId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty dataBundleId");
+		}
+
+		log.info("dataBundleId:{}", dataBundleId);
+
+		DataObjectService dataObjectService = this.getIrodsDataObjectServiceFactory()
+				.instance(RestAuthUtils.irodsAccountFromContext());
+		ResponseEntity<Ga4ghGetDataBundleResponse> responseEntity;
+
+		try {
+
+			Ga4ghDataBundle dataBundle = dataObjectService.retrieveDataBundleFromId(dataBundleId);
+			Ga4ghGetDataBundleResponse response = new Ga4ghGetDataBundleResponse();
+			response.setDataBundle(dataBundle);
+			log.debug("data bundle response:{}", response);
+			responseEntity = new ResponseEntity<Ga4ghGetDataBundleResponse>(response, HttpStatus.OK);
+
+		} catch (DosDataNotFoundException e) {
+			log.warn("unable to find iRODS path from id:{}", dataBundleId);
+			responseEntity = new ResponseEntity<Ga4ghGetDataBundleResponse>(HttpStatus.NOT_FOUND);
+		}
+
+		return responseEntity;
+
 	}
 
 	@Override

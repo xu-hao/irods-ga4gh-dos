@@ -95,7 +95,7 @@ public class IrodsDataObjectServiceTest {
 		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
 
 		GuidService guidService = new GuidServiceImpl(irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
-		String guid = guidService.createGuidOnDataObject(targetIrodsFile);
+		guidService.createGuidOnDataObject(targetIrodsFile);
 
 		String testFileName2 = "testGa4ghDataBundleFromIrodsCollection2.txt";
 		absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
@@ -105,7 +105,7 @@ public class IrodsDataObjectServiceTest {
 		// now put the file
 
 		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
-		String guid2 = guidService.createGuidOnDataObject(targetIrodsFile);
+		guidService.createGuidOnDataObject(targetIrodsFile);
 		DataTyperSettings dataTyperSettings = new DataTyperSettings();
 		DosConfiguration dosConfig = new DosConfiguration();
 		dosConfig.setUrlPrefix("https://localhost/emc-metalnx-irods/collectionInfo");

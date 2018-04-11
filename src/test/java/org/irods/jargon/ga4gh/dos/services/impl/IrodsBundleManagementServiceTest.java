@@ -97,7 +97,7 @@ public class IrodsBundleManagementServiceTest {
 		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
 
 		GuidService guidService = new GuidServiceImpl(irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
-		String guid = guidService.createGuidOnDataObject(targetIrodsFile);
+		guidService.createGuidOnDataObject(targetIrodsFile);
 
 		String testFileName2 = "testGa4ghDataObjectFromIrodsDataObject2.txt";
 		absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
@@ -107,7 +107,7 @@ public class IrodsBundleManagementServiceTest {
 		// now put the file
 
 		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
-		String guid2 = guidService.createGuidOnDataObject(targetIrodsFile);
+		guidService.createGuidOnDataObject(targetIrodsFile);
 
 		IrodsBundleManagementService bundleManagementService = new IrodsBundleManagementService(accessObjectFactory,
 				irodsAccount);
