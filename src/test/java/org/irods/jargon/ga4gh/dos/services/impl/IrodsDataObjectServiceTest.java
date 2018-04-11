@@ -1,17 +1,21 @@
-package gov.nih.niehs.ods.ga4gh.services.impl;
+package org.irods.jargon.ga4gh.dos.services.impl;
 
 import java.util.Properties;
+import java.util.UUID;
 
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.DataTransferOperations;
+import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.IRODSFileSystem;
+import org.irods.jargon.core.pub.domain.AvuData;
+import org.irods.jargon.core.pub.io.IRODSFile;
+import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.extensions.datatyper.DataTyperSettings;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
+import org.irods.jargon.ga4gh.dos.model.Ga4ghDataBundle;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghDataObject;
 import org.irods.jargon.ga4gh.dos.services.DataObjectService;
-import org.irods.jargon.ga4gh.dos.services.impl.GuidService;
-import org.irods.jargon.ga4gh.dos.services.impl.GuidServiceImpl;
-import org.irods.jargon.ga4gh.dos.services.impl.IrodsDataObjectServiceFactory;
 import org.irods.jargon.testutils.IRODSTestSetupUtilities;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
@@ -52,6 +56,76 @@ public class IrodsDataObjectServiceTest {
 	@After
 	public void afterEach() throws Exception {
 		irodsFileSystem.closeAndEatExceptions();
+	}
+
+	@Test
+	public void testGa4ghDataBundleFromIrodsCollection() throws Exception {
+		String testDirName = "testGa4ghDataBundleFromIrodsCollection";
+		String collAttribName = GuidService.GUID_ATTRIBUTE;
+		String collAttribValue = UUID.randomUUID().toString();
+
+		String targetIrodsCollection = testingPropertiesHelper.buildIRODSCollectionAbsolutePathFromTestProperties(
+				testingProperties, IRODS_TEST_SUBDIR_PATH + '/' + testDirName);
+
+		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+
+		IRODSAccessObjectFactory accessObjectFactory = irodsFileSystem.getIRODSAccessObjectFactory();
+
+		IRODSFileFactory irodsFileFactory = irodsFileSystem.getIRODSFileFactory(irodsAccount);
+
+		IRODSFile dirFile = irodsFileFactory.instanceIRODSFile(targetIrodsCollection);
+		dirFile.mkdirs();
+
+		CollectionAO collectionAO = accessObjectFactory.getCollectionAO(irodsAccount);
+
+		AvuData dataToAdd = AvuData.instance(collAttribName, collAttribValue, "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
+		// add some data objects with GUIDS
+
+		String testFileName = "testGa4ghDataBundleFromIrodsCollection.txt";
+		String absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
+		String localFileName = FileGenerator.generateFileOfFixedLengthGivenName(absPath, testFileName, 1);
+
+		String targetIrodsFile = targetIrodsCollection + '/' + testFileName;
+		// now put the file
+		DataTransferOperations dto = irodsFileSystem.getIRODSAccessObjectFactory()
+				.getDataTransferOperations(irodsAccount);
+
+		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
+
+		GuidService guidService = new GuidServiceImpl(irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
+		String guid = guidService.createGuidOnDataObject(targetIrodsFile);
+
+		String testFileName2 = "testGa4ghDataBundleFromIrodsCollection2.txt";
+		absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
+		localFileName = FileGenerator.generateFileOfFixedLengthGivenName(absPath, testFileName, 1);
+
+		targetIrodsFile = targetIrodsCollection + '/' + testFileName2;
+		// now put the file
+
+		dto.putOperation(localFileName, targetIrodsFile, "", null, null);
+		String guid2 = guidService.createGuidOnDataObject(targetIrodsFile);
+		DataTyperSettings dataTyperSettings = new DataTyperSettings();
+		DosConfiguration dosConfig = new DosConfiguration();
+		dosConfig.setUrlPrefix("https://localhost/emc-metalnx-irods/collectionInfo");
+
+		IrodsextDataTypeResolutionServiceFactoryImpl dataTypeResolutionServiceFactory = new IrodsextDataTypeResolutionServiceFactoryImpl();
+		dataTypeResolutionServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
+		dataTypeResolutionServiceFactory.setDataTyperSettings(dataTyperSettings);
+
+		IrodsDataObjectServiceFactory dataObjectServiceFactory = new IrodsDataObjectServiceFactory();
+		dataObjectServiceFactory.setDosConfiguration(dosConfig);
+		dataObjectServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
+		dataObjectServiceFactory.setDataTypeResolutionServiceFactory(dataTypeResolutionServiceFactory);
+
+		DataObjectService dos = dataObjectServiceFactory.instance(irodsAccount);
+		Ga4ghDataBundle actual = dos.retrieveDataBundleFromId(collAttribValue);
+		Assert.assertNotNull("no data bundle returned", actual);
+		Assert.assertEquals(actual.getId(), collAttribValue);
+		Assert.assertEquals(actual.getDataObjectIds().size(), 2);
+		Assert.assertEquals(actual.getAliases().size(), 2);
+
 	}
 
 	@Test

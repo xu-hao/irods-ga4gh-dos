@@ -6,6 +6,7 @@ package org.irods.jargon.ga4gh.dos.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.irods.jargon.core.checksum.ChecksumValue;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.DataNotFoundException;
@@ -67,6 +68,7 @@ public class IrodsDataObjectService extends DataObjectService {
 		this.dataTypeResolutionService = dataTypeResolutionService;
 	}
 
+	@Override
 	public Ga4ghDataBundle retrieveDataBundleFromId(String id) throws DosDataNotFoundException {
 		log.info("retrieveDataBundleFromId()");
 		if (id == null || id.isEmpty()) {
@@ -78,26 +80,45 @@ public class IrodsDataObjectService extends DataObjectService {
 		try {
 			String irodsPath = irodsPathFromCollectionId(id);
 			log.info("resolved to path:{}", irodsPath);
-			CollectionAO collectionAO = irodsAccessObjectFactory.getCollectionAO(getIrodsAccount());
+
+			CollectionAO collectionAO = this.getIrodsAccessObjectFactory().getCollectionAO(getIrodsAccount());
 			Collection collection = collectionAO.findByAbsolutePath(irodsPath);
-			return ga4ghDataBundleFromIrodsCollection(collection, id);
-		} catch (FileNotFoundException fnf) {
-			log.warn("file not found:{}", id, fnf);
-			throw new DosDataNotFoundException(fnf);
+
+			IrodsBundleManagementService bundleManagementService = new IrodsBundleManagementService(
+					this.getIrodsAccessObjectFactory(), this.getIrodsAccount());
+
+			log.info("getting rollup of objects in this bundle");
+			List<BundleObjectRollup> objects = bundleManagementService.retrieveDataObjectsInBundle(irodsPath);
+			Ga4ghChecksum ga4ghChecksum;
+			Ga4ghDataBundle dataBundle = new Ga4ghDataBundle();
+
+			// create a checksum of all the checksums in the object
+			StringBuffer checksumBuffer = new StringBuffer();
+
+			for (BundleObjectRollup bundleObj : objects) {
+				checksumBuffer.append(bundleObj.getChecksumValue().getChecksumStringValue());
+				dataBundle.addDataObjectIdsItem(bundleObj.getGuid());
+				dataBundle.addAliasesItem(bundleObj.getIrodsPath());
+			}
+
+			String hdigest = DigestUtils.md5Hex(checksumBuffer.toString());
+			ga4ghChecksum = new Ga4ghChecksum();
+			ga4ghChecksum.setChecksum(hdigest);
+			ga4ghChecksum.setType("MD5");
+
+			dataBundle.addChecksumsItem(ga4ghChecksum);
+			dataBundle.setCreated(new DateTime(collection.getCreatedAt()));
+			dataBundle.setId(id);
+			dataBundle.setUpdated(new DateTime(collection.getModifiedAt()));
+			dataBundle.setVersion("1.0"); // TODO: what to do here
+			log.info("data bundle ready:{}", dataBundle);
+			return dataBundle;
+
 		} catch (JargonException e) {
 			log.error("error accessing iRODS", e);
 			throw new DosSystemException("exception connecting to iRODS", e);
 		}
 
-	}
-
-	private Ga4ghDataBundle ga4ghDataBundleFromIrodsCollection(Collection collection, String id) {
-		log.info("ga4ghDataBundleFromIrodsCollection()");
-		log.debug("collection:{}", collection);
-		Ga4ghDataBundle dataBundle = new Ga4ghDataBundle();
-		dataBundle.setId(id);
-
-		return null;
 	}
 
 	private String irodsPathFromCollectionId(String id) throws DataNotFoundException {

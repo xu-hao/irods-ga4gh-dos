@@ -54,6 +54,11 @@ public class IrodsBundleManagementServiceTest {
 	}
 
 	@Test
+	public void testRetrieveDataBundleFromId() {
+
+	}
+
+	@Test
 	public void testRetrieveDataObjectsInBundle() throws Exception {
 		String testDirName = "testRetrieveDataObjectsInBundle";
 		String collAttribName = GuidService.GUID_ATTRIBUTE;
