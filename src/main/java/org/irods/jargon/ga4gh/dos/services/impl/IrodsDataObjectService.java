@@ -4,7 +4,9 @@
 package org.irods.jargon.ga4gh.dos.services.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.irods.jargon.core.checksum.ChecksumValue;
@@ -29,6 +31,8 @@ import org.irods.jargon.ga4gh.dos.model.Ga4ghChecksum;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghDataBundle;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghDataObject;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghURL;
+import org.irods.jargon.ga4gh.dos.model.ProtobufStruct;
+import org.irods.jargon.ga4gh.dos.model.ProtobufValue;
 import org.irods.jargon.ga4gh.dos.services.DataObjectService;
 import org.irods.jargon.mdquery.MetadataQuery;
 import org.irods.jargon.mdquery.MetadataQuery.QueryType;
@@ -111,6 +115,26 @@ public class IrodsDataObjectService extends DataObjectService {
 			dataBundle.setId(id);
 			dataBundle.setUpdated(new DateTime(collection.getModifiedAt()));
 			dataBundle.setVersion("1.0"); // TODO: what to do here
+
+			/*
+			 * System metadata
+			 */
+
+			Map<String, ProtobufValue> systemMetadata = new HashMap<String, ProtobufValue>();
+			ProtobufValue pVal = new ProtobufValue();
+			pVal.setStringValue(collection.getCollectionOwnerZone());
+			systemMetadata.put("OwnerZone", pVal);
+
+			pVal = new ProtobufValue();
+			pVal.setStringValue(collection.getCollectionOwnerName());
+			systemMetadata.put("OwnerName", pVal);
+
+			pVal = new ProtobufValue();
+			pVal.setStringValue(collection.getSpecColType().name());
+			systemMetadata.put("SpecCollType", pVal);
+
+			dataBundle.setSystemMetadata(new ProtobufStruct().fields(systemMetadata));
+
 			log.info("data bundle ready:{}", dataBundle);
 			return dataBundle;
 

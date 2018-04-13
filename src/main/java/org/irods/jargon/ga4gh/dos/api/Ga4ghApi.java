@@ -84,7 +84,7 @@ public interface Ga4ghApi {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "", response = Ga4ghGetDataBundleResponse.class) })
 
 	@RequestMapping(value = "/ga4gh/dos/v1/databundles/{data_bundle_id}", produces = {
-			"application/json" }, consumes = { "application/json" }, method = RequestMethod.GET)
+			"application/json" }, method = RequestMethod.GET)
 	ResponseEntity<Ga4ghGetDataBundleResponse> getDataBundle(
 			@ApiParam(value = "", required = true) @PathVariable("data_bundle_id") String dataBundleId,
 			@ApiParam(value = "OPTIONAL If provided will return the requested version of the selected Data Bundle. Otherwise, only the latest version is returned.") @RequestParam(value = "version", required = false) String version);

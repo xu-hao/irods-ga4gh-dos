@@ -1,0 +1,54 @@
+syntax = "proto2";
+
+package org.irods.jargon.ga4gh.dos.model;
+
+option java_package = "org.irods.jargon.ga4gh.dos.model";
+option java_outer_classname = "FDMI";
+
+
+message FMDI {
+ required string id = 1;
+ required string version = 2;
+ required string schema = 3;
+ required string persistence = 4;
+ required string contact = 5;
+ 
+ message Keywords  {
+   required string ontology = 1;
+   repeated string term = 2;
+ }
+ 
+ message Derived_from_ids {
+   required string id = 1;
+   required string added_date = 2;
+ }
+ 
+ message Cited_by_ids {
+   required string id = 1;
+   required string added_date = 2;
+ }
+ 
+ message Licensing_policies {
+   required License license =1 [default = OTHER];
+   required string description = 2;
+   required string permissions = 3;
+ }
+ 
+ 
+ repeated Keywords keywords = 6;
+ repeated Derived_from_ids derived_from_ids = 7;
+ repeated Cited_by_ids cited_by_ids = 8;
+ 
+ enum License {
+    OTHER = 0;
+    CC0 = 1;
+    BSD = 2;
+   GPL = 3;
+   APACHE = 4;
+  ..
+  }
+  
+  repeated Licensing_policies licensing_policies = 9;
+ 
+}
+ 
