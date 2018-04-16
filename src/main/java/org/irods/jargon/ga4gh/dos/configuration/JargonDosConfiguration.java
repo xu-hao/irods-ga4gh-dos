@@ -11,6 +11,8 @@ import org.irods.jargon.core.pub.IRODSAccessObjectFactoryImpl;
 import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.irods.jargon.extensions.datatyper.DataTyperSettings;
 import org.irodsext.datatyper.IrodsextDataTypeResolutionServiceFactoryImpl;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,6 +24,12 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class JargonDosConfiguration {
+
+	@Bean
+	public EmbeddedServletContainerFactory servletContainer() {
+		TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
+		return factory;
+	}
 
 	@Bean(destroyMethod = "destroy")
 	public IRODSProtocolManager irodsConnectionManager() {
