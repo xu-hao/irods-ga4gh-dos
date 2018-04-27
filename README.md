@@ -58,6 +58,18 @@ required repeated message Licensing_policies {
  }
 }
 
+icd xxx
+imkdir yyy
+imeta add -C yyy "contact_name" "Jane Does" "irods::ga4ghdos:systemMetadata"
+imeta add -C yyy "repo_license_name" "cc0 Attribution v4.0 International" "irods::ga4ghdos:systemMetadata"
+imeta add -C yyy "contact_form" "" "irods::ga4ghdos:systemMetadata"
+imeta add -C yyy "manifest" "/Manifest.prototype.tsv" "irods::ga4ghdos:systemMetadata"
+imeta add -C yyy "terms_of_service" "/tos.html" "irods::ga4ghdos:systemMetadata"
+imeta add -C yyy "landing_page" "/about.html" "irods::ga4ghdos:systemMetadata"
+imeta add -C yyy "supported_scoring_engines" "prototype" "irods::ga4ghdos:systemMetadata"
+imeta add -C yyy "repo_license_URL" "https://creativecommons.org/licenses/by/4.0/legalcode" "irods::ga4ghdos:systemMetadata"
+imeta add -C yyy "contact_email" "jdoe@email.unc.edu" "irods::ga4ghdos:systemMetadata"
+
 
 ------------
 

@@ -14,10 +14,6 @@ import org.irods.jargon.ga4gh.dos.services.metadata.SystemDescriptiveMetadata;
 import org.irods.jargon.testutils.IRODSTestSetupUtilities;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.ScratchFileUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import junit.framework.Assert;
 
@@ -30,7 +26,7 @@ public class SystemDescriptiveMetadataServiceImplTest {
 	private static IRODSTestSetupUtilities irodsTestSetupUtilities = null;
 	private static IRODSFileSystem irodsFileSystem;
 
-	@BeforeClass
+	// @BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		TestingPropertiesHelper testingPropertiesLoader = new TestingPropertiesHelper();
 		testingProperties = testingPropertiesLoader.getTestProperties();
@@ -42,17 +38,17 @@ public class SystemDescriptiveMetadataServiceImplTest {
 		irodsFileSystem = IRODSFileSystem.instance();
 	}
 
-	@AfterClass
+	// @AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		irodsFileSystem.closeAndEatExceptions();
 	}
 
-	@After
+	// @After
 	public void afterEach() throws Exception {
 		irodsFileSystem.closeAndEatExceptions();
 	}
 
-	@Test
+	// @Test
 	public void testInitializeSystemDescriptiveMetadata() throws Exception {
 		String testDirName = "testInitializeSystemDescriptiveMetadata";
 

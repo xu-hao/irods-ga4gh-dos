@@ -92,6 +92,32 @@ public class FunctTest {
 		AvuData dataToAdd = AvuData.instance(collAttribName, collAttribValue, "");
 		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
 
+		// add custom metadata
+
+		dataToAdd = AvuData.instance("version", "prototype", "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
+		dataToAdd = AvuData.instance("derived_from", "1111", "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
+		dataToAdd = AvuData.instance("object_schema", "some schema", "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
+		dataToAdd = AvuData.instance("contact", "Jane Doe", "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
+		dataToAdd = AvuData.instance("persistence", "/persistence.html", "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
+		dataToAdd = AvuData.instance("keywords", "thyroid", "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
+		dataToAdd = AvuData.instance("license", "cc0 Attribution v4.0 International", "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
+		dataToAdd = AvuData.instance("cited_by", "1011,1213", "");
+		collectionAO.addAVUMetadata(targetIrodsCollection, dataToAdd);
+
 		// add some data objects with GUIDS
 
 		String testFileName = "testGetDataObjectBundle.txt";
