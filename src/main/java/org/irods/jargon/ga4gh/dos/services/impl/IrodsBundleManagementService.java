@@ -38,6 +38,7 @@ class IrodsBundleManagementService extends AbstractJargonService {
 	 */
 	public IrodsBundleManagementService(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount) {
 		super(irodsAccessObjectFactory, irodsAccount);
+
 	}
 
 	/**

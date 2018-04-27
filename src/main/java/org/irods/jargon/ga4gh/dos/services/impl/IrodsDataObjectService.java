@@ -12,6 +12,7 @@ import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.DataNotFoundException;
 import org.irods.jargon.core.exception.FileNotFoundException;
 import org.irods.jargon.core.exception.JargonException;
+import org.irods.jargon.core.exception.JargonRuntimeException;
 import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.DataObjectAO;
 import org.irods.jargon.core.pub.DataObjectChecksumUtilitiesAO;
@@ -32,6 +33,8 @@ import org.irods.jargon.ga4gh.dos.model.Ga4ghDataBundle;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghDataObject;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghURL;
 import org.irods.jargon.ga4gh.dos.services.DataObjectService;
+import org.irods.jargon.ga4gh.dos.services.SystemDescriptiveMetadataService;
+import org.irods.jargon.ga4gh.dos.services.metadata.SystemDescriptiveMetadata;
 import org.irods.jargon.mdquery.MetadataQuery;
 import org.irods.jargon.mdquery.MetadataQuery.QueryType;
 import org.irods.jargon.mdquery.MetadataQueryElement;
@@ -51,6 +54,7 @@ public class IrodsDataObjectService extends DataObjectService {
 	public static final Logger log = LoggerFactory.getLogger(IrodsDataObjectService.class);
 
 	private final DataTypeResolutionService dataTypeResolutionService;
+	private SystemDescriptiveMetadata systemDescriptiveMetadata;
 
 	/**
 	 * @param irodsAccessObjectFactory
@@ -68,6 +72,14 @@ public class IrodsDataObjectService extends DataObjectService {
 		}
 
 		this.dataTypeResolutionService = dataTypeResolutionService;
+		SystemDescriptiveMetadataService sds = new SystemDescriptiveMetadataServiceImpl(irodsAccessObjectFactory,
+				irodsAccount);
+		try {
+			this.systemDescriptiveMetadata = sds.initializeSystemDescriptiveMetadata();
+		} catch (JargonException e) {
+			log.error("unable to get system descriptive metadata", e);
+			throw new JargonRuntimeException("unable to get system descriptive metadata", e);
+		}
 	}
 
 	@Override
@@ -121,6 +133,9 @@ public class IrodsDataObjectService extends DataObjectService {
 			dataBundle.getSystemMetadata().put("OwnerZone", collection.getCollectionOwnerZone());
 			dataBundle.getSystemMetadata().put("OwnerName", collection.getCollectionOwnerName());
 			dataBundle.getSystemMetadata().put("SpecColltype", collection.getSpecColType().name());
+			for (String key : systemDescriptiveMetadata.getKvps().keySet()) {
+				dataBundle.getSystemMetadata().put(key, systemDescriptiveMetadata.getKvps().get(key));
+			}
 
 			/*
 			 * User metadata, right now raw avus
