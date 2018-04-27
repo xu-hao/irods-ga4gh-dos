@@ -1,9 +1,11 @@
 package gov.nih.niehsods.ga4gh.dos.test.functional;
 
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -22,7 +24,6 @@ import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.extensions.datatyper.DataTyperSettings;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
-import org.irods.jargon.ga4gh.dos.configuration.JargonDosConfiguration;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghGetDataBundleResponse;
 import org.irods.jargon.ga4gh.dos.services.impl.GuidService;
 import org.irods.jargon.ga4gh.dos.services.impl.GuidServiceImpl;
@@ -30,39 +31,19 @@ import org.irods.jargon.testutils.IRODSTestSetupUtilities;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
 import org.irods.jargon.testutils.filemanip.ScratchFileUtils;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
-/**
- * Test obtaining data bundle and data object as a functional test
- * 
- * @author Mike Conway - NIEHS
- *
- */
-@ContextConfiguration(classes = { JargonDosConfiguration.class, DosConfiguration.class })
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@RunWith(SpringRunner.class)
-@DirtiesContext
-
-public class IrodsMetadataGetTest {
+public class FunctTest {
 
 	private static Properties testingProperties = new Properties();
 	private static TestingPropertiesHelper testingPropertiesHelper = new TestingPropertiesHelper();
 	private static ScratchFileUtils scratchFileUtils = null;
-	public static final String IRODS_TEST_SUBDIR_PATH = "IrodsMetadataGetTest";
+	public static final String IRODS_TEST_SUBDIR_PATH = "FunctTest";
 	private static IRODSTestSetupUtilities irodsTestSetupUtilities = null;
 	private static IRODSFileSystem irodsFileSystem;
 
@@ -83,18 +64,9 @@ public class IrodsMetadataGetTest {
 		irodsFileSystem.closeAndEatExceptions();
 	}
 
-	@Autowired
-	private TestRestTemplate restTemplate;
-
-	@Test
-	public void testMainPage() throws Exception {
-
-		IRODSAccount userAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
-
-		ResponseEntity<String> entity = this.restTemplate
-				.withBasicAuth(userAccount.getUserName(), userAccount.getPassword())
-				.getForEntity("/swagger-ui.html", String.class);
-		Assert.assertTrue(entity.getStatusCode() == HttpStatus.OK);
+	@After
+	public void afterEach() throws Exception {
+		irodsFileSystem.closeAndEatExceptions();
 	}
 
 	@Test
@@ -153,7 +125,7 @@ public class IrodsMetadataGetTest {
 		ParameterizedTypeReference<Ga4ghGetDataBundleResponse> parameterizedTypeReference = new ParameterizedTypeReference<Ga4ghGetDataBundleResponse>() {
 		};
 
-		String it = "http://localhost:8080/ga4gh/dos/v1/databundles/00fea60a-e3b3-409f-9973-65b8a79db98b";
+		String it = "http://localhost:8080/ga4gh/dos/v1/databundles/" + collAttribValue;
 		CredentialsProvider provider = new BasicCredentialsProvider();
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("test1", "test");
 		provider.setCredentials(AuthScope.ANY, credentials);
@@ -166,15 +138,11 @@ public class IrodsMetadataGetTest {
 		HttpResponse response = client.execute(get);
 		int statusCode = response.getStatusLine().getStatusCode();
 		Assert.assertNotNull(response);
-		Assert.assertTrue(statusCode == 0);
+		Assert.assertTrue(statusCode == 200);
+		StringWriter writer = new StringWriter();
+		IOUtils.copy(response.getEntity().getContent(), writer, "UTF-8");
+		String json = writer.toString();
+		Assert.assertNotNull(json);
 
-		/*
-		 * ResponseEntity<Ga4ghGetDataBundleResponse> entity = this.restTemplate
-		 * .withBasicAuth(userAccount.getUserName(), userAccount.getPassword()).
-		 * .exchange("ga4gh/dos/v1/databundles/", HttpMethod.GET, null,
-		 * parameterizedTypeReference); Assert.assertTrue(entity.getStatusCode() ==
-		 * HttpStatus.OK);
-		 */
 	}
-
 }

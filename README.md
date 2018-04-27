@@ -57,6 +57,36 @@ required repeated message Licensing_policies {
    required string permissions = 3;
  }
 }
+
+
+------------
+
+"version":"prototype",
+  "derived_from":"1111",
+  "object_schema":"some schema",
+  "contact":"Jane Doe",
+  "persistence":"/persistence.html",
+  "keywords":"thyroid",
+  "license":"cc0 Attribution v4.0 International",
+  "cited_by":"1011,1213"
+  
+  
+  -----------
+  system metadata
+  
+  {
+    "contact_name":"Jane Does",
+    "repo_license_name":"cc0 Attribution v4.0 International",
+    "contact_form":"",
+    "manifest":"/Manifest.prototype.tsv",
+    "terms_of_service":"/tos.html",
+    "landing_page":"/about.html",
+    "supported_scoring_engines":"prototype",
+    "repo_license_URL":"https://creativecommons.org/licenses/by/4.0/legalcode",
+    "contact_email":"jdoe@email.unc.edu"
+}
+  
+  
  
 
 
