@@ -27,7 +27,7 @@ This example runs the docker image in the foreground ,making it easy to start an
 #### set up optional system metadata
 
 FAIR system metadata is provided by AVUs attached to a special collection. The following set of icommands will create a directory on iRODS and provision it with metadata that will be sent to callers in the data bundle system metadata. The name of the collection is up to the user
-
+```
 icd xxx
 imkdir yyy
 imeta add -C yyy "contact_name" "Jane Does" "irods::ga4ghdos:systemMetadata"
@@ -39,7 +39,7 @@ imeta add -C yyy "landing_page" "/about.html" "irods::ga4ghdos:systemMetadata"
 imeta add -C yyy "supported_scoring_engines" "prototype" "irods::ga4ghdos:systemMetadata"
 imeta add -C yyy "repo_license_URL" "https://creativecommons.org/licenses/by/4.0/legalcode" "irods::ga4ghdos:systemMetadata"
 imeta add -C yyy "contact_email" "jdoe@email.unc.edu" "irods::ga4ghdos:systemMetadata"
-
+```
 
 #### Add a data bundle
 
@@ -47,19 +47,19 @@ A data bundle is an iRODS collection marked by a GUID, the consitutent data obje
 
 
 Create a collection:
-
+```
 imkdir yyy
-
+```
 Generate a GUID! An easy tool for testing is: https://www.guidgenerator.com/online-guid-generator.aspx
 
 Add that guid as metadata
-
+```
 imeta add -C yyy "GUID" "GENERATEDGUIDHERE" "irods:GUID"
-
+```
 Add some data objects by iputting some files into that data bundle collection. Mark these data objects with a GUID as well
-
+```
 imeta add -d dataobjectname "GUID" "GENERATEDGUIDHERE" "irods:GUID"
-
+```
 Now you can go to your browser and bring up the DOS API. The 'get' methods for data object and data bundle will show the data objects and collections
 
 
