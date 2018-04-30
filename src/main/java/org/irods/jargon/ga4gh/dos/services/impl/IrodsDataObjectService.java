@@ -333,6 +333,10 @@ public class IrodsDataObjectService extends DataObjectService {
 				ga4ghUrl.getSystemMetadata().put("Create Date", dataObject.getCreatedAt().toGMTString());
 				ga4ghUrl.getSystemMetadata().put("Mod Date", dataObject.getUpdatedAt().toGMTString());
 
+				for (String key : systemDescriptiveMetadata.getKvps().keySet()) {
+					ga4ghUrl.getSystemMetadata().put(key, systemDescriptiveMetadata.getKvps().get(key));
+				}
+
 			} catch (JargonException e) {
 				log.error("exception getting metadata", e);
 				throw new JargonRuntimeException("error getting metadata", e);
