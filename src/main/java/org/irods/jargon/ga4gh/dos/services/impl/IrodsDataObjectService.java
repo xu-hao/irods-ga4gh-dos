@@ -320,7 +320,24 @@ public class IrodsDataObjectService extends DataObjectService {
 			sb.append(irodsPath);
 			ga4ghUrl.setUrl(sb.toString());
 			urls.add(ga4ghUrl);
-			// TODO: add system and user metadata?
+
+			try {
+				DataObjectAO dataObjectAO = this.getIrodsAccessObjectFactory().getDataObjectAO(getIrodsAccount());
+				DataObject dataObject = dataObjectAO.findByAbsolutePath(irodsPath);
+				List<MetaDataAndDomainData> metadata = dataObjectAO.findMetadataValuesForDataObject(irodsPath);
+				for (MetaDataAndDomainData val : metadata) {
+					ga4ghUrl.getUserMetadata().put(val.getAvuAttribute(), val.getAvuValue());
+				}
+
+				ga4ghUrl.getSystemMetadata().put("Size", String.valueOf(dataObject.getDataSize()));
+				ga4ghUrl.getSystemMetadata().put("Create Date", dataObject.getCreatedAt().toGMTString());
+				ga4ghUrl.getSystemMetadata().put("Mod Date", dataObject.getUpdatedAt().toGMTString());
+
+			} catch (JargonException e) {
+				log.error("exception getting metadata", e);
+				throw new JargonRuntimeException("error getting metadata", e);
+			}
+
 		}
 
 		return urls;
