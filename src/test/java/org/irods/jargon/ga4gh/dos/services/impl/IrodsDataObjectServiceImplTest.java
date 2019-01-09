@@ -1,10 +1,9 @@
-package gov.nih.niehs.ods.ga4gh.dos.api;
+package org.irods.jargon.ga4gh.dos.services.impl;
 
 import java.util.Properties;
 import java.util.UUID;
 
 import org.irods.jargon.core.connection.IRODSAccount;
-import org.irods.jargon.core.connection.auth.AuthResponse;
 import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.DataTransferOperations;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
@@ -13,14 +12,10 @@ import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.extensions.datatyper.DataTyperSettings;
-import org.irods.jargon.ga4gh.dos.api.Ga4ghApiController;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
-import org.irods.jargon.ga4gh.dos.model.Ga4ghGetDataBundleResponse;
-import org.irods.jargon.ga4gh.dos.model.Ga4ghGetDataObjectResponse;
-import org.irods.jargon.ga4gh.dos.security.IrodsAuthentication;
-import org.irods.jargon.ga4gh.dos.services.impl.GuidService;
-import org.irods.jargon.ga4gh.dos.services.impl.GuidServiceImpl;
-import org.irods.jargon.ga4gh.dos.services.impl.IrodsDataObjectServiceFactoryImpl;
+import org.irods.jargon.ga4gh.dos.model.Ga4ghDataBundle;
+import org.irods.jargon.ga4gh.dos.model.Ga4ghDataObject;
+import org.irods.jargon.ga4gh.dos.services.IrodsDataObjectService;
 import org.irods.jargon.testutils.IRODSTestSetupUtilities;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
@@ -31,15 +26,13 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-public class Ga4ghApiControllerTest {
+public class IrodsDataObjectServiceImplTest {
 
 	private static Properties testingProperties = new Properties();
 	private static TestingPropertiesHelper testingPropertiesHelper = new TestingPropertiesHelper();
 	private static ScratchFileUtils scratchFileUtils = null;
-	public static final String IRODS_TEST_SUBDIR_PATH = "Ga4ghApiControllerTest";
+	public static final String IRODS_TEST_SUBDIR_PATH = "IrodsDataObjectServiceTest";
 	private static IRODSTestSetupUtilities irodsTestSetupUtilities = null;
 	private static IRODSFileSystem irodsFileSystem;
 
@@ -66,8 +59,8 @@ public class Ga4ghApiControllerTest {
 	}
 
 	@Test
-	public void testGetDataObjectBundle() throws Exception {
-		String testDirName = "testGetDataObjectBundle";
+	public void testGa4ghDataBundleFromIrodsCollection() throws Exception {
+		String testDirName = "testGa4ghDataBundleFromIrodsCollection";
 		String collAttribName = GuidService.GUID_ATTRIBUTE;
 		String collAttribValue = UUID.randomUUID().toString();
 
@@ -90,7 +83,7 @@ public class Ga4ghApiControllerTest {
 
 		// add some data objects with GUIDS
 
-		String testFileName = "testGetDataObjectBundle.txt";
+		String testFileName = "testGa4ghDataBundleFromIrodsCollection.txt";
 		String absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
 		String localFileName = FileGenerator.generateFileOfFixedLengthGivenName(absPath, testFileName, 1);
 
@@ -104,7 +97,7 @@ public class Ga4ghApiControllerTest {
 		GuidService guidService = new GuidServiceImpl(irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
 		guidService.createGuidOnDataObject(targetIrodsFile);
 
-		String testFileName2 = "testGetDataObjectBundle2.txt";
+		String testFileName2 = "testGa4ghDataBundleFromIrodsCollection2.txt";
 		absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
 		localFileName = FileGenerator.generateFileOfFixedLengthGivenName(absPath, testFileName, 1);
 
@@ -126,20 +119,19 @@ public class Ga4ghApiControllerTest {
 		dataObjectServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
 		dataObjectServiceFactory.setDataTypeResolutionServiceFactory(dataTypeResolutionServiceFactory);
 
-		Ga4ghApiController ga4ghApiController = new Ga4ghApiController();
-		ga4ghApiController.setIrodsDataObjectServiceFactory(dataObjectServiceFactory);
-		AuthResponse resp = irodsFileSystem.getIRODSAccessObjectFactory().authenticateIRODSAccount(irodsAccount);
-		IrodsAuthentication auth = new IrodsAuthentication(irodsAccount, resp);
-		SecurityContextHolder.getContext().setAuthentication(auth);
-		ResponseEntity<Ga4ghGetDataBundleResponse> actual = ga4ghApiController.getDataBundle(collAttribValue, null);
-		Assert.assertNotNull("no response", actual);
+		IrodsDataObjectService dos = dataObjectServiceFactory.instance(irodsAccount);
+		Ga4ghDataBundle actual = dos.retrieveDataBundleFromId(collAttribValue);
+		Assert.assertNotNull("no data bundle returned", actual);
+		Assert.assertEquals(actual.getId(), collAttribValue);
+		Assert.assertEquals(actual.getDataObjectIds().size(), 2);
+		Assert.assertEquals(actual.getAliases().size(), 2);
 
 	}
 
 	@Test
-	public void testGetDataObject() throws Exception {
+	public void testGa4ghDataObjectFromIrodsDataObject() throws Exception {
 		// generate a local scratch file
-		String testFileName = "testGetDataObject.txt";
+		String testFileName = "testGa4ghDataObjectFromIrodsDataObject.txt";
 		String absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
 		String localFileName = FileGenerator.generateFileOfFixedLengthGivenName(absPath, testFileName, 1);
 
@@ -168,14 +160,13 @@ public class Ga4ghApiControllerTest {
 		dataObjectServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
 		dataObjectServiceFactory.setDataTypeResolutionServiceFactory(dataTypeResolutionServiceFactory);
 
-		Ga4ghApiController ga4ghApiController = new Ga4ghApiController();
-		ga4ghApiController.setIrodsDataObjectServiceFactory(dataObjectServiceFactory);
-		AuthResponse resp = irodsFileSystem.getIRODSAccessObjectFactory().authenticateIRODSAccount(irodsAccount);
-		IrodsAuthentication auth = new IrodsAuthentication(irodsAccount, resp);
-		SecurityContextHolder.getContext().setAuthentication(auth);
-
-		ResponseEntity<Ga4ghGetDataObjectResponse> actual = ga4ghApiController.getDataObject(guid, null);
-		Assert.assertNotNull("no response", actual);
+		IrodsDataObjectService dos = dataObjectServiceFactory.instance(irodsAccount);
+		Ga4ghDataObject actual = dos.retrieveDataObjectFromId(guid);
+		Assert.assertNotNull("no data object retrieved", actual);
+		Assert.assertEquals(targetIrodsFile, actual.getName());
+		Assert.assertNotNull(actual.getSize());
+		Assert.assertFalse(actual.getChecksums().isEmpty());
+		Assert.assertFalse(actual.getUrls().isEmpty());
 
 	}
 

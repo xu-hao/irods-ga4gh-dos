@@ -24,6 +24,11 @@ free form swagger objects: https://swagger.io/docs/specification/data-models/dat
 
 java example : https://github.com/overture-stack/score
 
+codegen: https://github.com/swagger-api/swagger-codegen#os-x-users
+
+DOCS: https://data-object-service.readthedocs.io/en/latest/
+
+springfox: https://springfox.github.io/springfox/docs/current/
 
 message FMDI {
  required string id = 1;
