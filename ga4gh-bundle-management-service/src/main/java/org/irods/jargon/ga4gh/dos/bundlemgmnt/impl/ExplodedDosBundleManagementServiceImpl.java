@@ -3,14 +3,21 @@
  */
 package org.irods.jargon.ga4gh.dos.bundlemgmnt.impl;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
+import org.irods.jargon.core.checksum.ChecksumManager;
+import org.irods.jargon.core.checksum.ChecksumManagerImpl;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.DataNotFoundException;
 import org.irods.jargon.core.exception.JargonException;
+import org.irods.jargon.core.exception.JargonRuntimeException;
+import org.irods.jargon.core.protovalues.ChecksumEncodingEnum;
 import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.domain.AvuData;
+import org.irods.jargon.core.pub.io.IRODSFileImpl;
 import org.irods.jargon.core.query.GenQueryBuilderException;
 import org.irods.jargon.core.query.IRODSGenQueryBuilder;
 import org.irods.jargon.core.query.IRODSGenQueryFromBuilder;
@@ -20,6 +27,7 @@ import org.irods.jargon.core.query.QueryConditionOperators;
 import org.irods.jargon.core.query.RodsGenQueryEnum;
 import org.irods.jargon.core.service.AbstractJargonService;
 import org.irods.jargon.core.utils.MiscIRODSUtils;
+import org.irods.jargon.datautils.visitor.IrodsVisitedComposite;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.DuplicateBundleException;
@@ -80,9 +88,10 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 		// assign guid to each child data object and compute checksum + master checksum
 		// via visitor
 
-		// mark parent with master checksum
+		checksumAndMarkObjectsInBundle(bundleRootAbsolutePath);
 
-		// done!
+		log.info("successfully created bundle with id:{}", bundleId);
+		return bundleId;
 
 	}
 
@@ -147,6 +156,81 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 	@Override
 	public void deleteDataBundle(String dataBundleId) throws BundleNotFoundException, JargonException {
 		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * Return the {@link MessageDigest} format that matches
+	 * 
+	 * @return
+	 */
+	public MessageDigest determineMessageDigestFromIrods() {
+		log.info("determineMessageDigestFromIrods()");
+		ChecksumManager checksumManager = new ChecksumManagerImpl(this.getIrodsAccount(),
+				this.getIrodsAccessObjectFactory());
+		ChecksumEncodingEnum checksumEncoding;
+		try {
+			checksumEncoding = checksumManager.determineChecksumEncodingForTargetServer();
+		} catch (JargonException e) {
+			log.error("exception determining checksum encoding on iRODS", e);
+			throw new JargonRuntimeException("could not determine iRODS checksum encoding", e);
+		}
+
+		try {
+			switch (checksumEncoding) {
+			case MD5:
+				return MessageDigest.getInstance("MD5");
+			case SHA256:
+				return MessageDigest.getInstance("SHA-256");
+			default:
+				log.error("cannot find a MessageDigest encoding for iRODS checksum encoding:{}", checksumEncoding);
+				throw new JargonRuntimeException("cannot find checksum messagedigest format for iRODS encoding");
+			}
+		} catch (NoSuchAlgorithmException e) {
+			log.error("No algorithm for iRODS checksum encoding:{}", checksumEncoding, e);
+			throw new JargonRuntimeException("No algorithm for iRODS checksum encoding", e);
+		}
+
+	}
+
+	/**
+	 * Recursive utility method will generate bundle and data object GUIDS in place,
+	 * mark with the appropriate metadata, set checksums on each data object, and
+	 * mark the bundle with a 'checksum of checksums' in hex string format.
+	 * 
+	 * @param startingCollectionPath
+	 *            {@code String} with the iRODS path that is the top of the data
+	 *            bundle
+	 */
+	public void checksumAndMarkObjectsInBundle(final String startingCollectionPath) {
+		log.info("checksumAndMarkObjectsInBundle()");
+		if (startingCollectionPath == null || startingCollectionPath.isEmpty()) {
+			throw new IllegalArgumentException("null or empty startingCollectionPath");
+
+		}
+		log.info("startingCollectionPath:{}", startingCollectionPath);
+
+		DataBundleChecksumVisitor visitor = new DataBundleChecksumVisitor(this.getIrodsAccessObjectFactory(),
+				this.getIrodsAccount(), this.determineMessageDigestFromIrods());
+
+		log.info("beginning the recursive prep of the data bundle...");
+
+		IRODSFileImpl startingPoint;
+		try {
+			startingPoint = (IRODSFileImpl) getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
+					.instanceIRODSFile(startingCollectionPath);
+			if (!startingPoint.isDirectory()) {
+				log.info("starting point is not a leaf node:{}", startingPoint);
+				throw new JargonException("cannot start a crawl on a leaf node!");
+			}
+
+			IrodsVisitedComposite startingComposite = new IrodsVisitedComposite(startingPoint);
+			startingComposite.accept(visitor);
+			log.info("....crawl complete!");
+		} catch (JargonException e) {
+			log.error("error in setup of data bundle", e);
+			throw new JargonRuntimeException("error lauching visitor", e);
+		}
 
 	}
 
