@@ -3,10 +3,12 @@
  */
 package org.irods.jargon.ga4gh.dos.bundlemgmnt.impl;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
+import org.apache.commons.codec.binary.Hex;
 import org.irods.jargon.core.checksum.ChecksumManager;
 import org.irods.jargon.core.checksum.ChecksumManagerImpl;
 import org.irods.jargon.core.connection.IRODSAccount;
@@ -46,6 +48,7 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 		implements DosBundleManagementService {
 
 	public static final Logger log = LoggerFactory.getLogger(ExplodedDosBundleManagementServiceImpl.class);
+	private final CollectionAO collectionAO;
 
 	/**
 	 * @param irodsAccessObjectFactory
@@ -56,6 +59,12 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 	public ExplodedDosBundleManagementServiceImpl(IRODSAccessObjectFactory irodsAccessObjectFactory,
 			IRODSAccount irodsAccount) {
 		super(irodsAccessObjectFactory, irodsAccount);
+		try {
+			this.collectionAO = irodsAccessObjectFactory.getCollectionAO(irodsAccount);
+		} catch (JargonException e) {
+			log.error("cannot initialize collectionAO for class", e);
+			throw new JargonRuntimeException("collectionAO");
+		}
 	}
 
 	@Override
@@ -160,9 +169,10 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 	}
 
 	/**
-	 * Return the {@link MessageDigest} format that matches
+	 * Return the {@link MessageDigest} format that matches the iRODS default value
 	 * 
-	 * @return
+	 * @return {@link MessageDigest} that matches the iRODS default algorithm
+	 * 
 	 */
 	public MessageDigest determineMessageDigestFromIrods() {
 		log.info("determineMessageDigestFromIrods()");
@@ -227,7 +237,17 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 			IrodsVisitedComposite startingComposite = new IrodsVisitedComposite(startingPoint);
 			startingComposite.accept(visitor);
 			log.info("....crawl complete!");
-		} catch (JargonException e) {
+
+			// compute the master checksum in hex format
+
+			visitor.getChecksumAccumulator().close();
+			MessageDigest digest = visitor.getChecksumAccumulator().getMessageDigest();
+			String hexDigest = Hex.encodeHexString(digest.digest());
+			log.info("final digest:{}", hexDigest);
+			AvuData masterChecksumAvu = ExplodedBundleMetadataUtils.createBundleMasterChecksumAvu(hexDigest);
+			collectionAO.addAVUMetadata(startingCollectionPath, masterChecksumAvu);
+			log.info("bundle and checksumming complete");
+		} catch (JargonException | IOException e) {
 			log.error("error in setup of data bundle", e);
 			throw new JargonRuntimeException("error lauching visitor", e);
 		}

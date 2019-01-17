@@ -4,8 +4,6 @@
 package org.irods.jargon.ga4gh.dos.bundlemgmnt.impl;
 
 import org.irods.jargon.core.connection.IRODSAccount;
-import org.irods.jargon.core.exception.DataNotFoundException;
-import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.service.AbstractJargonService;
 import org.slf4j.Logger;
@@ -35,18 +33,6 @@ public class DataBundleUtilsService extends AbstractJargonService {
 	 * 
 	 */
 	public DataBundleUtilsService() {
-	}
-
-	public String computeHexEncodedChecksumOverCollectionChecksums(final String dataBundleParentAbsolutePath)
-			throws DataNotFoundException, JargonException {
-
-		log.info("computeHexEncodedChecksumOverCollectionChecksums");
-		if (dataBundleParentAbsolutePath == null || dataBundleParentAbsolutePath.isEmpty()) {
-			throw new IllegalArgumentException("null or empty dataBundleParentAbsolutePath");
-		}
-
-		return null;
-
 	}
 
 }

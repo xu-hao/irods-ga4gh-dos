@@ -15,6 +15,7 @@ public class ExplodedBundleMetadataUtils {
 
 	public static final String GA4GH_BUNDLE_UNIT_PREFIX = "irods:ga4gh:dos";
 	public static final String GA4GH_BUNDLE_ID_ATTRIBUTE = "ga4gh:bundleId";
+	public static final String GA4GH_BUNDLE_CHECKSUM_ATTRIBUTE = "ga4gh:bundleChecksum";
 	public static final String GA4GH_DATA_OBJECT_ID_ATTRIBUTE = "ga4gh:dataObjectId";
 
 	/**
@@ -46,6 +47,22 @@ public class ExplodedBundleMetadataUtils {
 		}
 
 		return AvuData.instance(GA4GH_DATA_OBJECT_ID_ATTRIBUTE, dataObjectId, GA4GH_BUNDLE_UNIT_PREFIX);
+
+	}
+
+	/**
+	 * Create an AVU value that is the bundle master checksum
+	 * 
+	 * @param hexStringChecksum
+	 *            {@code String} with the hex encoded checksum value
+	 * @return {@link AvuData} with the checksum value
+	 */
+	public static AvuData createBundleMasterChecksumAvu(final String hexStringChecksum) {
+		if (hexStringChecksum == null || hexStringChecksum.isEmpty()) {
+			throw new IllegalArgumentException("null or empty hexStringChecksum");
+		}
+
+		return AvuData.instance(GA4GH_BUNDLE_CHECKSUM_ATTRIBUTE, hexStringChecksum, GA4GH_BUNDLE_UNIT_PREFIX);
 
 	}
 }
