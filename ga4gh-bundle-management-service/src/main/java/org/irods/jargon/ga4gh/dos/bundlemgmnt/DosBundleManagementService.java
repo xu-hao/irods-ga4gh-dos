@@ -3,6 +3,8 @@
  */
 package org.irods.jargon.ga4gh.dos.bundlemgmnt;
 
+import java.security.MessageDigest;
+
 import org.irods.jargon.core.exception.DataNotFoundException;
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
@@ -32,6 +34,8 @@ public interface DosBundleManagementService {
 	/**
 	 * Create a data bundle based on the provided source root path. Based on the
 	 * bundle type the bundle will be created based on the existing policy.
+	 * Depending on the underlying implementation either the bundle is overlaid in
+	 * place, or the bundle may be created as a separate archive, such as a BDBag.
 	 * 
 	 * @param bundleRootAbsolutePath
 	 *            {@code String} with the path to the parent root of the bundle
@@ -50,13 +54,40 @@ public interface DosBundleManagementService {
 	/**
 	 * Delete a data bundle. Based on the bundle type this may delete an archive, or
 	 * simply strip metadata from iRODS files and collections.
+	 * <p>
+	 * It is important to remember that the underlyng implementation may or may not
+	 * remove the data objects from iRODS. The deletion of a data bundle may or may
+	 * not map directly to a deletion of data in iRODS.
+	 * <p>
+	 * This is an idempotent method so deleting a non-existent bundle silently
+	 * ignores the request.
 	 * 
 	 * @param dataBundleId
 	 *            {@code String} with a bundle identifier
+	 * @throws JargonException
+	 *             {@link JargonException}
+	 */
+	void deleteDataBundle(final String dataBundleId) throws JargonException;
+
+	/**
+	 * Utility method to determine the configured checksum algorithm on the iRODS
+	 * server
+	 * 
+	 * @return {@link MessageDigest} with the iRODS checksum type
+	 */
+	MessageDigest determineMessageDigestFromIrods();
+
+	/**
+	 * Resolve the iRODS path to the object or collection that represents the bundle
+	 * 
+	 * @param dataBundleId
+	 *            {@code String} with the data bundle UUID
+	 * @return {@code String} with the iRODS absolute path to the data bundle
 	 * @throws BundleNotFoundException
 	 *             {@link BundleNotFoundException}
 	 * @throws JargonException
 	 *             {@link JargonException}
 	 */
-	void deleteDataBundle(final String dataBundleId) throws BundleNotFoundException, JargonException;
+	String bundleIdToIrodsPath(final String dataBundleId) throws BundleNotFoundException, JargonException;
+
 }

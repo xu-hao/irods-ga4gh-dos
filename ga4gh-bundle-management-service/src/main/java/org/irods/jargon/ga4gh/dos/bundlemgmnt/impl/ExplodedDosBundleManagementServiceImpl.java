@@ -6,6 +6,8 @@ package org.irods.jargon.ga4gh.dos.bundlemgmnt.impl;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.codec.binary.Hex;
@@ -19,12 +21,16 @@ import org.irods.jargon.core.protovalues.ChecksumEncodingEnum;
 import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.domain.AvuData;
+import org.irods.jargon.core.pub.domain.Collection;
 import org.irods.jargon.core.pub.io.IRODSFileImpl;
+import org.irods.jargon.core.query.AVUQueryElement;
+import org.irods.jargon.core.query.AVUQueryElement.AVUQueryPart;
 import org.irods.jargon.core.query.GenQueryBuilderException;
 import org.irods.jargon.core.query.IRODSGenQueryBuilder;
 import org.irods.jargon.core.query.IRODSGenQueryFromBuilder;
 import org.irods.jargon.core.query.IRODSQueryResultSetInterface;
 import org.irods.jargon.core.query.JargonQueryException;
+import org.irods.jargon.core.query.MetaDataAndDomainData;
 import org.irods.jargon.core.query.QueryConditionOperators;
 import org.irods.jargon.core.query.RodsGenQueryEnum;
 import org.irods.jargon.core.service.AbstractJargonService;
@@ -163,8 +169,96 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 	 * deleteDataBundle(java.lang.String)
 	 */
 	@Override
-	public void deleteDataBundle(String dataBundleId) throws BundleNotFoundException, JargonException {
-		// TODO Auto-generated method stub
+	public void deleteDataBundle(final String dataBundleId) throws JargonException {
+		log.info("deleteDataBundle");
+		// resolve the path and then go thru and remove all of the metadata values
+		log.info("dataBundleId:{}", dataBundleId);
+		String irodsPath = this.bundleIdToIrodsPath(dataBundleId);
+		log.info("irodsPath:{}", irodsPath);
+
+		DataBundleUnwindVisitor visitor = new DataBundleUnwindVisitor(this.getIrodsAccessObjectFactory(),
+				this.getIrodsAccount());
+
+		log.info("beginning the recursive prep of the data bundle...");
+
+		IRODSFileImpl startingPoint;
+		try {
+			startingPoint = (IRODSFileImpl) getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
+					.instanceIRODSFile(irodsPath);
+			if (!startingPoint.isDirectory()) {
+				log.info("starting point is not a leaf node:{}", startingPoint);
+				throw new JargonException("cannot start a crawl on a leaf node!");
+			}
+
+			IrodsVisitedComposite startingComposite = new IrodsVisitedComposite(startingPoint);
+			startingComposite.accept(visitor);
+			log.info("....crawl complete!");
+
+			/*
+			 * Find and remove the collection bundle id and checksum
+			 */
+
+			CollectionAO collectionAO = this.getIrodsAccessObjectFactory().getCollectionAO(getIrodsAccount());
+			List<AVUQueryElement> avuQuery = new ArrayList<AVUQueryElement>();
+
+			try {
+				avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.UNITS, QueryConditionOperators.EQUAL,
+						ExplodedBundleMetadataUtils.GA4GH_BUNDLE_UNIT_PREFIX));
+
+				/**
+				 * Search by unit and delete and ga4gh bundle avus, that should get checksum and
+				 * id
+				 */
+				List<MetaDataAndDomainData> metadata = collectionAO
+						.findMetadataValuesByMetadataQueryForCollection(avuQuery, irodsPath);
+				log.debug("located collection metadata:{}", metadata);
+
+			} catch (JargonQueryException e) {
+				log.error("Error creating query for bundles", e);
+				throw new JargonException("bundle query error", e);
+			}
+
+			log.info("bundle and checksumming complete");
+		} catch (JargonException e) {
+			log.error("error in removal of a data bundle", e);
+			throw new JargonRuntimeException("error lauching visitor", e);
+		}
+
+	}
+
+	@Override
+	public String bundleIdToIrodsPath(final String dataBundleId) throws BundleNotFoundException, JargonException {
+		log.info("bundleIdToIrodsPath()");
+		if (dataBundleId == null || dataBundleId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty dataBundleId");
+		}
+		log.info("dataBundleId to resolve:{}", dataBundleId);
+
+		CollectionAO collectionAO = this.getIrodsAccessObjectFactory().getCollectionAO(getIrodsAccount());
+		List<AVUQueryElement> avuQuery = new ArrayList<AVUQueryElement>();
+
+		try {
+			avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.ATTRIBUTE, QueryConditionOperators.EQUAL,
+					ExplodedBundleMetadataUtils.GA4GH_BUNDLE_ID_ATTRIBUTE));
+			avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.VALUE, QueryConditionOperators.EQUAL,
+					dataBundleId.trim()));
+			List<Collection> collections = collectionAO.findDomainByMetadataQuery(avuQuery);
+			if (collections.isEmpty()) {
+				log.info("no bundle found via query:{}", avuQuery);
+				throw new BundleNotFoundException("bundle was not found");
+			}
+
+			if (collections.size() > 1) {
+				log.warn("more than one collection returned with same id. Will return first:{}", collections);
+			}
+
+			log.info("found collection:{}", collections.get(0));
+			return collections.get(0).getAbsolutePath();
+
+		} catch (JargonQueryException e) {
+			log.error("Error creating query for bundles", e);
+			throw new JargonException("bundle query error", e);
+		}
 
 	}
 
@@ -174,6 +268,7 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 	 * @return {@link MessageDigest} that matches the iRODS default algorithm
 	 * 
 	 */
+	@Override
 	public MessageDigest determineMessageDigestFromIrods() {
 		log.info("determineMessageDigestFromIrods()");
 		ChecksumManager checksumManager = new ChecksumManagerImpl(this.getIrodsAccount(),
