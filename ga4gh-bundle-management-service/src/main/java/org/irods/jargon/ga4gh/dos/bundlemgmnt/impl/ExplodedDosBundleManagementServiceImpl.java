@@ -119,7 +119,7 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 	 * @throws JargonException
 	 *             {@link JargonException}
 	 */
-	private boolean areThereExistingBundles(final String bundleParentPath) throws JargonException {
+	protected boolean areThereExistingBundles(final String bundleParentPath) throws JargonException {
 		log.info("areThereExistingBundles()");
 		if (bundleParentPath == null || bundleParentPath.isEmpty()) {
 			throw new IllegalArgumentException("null or empty bundleParentPath");
@@ -212,6 +212,11 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 				List<MetaDataAndDomainData> metadata = collectionAO
 						.findMetadataValuesByMetadataQueryForCollection(avuQuery, irodsPath);
 				log.debug("located collection metadata:{}", metadata);
+
+				for (MetaDataAndDomainData metadataValue : metadata) {
+					collectionAO.deleteAVUMetadata(irodsPath, AvuData.instance(metadataValue.getAvuAttribute(),
+							metadataValue.getAvuValue(), metadataValue.getAvuUnit()));
+				}
 
 			} catch (JargonQueryException e) {
 				log.error("Error creating query for bundles", e);

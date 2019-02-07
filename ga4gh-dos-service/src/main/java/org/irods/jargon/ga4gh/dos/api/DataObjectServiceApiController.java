@@ -74,7 +74,7 @@ public class DataObjectServiceApiController implements DataObjectServiceApi {
 	@Autowired
 	DosConfiguration dosConfiguration;
 
-	public static final Logger log = LoggerFactory.getLogger(Ga4ghApiController.class);
+	public static final Logger log = LoggerFactory.getLogger(DataObjectServiceApiController.class);
 
 	@Override
 	public ResponseEntity<CreateDataBundleResponse> createDataBundle(CreateDataBundleRequest body) {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.irods.jargon.ga4gh.dos.configuration;
+package org.irods.jargon.ga4gh.dos;
 
 import org.irods.jargon.core.connection.IRODSProtocolManager;
 import org.irods.jargon.core.connection.IRODSSession;
@@ -10,6 +10,8 @@ import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactoryImpl;
 import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.irods.jargon.extensions.datatyper.DataTyperSettings;
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
+import org.irods.jargon.ga4gh.dos.configuration.StartupConfigurator;
 import org.irodsext.datatyper.IrodsextDataTypeResolutionServiceFactoryImpl;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;

@@ -22,7 +22,7 @@ import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.extensions.datatyper.DataTyperSettings;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
-import org.irods.jargon.ga4gh.dos.configuration.JargonDosConfiguration;
+import org.irods.jargon.ga4gh.dos.JargonDosConfiguration;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghGetDataBundleResponse;
 import org.irods.jargon.ga4gh.dos.services.impl.GuidService;
 import org.irods.jargon.ga4gh.dos.services.impl.GuidServiceImpl;

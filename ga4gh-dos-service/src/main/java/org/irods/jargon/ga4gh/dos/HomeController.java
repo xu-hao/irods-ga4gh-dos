@@ -1,4 +1,4 @@
-package org.irods.jargon.ga4gh.dos.configuration;
+package org.irods.jargon.ga4gh.dos;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

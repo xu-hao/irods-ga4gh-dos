@@ -1,8 +1,7 @@
 package org.irods.jargon.ga4gh.dos.bundlemgmnt.impl;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.Properties;
 
@@ -181,16 +180,18 @@ public class ExplodedDosBundleManagementServiceImplTest {
 		String guid = explodedDosService.createDataBundle(bundleRoot);
 		Assert.assertNotNull("null guid", guid);
 		explodedDosService.deleteDataBundle(guid);
+		ExplodedDosBundleManagementServiceImpl service = (ExplodedDosBundleManagementServiceImpl) explodedDosService;
+		boolean foundBundle = service.areThereExistingBundles(bundleRoot);
+		Assert.assertFalse("all bundle artifacts were not removed", foundBundle);
 	}
 
 	@Test
-	public void testDetermineMessageDigestFromIrods() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testChecksumAndMarkObjectsInBundle() {
-		fail("Not yet implemented");
+	public void testDetermineMessageDigestFromIrods() throws Exception {
+		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+		DosBundleManagementService explodedDosService = new ExplodedDosBundleManagementServiceImpl(
+				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
+		MessageDigest digest = explodedDosService.determineMessageDigestFromIrods();
+		Assert.assertNotNull("no MessageDigest found", digest);
 	}
 
 }
