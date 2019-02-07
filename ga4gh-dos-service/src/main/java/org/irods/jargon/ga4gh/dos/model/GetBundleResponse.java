@@ -1,21 +1,46 @@
 package org.irods.jargon.ga4gh.dos.model;
 
-import java.util.HashMap;
 import java.util.Objects;
+
+import javax.validation.Valid;
 
 import org.springframework.validation.annotation.Validated;
 
-import io.swagger.annotations.ApiModel;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
- * OPTIONAL These values are reported by the underlying object store. A set of
- * key-value pairs that represent system metadata about the object.
+ * GetBundleResponse
  */
-@ApiModel(description = "OPTIONAL These values are reported by the underlying object store. A set of key-value pairs that represent system metadata about the object.")
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
 
-public class SystemMetadata extends HashMap<String, String> {
+public class GetBundleResponse {
+	@JsonProperty("bundle")
+	private Bundle bundle = null;
+
+	public GetBundleResponse bundle(Bundle bundle) {
+		this.bundle = bundle;
+		return this;
+	}
+
+	/**
+	 * Get bundle
+	 * 
+	 * @return bundle
+	 **/
+	@ApiModelProperty(value = "")
+
+	@Valid
+
+	public Bundle getBundle() {
+		return bundle;
+	}
+
+	public void setBundle(Bundle bundle) {
+		this.bundle = bundle;
+	}
 
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -25,19 +50,21 @@ public class SystemMetadata extends HashMap<String, String> {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		return true;
+		GetBundleResponse getBundleResponse = (GetBundleResponse) o;
+		return Objects.equals(this.bundle, getBundleResponse.bundle);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode());
+		return Objects.hash(bundle);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("class SystemMetadata {\n");
-		sb.append("    ").append(toIndentedString(super.toString())).append("\n");
+		sb.append("class GetBundleResponse {\n");
+
+		sb.append("    bundle: ").append(toIndentedString(bundle)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

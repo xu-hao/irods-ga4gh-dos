@@ -11,6 +11,11 @@
 	<name>ga4gh bundle management service</name>
 	<dependencies>
 		<dependency>
+			<groupId>gov.nih.niehs.ods</groupId>
+			<artifactId>ga4gh-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.irods.jargon</groupId>
 			<artifactId>jargon-core</artifactId>
 			<version>${jargon.version}</version>

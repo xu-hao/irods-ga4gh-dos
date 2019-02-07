@@ -13,7 +13,7 @@ import io.swagger.annotations.ApiModel;
  */
 @ApiModel(description = "OPTIONAL A set of key-value pairs that represent metadata provided by the uploader.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-11-13T20:57:40.775Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
 
 public class UserMetadata extends HashMap<String, String> {
 

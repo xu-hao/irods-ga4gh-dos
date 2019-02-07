@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Checksum
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-11-13T20:57:40.775Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
 
 public class Checksum {
 	@JsonProperty("checksum")

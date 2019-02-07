@@ -1,21 +1,45 @@
 package org.irods.jargon.ga4gh.dos.model;
 
-import java.util.HashMap;
 import java.util.Objects;
+
+import javax.validation.constraints.NotNull;
 
 import org.springframework.validation.annotation.Validated;
 
-import io.swagger.annotations.ApiModel;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
- * OPTIONAL These values are reported by the underlying object store. A set of
- * key-value pairs that represent system metadata about the object.
+ * GetObjectResponse
  */
-@ApiModel(description = "OPTIONAL These values are reported by the underlying object store. A set of key-value pairs that represent system metadata about the object.")
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
 
-public class SystemMetadata extends HashMap<String, String> {
+public class GetObjectResponse {
+	@JsonProperty("object")
+	private Object object = null;
+
+	public GetObjectResponse object(Object object) {
+		this.object = object;
+		return this;
+	}
+
+	/**
+	 * Get object
+	 * 
+	 * @return object
+	 **/
+	@ApiModelProperty(required = true, value = "")
+	@NotNull
+
+	public Object getObject() {
+		return object;
+	}
+
+	public void setObject(Object object) {
+		this.object = object;
+	}
 
 	@Override
 	public boolean equals(java.lang.Object o) {
@@ -25,19 +49,21 @@ public class SystemMetadata extends HashMap<String, String> {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		return true;
+		GetObjectResponse getObjectResponse = (GetObjectResponse) o;
+		return Objects.equals(this.object, getObjectResponse.object);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode());
+		return Objects.hash(object);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("class SystemMetadata {\n");
-		sb.append("    ").append(toIndentedString(super.toString())).append("\n");
+		sb.append("class GetObjectResponse {\n");
+
+		sb.append("    object: ").append(toIndentedString(object)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

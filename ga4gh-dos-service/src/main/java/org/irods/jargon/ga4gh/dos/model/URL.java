@@ -15,7 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
  * URL
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-11-13T20:57:40.775Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
 
 public class URL {
 	@JsonProperty("url")
@@ -26,6 +26,9 @@ public class URL {
 
 	@JsonProperty("user_metadata")
 	private UserMetadata userMetadata = null;
+
+	@JsonProperty("authorization_metadata")
+	private AuthorizationMetadata authorizationMetadata = null;
 
 	public URL url(String url) {
 		this.url = url;
@@ -92,6 +95,28 @@ public class URL {
 		this.userMetadata = userMetadata;
 	}
 
+	public URL authorizationMetadata(AuthorizationMetadata authorizationMetadata) {
+		this.authorizationMetadata = authorizationMetadata;
+		return this;
+	}
+
+	/**
+	 * Get authorizationMetadata
+	 * 
+	 * @return authorizationMetadata
+	 **/
+	@ApiModelProperty(value = "")
+
+	@Valid
+
+	public AuthorizationMetadata getAuthorizationMetadata() {
+		return authorizationMetadata;
+	}
+
+	public void setAuthorizationMetadata(AuthorizationMetadata authorizationMetadata) {
+		this.authorizationMetadata = authorizationMetadata;
+	}
+
 	@Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
@@ -102,12 +127,13 @@ public class URL {
 		}
 		URL URL = (URL) o;
 		return Objects.equals(this.url, URL.url) && Objects.equals(this.systemMetadata, URL.systemMetadata)
-				&& Objects.equals(this.userMetadata, URL.userMetadata);
+				&& Objects.equals(this.userMetadata, URL.userMetadata)
+				&& Objects.equals(this.authorizationMetadata, URL.authorizationMetadata);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(url, systemMetadata, userMetadata);
+		return Objects.hash(url, systemMetadata, userMetadata, authorizationMetadata);
 	}
 
 	@Override
@@ -118,6 +144,7 @@ public class URL {
 		sb.append("    url: ").append(toIndentedString(url)).append("\n");
 		sb.append("    systemMetadata: ").append(toIndentedString(systemMetadata)).append("\n");
 		sb.append("    userMetadata: ").append(toIndentedString(userMetadata)).append("\n");
+		sb.append("    authorizationMetadata: ").append(toIndentedString(authorizationMetadata)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
