@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.model.CreateDataBundleRequest;
@@ -26,7 +27,6 @@ import org.irods.jargon.ga4gh.dos.model.UpdateDataObjectRequest;
 import org.irods.jargon.ga4gh.dos.model.UpdateDataObjectResponse;
 import org.irods.jargon.ga4gh.dos.security.RestAuthUtils;
 import org.irods.jargon.ga4gh.dos.services.IrodsDataObjectService;
-import org.irods.jargon.ga4gh.dos.services.IrodsDataObjectServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,12 +61,8 @@ public class DataObjectServiceApiController implements DataObjectServiceApi {
 		return Optional.ofNullable(request);
 	}
 
-	/**
-	 * {@link IrodsDataObjectServiceFactory} for the data object service which is
-	 * the primary vehicle for iRODS access
-	 */
 	@Autowired
-	IrodsDataObjectServiceFactory irodsDataObjectServiceFactory;
+	DosServiceFactory dosServiceFactory;
 
 	/**
 	 * {@link PropsBasedDosConfiguration} with general configs
