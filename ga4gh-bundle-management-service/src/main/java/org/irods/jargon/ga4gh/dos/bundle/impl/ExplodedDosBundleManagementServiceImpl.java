@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.irods.jargon.ga4gh.dos.bundlemgmnt.impl;
+package org.irods.jargon.ga4gh.dos.bundle.impl;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -33,12 +33,16 @@ import org.irods.jargon.core.query.JargonQueryException;
 import org.irods.jargon.core.query.MetaDataAndDomainData;
 import org.irods.jargon.core.query.QueryConditionOperators;
 import org.irods.jargon.core.query.RodsGenQueryEnum;
-import org.irods.jargon.core.service.AbstractJargonService;
 import org.irods.jargon.core.utils.MiscIRODSUtils;
 import org.irods.jargon.datautils.visitor.IrodsVisitedComposite;
+import org.irods.jargon.ga4gh.dos.bundle.AbstractDosService;
+import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.DuplicateBundleException;
+import org.irods.jargon.ga4gh.dos.bundlemgmnt.impl.DataBundleChecksumVisitor;
+import org.irods.jargon.ga4gh.dos.bundlemgmnt.impl.DataBundleUnwindVisitor;
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
 import org.irods.jargon.mdquery.exception.MetadataQueryException;
 import org.slf4j.Logger;
@@ -48,23 +52,21 @@ import org.slf4j.LoggerFactory;
  * Implementation of a bundle management service
  * 
  * @author Mike Conway - NIEHS
- *
+ * 
  */
-public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonService
-		implements DosBundleManagementService {
+public class ExplodedDosBundleManagementServiceImpl extends AbstractDosService implements DosBundleManagementService {
 
 	public static final Logger log = LoggerFactory.getLogger(ExplodedDosBundleManagementServiceImpl.class);
 	private final CollectionAO collectionAO;
 
 	/**
-	 * @param irodsAccessObjectFactory
-	 *            {@link IRODSAccessObjectFactory}
-	 * @param irodsAccount
-	 *            {@link IRODSAccount}
+	 * @param irodsAccessObjectFactory {@link IRODSAccessObjectFactory}
+	 * @param irodsAccount             {@link IRODSAccount}
 	 */
 	public ExplodedDosBundleManagementServiceImpl(IRODSAccessObjectFactory irodsAccessObjectFactory,
-			IRODSAccount irodsAccount) {
-		super(irodsAccessObjectFactory, irodsAccount);
+			IRODSAccount irodsAccount, DosServiceFactory dosServiceFactory, DosConfiguration dosConfiguration) {
+		super(irodsAccessObjectFactory, irodsAccount, dosServiceFactory, dosConfiguration);
+
 		try {
 			this.collectionAO = irodsAccessObjectFactory.getCollectionAO(irodsAccount);
 		} catch (JargonException e) {
@@ -113,13 +115,12 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 	/**
 	 * Check for an already-existing bundle identifier in this or any subcollections
 	 * 
-	 * @param bundleParentPath
-	 *            {@code String} with the parent path to begin the bundle search
+	 * @param bundleParentPath {@code String} with the parent path to begin the
+	 *                         bundle search
 	 * @return {@code boolean} that indicates whether an existing bundle was found
-	 * @throws JargonException
-	 *             {@link JargonException}
+	 * @throws JargonException {@link JargonException}
 	 */
-	protected boolean areThereExistingBundles(final String bundleParentPath) throws JargonException {
+	public boolean areThereExistingBundles(final String bundleParentPath) throws JargonException {
 		log.info("areThereExistingBundles()");
 		if (bundleParentPath == null || bundleParentPath.isEmpty()) {
 			throw new IllegalArgumentException("null or empty bundleParentPath");
@@ -308,9 +309,8 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 	 * mark with the appropriate metadata, set checksums on each data object, and
 	 * mark the bundle with a 'checksum of checksums' in hex string format.
 	 * 
-	 * @param startingCollectionPath
-	 *            {@code String} with the iRODS path that is the top of the data
-	 *            bundle
+	 * @param startingCollectionPath {@code String} with the iRODS path that is the
+	 *                               top of the data bundle
 	 */
 	public void checksumAndMarkObjectsInBundle(final String startingCollectionPath) {
 		log.info("checksumAndMarkObjectsInBundle()");
@@ -351,7 +351,6 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractJargonServic
 			log.error("error in setup of data bundle", e);
 			throw new JargonRuntimeException("error lauching visitor", e);
 		}
-
 	}
 
 }

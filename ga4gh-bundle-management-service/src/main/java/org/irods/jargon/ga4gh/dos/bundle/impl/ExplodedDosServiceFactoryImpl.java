@@ -4,20 +4,27 @@
 package org.irods.jargon.ga4gh.dos.bundle.impl;
 
 import org.irods.jargon.core.connection.IRODSAccount;
-import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
- * Implementation of a service factory that can produce a @{link DosService}
- * implementation class. This allows injection via Spring and late resolution of
- * the {@link IRODSAccount}
+ * Implementation of a service factory that can produce DOS implementation
+ * class. This allows injection via Spring and late resolution of the
+ * {@link IRODSAccount}
  * 
  * @author Mike Conway - NIEHS
  *
  */
+@Component
 public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
+
+	@Autowired
+	private DosConfiguration dosConfiguration;
 
 	/**
 	 * {@link IRODSAccessObjectFactory} that can produce service objects
@@ -39,12 +46,24 @@ public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
 		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.irods.jargon.ga4gh.dos.bundle.impl.DosServiceFactory#instance(org.irods.jargon.core.connection.IRODSAccount)
-	 */
 	@Override
-	public DosService instance(IRODSAccount irodsAccount) throws JargonException {
-		return new ExplodedDosServiceImpl(this.irodsAccessObjectFactory, irodsAccount);
+	public DosService instanceDosService(IRODSAccount irodsAccount) {
+		return new ExplodedDosServiceImpl(this.irodsAccessObjectFactory, irodsAccount, this, dosConfiguration);
+	}
+
+	public DosConfiguration getDosConfiguration() {
+		return dosConfiguration;
+	}
+
+	public void setDosConfiguration(DosConfiguration dosConfiguration) {
+		this.dosConfiguration = dosConfiguration;
+	}
+
+	@Override
+	public DosBundleManagementService instanceDosBundleManagementService(IRODSAccount irodsAccount) {
+		return new ExplodedDosBundleManagementServiceImpl(this.irodsAccessObjectFactory, irodsAccount, this,
+				dosConfiguration);
+
 	}
 
 }

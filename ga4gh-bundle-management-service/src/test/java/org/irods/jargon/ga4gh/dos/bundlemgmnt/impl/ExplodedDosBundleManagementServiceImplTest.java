@@ -12,7 +12,11 @@ import org.irods.jargon.core.pub.IRODSFileSystem;
 import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.core.query.MetaDataAndDomainData;
+import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.impl.ExplodedDosBundleManagementServiceImpl;
+import org.irods.jargon.ga4gh.dos.bundle.impl.ExplodedDosServiceFactoryImpl;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
@@ -73,9 +77,11 @@ public class ExplodedDosBundleManagementServiceImplTest {
 		// bundle it up
 
 		String bundleRoot = irodsCollectionRootAbsolutePath + "/" + bundleDir;
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
 
 		DosBundleManagementService explodedDosService = new ExplodedDosBundleManagementServiceImpl(
-				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
+				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount, factory, dosConfiguration);
 		String guid = explodedDosService.createDataBundle(bundleRoot);
 		Assert.assertNotNull("no guid returned", guid);
 
@@ -138,8 +144,11 @@ public class ExplodedDosBundleManagementServiceImplTest {
 
 		String bundleRoot = irodsCollectionRootAbsolutePath + "/" + bundleDir;
 
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+
 		DosBundleManagementService explodedDosService = new ExplodedDosBundleManagementServiceImpl(
-				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
+				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount, factory, dosConfiguration);
 		String guid = explodedDosService.createDataBundle(bundleRoot);
 
 		String actual = explodedDosService.bundleIdToIrodsPath(guid);
@@ -175,8 +184,11 @@ public class ExplodedDosBundleManagementServiceImplTest {
 
 		String bundleRoot = irodsCollectionRootAbsolutePath + "/" + bundleDir;
 
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+
 		DosBundleManagementService explodedDosService = new ExplodedDosBundleManagementServiceImpl(
-				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
+				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount, factory, dosConfiguration);
 		String guid = explodedDosService.createDataBundle(bundleRoot);
 		Assert.assertNotNull("null guid", guid);
 		explodedDosService.deleteDataBundle(guid);
@@ -188,8 +200,11 @@ public class ExplodedDosBundleManagementServiceImplTest {
 	@Test
 	public void testDetermineMessageDigestFromIrods() throws Exception {
 		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+
 		DosBundleManagementService explodedDosService = new ExplodedDosBundleManagementServiceImpl(
-				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount);
+				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount, factory, dosConfiguration);
 		MessageDigest digest = explodedDosService.determineMessageDigestFromIrods();
 		Assert.assertNotNull("no MessageDigest found", digest);
 	}
