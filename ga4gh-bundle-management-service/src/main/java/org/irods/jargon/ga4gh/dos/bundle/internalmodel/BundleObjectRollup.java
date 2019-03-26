@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.irods.jargon.ga4gh.dos.services.impl;
+package org.irods.jargon.ga4gh.dos.bundle.internalmodel;
 
 import org.irods.jargon.core.checksum.ChecksumValue;
 

@@ -26,7 +26,7 @@ public class IrodsDataBundle {
 	/**
 	 * List of data objects contained in this bundle by their UUIDs
 	 */
-	private List<String> dataObjectUuids = new ArrayList<String>();
+	private List<BundleObjectRollup> dataObjects = new ArrayList<BundleObjectRollup>();
 
 	/**
 	 * Date of creation of the iRODS collection
@@ -75,14 +75,6 @@ public class IrodsDataBundle {
 
 	public void setBundleUuid(String bundleUuid) {
 		this.bundleUuid = bundleUuid;
-	}
-
-	public List<String> getDataObjectUuids() {
-		return dataObjectUuids;
-	}
-
-	public void setDataObjectUuids(List<String> dataObjectUuids) {
-		this.dataObjectUuids = dataObjectUuids;
 	}
 
 	public Date getCreateDate() {
@@ -141,13 +133,20 @@ public class IrodsDataBundle {
 		this.avus = avus;
 	}
 
+	public List<BundleObjectRollup> getDataObjects() {
+		return dataObjects;
+	}
+
+	public void setDataObjects(List<BundleObjectRollup> dataObjects) {
+		this.dataObjects = dataObjects;
+	}
+
 	@Override
 	public String toString() {
 		final int maxLen = 10;
 		StringBuilder builder = new StringBuilder();
-		builder.append("IrodsDataBundle [bundleUuid=").append(bundleUuid).append(", dataObjectUuids=")
-				.append(dataObjectUuids != null ? dataObjectUuids.subList(0, Math.min(dataObjectUuids.size(), maxLen))
-						: null)
+		builder.append("IrodsDataBundle [bundleUuid=").append(bundleUuid).append(", dataObjects=")
+				.append(dataObjects != null ? dataObjects.subList(0, Math.min(dataObjects.size(), maxLen)) : null)
 				.append(", createDate=").append(createDate).append(", updatedDate=").append(updatedDate)
 				.append(", version=").append(version).append(", bundleChecksum=").append(bundleChecksum)
 				.append(", description=").append(description).append(", irodsAbsolutePath=").append(irodsAbsolutePath)
