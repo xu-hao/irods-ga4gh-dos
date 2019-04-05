@@ -26,7 +26,7 @@ public class IrodsDataBundle {
 	/**
 	 * List of data objects contained in this bundle by their UUIDs
 	 */
-	private List<BundleObjectRollup> dataObjects = new ArrayList<BundleObjectRollup>();
+	private List<String> dataObjects = new ArrayList<>();
 
 	/**
 	 * Date of creation of the iRODS collection
@@ -133,11 +133,11 @@ public class IrodsDataBundle {
 		this.avus = avus;
 	}
 
-	public List<BundleObjectRollup> getDataObjects() {
+	public List<String> getDataObjects() {
 		return dataObjects;
 	}
 
-	public void setDataObjects(List<BundleObjectRollup> dataObjects) {
+	public void setDataObjects(List<String> dataObjects) {
 		this.dataObjects = dataObjects;
 	}
 

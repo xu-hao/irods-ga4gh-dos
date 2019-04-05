@@ -37,16 +37,13 @@ public interface DosBundleManagementService {
 	 * Depending on the underlying implementation either the bundle is overlaid in
 	 * place, or the bundle may be created as a separate archive, such as a BDBag.
 	 * 
-	 * @param bundleRootAbsolutePath
-	 *            {@code String} with the path to the parent root of the bundle
+	 * @param bundleRootAbsolutePath {@code String} with the path to the parent root
+	 *                               of the bundle
 	 * 
 	 * @return {@code String} with the identifier of the bundle (e.g. the GUID)
-	 * @throws DataNotFoundException
-	 *             {@link
-	 * @throws DuplicateBundleException
-	 *             {@link DuplicateBundleException}
-	 * @throws JargonException
-	 *             {@link JargonException}
+	 * @throws DataNotFoundException    {@link
+	 * @throws DuplicateBundleException {@link DuplicateBundleException}
+	 * @throws JargonException          {@link JargonException}
 	 */
 	String createDataBundle(final String bundleRootAbsolutePath)
 			throws DataNotFoundException, DuplicateBundleException, JargonException;
@@ -62,10 +59,8 @@ public interface DosBundleManagementService {
 	 * This is an idempotent method so deleting a non-existent bundle silently
 	 * ignores the request.
 	 * 
-	 * @param dataBundleId
-	 *            {@code String} with a bundle identifier
-	 * @throws JargonException
-	 *             {@link JargonException}
+	 * @param dataBundleId {@code String} with a bundle identifier
+	 * @throws JargonException {@link JargonException}
 	 */
 	void deleteDataBundle(final String dataBundleId) throws JargonException;
 
@@ -80,13 +75,10 @@ public interface DosBundleManagementService {
 	/**
 	 * Resolve the iRODS path to the object or collection that represents the bundle
 	 * 
-	 * @param dataBundleId
-	 *            {@code String} with the data bundle UUID
+	 * @param dataBundleId {@code String} with the data bundle UUID
 	 * @return {@code String} with the iRODS absolute path to the data bundle
-	 * @throws BundleNotFoundException
-	 *             {@link BundleNotFoundException}
-	 * @throws JargonException
-	 *             {@link JargonException}
+	 * @throws BundleNotFoundException {@link BundleNotFoundException}
+	 * @throws JargonException         {@link JargonException}
 	 */
 	String bundleIdToIrodsPath(final String dataBundleId) throws BundleNotFoundException, JargonException;
 

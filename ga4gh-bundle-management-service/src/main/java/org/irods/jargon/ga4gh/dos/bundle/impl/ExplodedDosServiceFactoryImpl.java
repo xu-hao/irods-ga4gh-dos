@@ -38,10 +38,12 @@ public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
 	public ExplodedDosServiceFactoryImpl() {
 	}
 
+	@Override
 	public IRODSAccessObjectFactory getIrodsAccessObjectFactory() {
 		return irodsAccessObjectFactory;
 	}
 
+	@Override
 	public void setIrodsAccessObjectFactory(IRODSAccessObjectFactory irodsAccessObjectFactory) {
 		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
 	}
@@ -51,10 +53,12 @@ public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
 		return new ExplodedDosServiceImpl(this.irodsAccessObjectFactory, irodsAccount, this, dosConfiguration);
 	}
 
+	@Override
 	public DosConfiguration getDosConfiguration() {
 		return dosConfiguration;
 	}
 
+	@Override
 	public void setDosConfiguration(DosConfiguration dosConfiguration) {
 		this.dosConfiguration = dosConfiguration;
 	}
