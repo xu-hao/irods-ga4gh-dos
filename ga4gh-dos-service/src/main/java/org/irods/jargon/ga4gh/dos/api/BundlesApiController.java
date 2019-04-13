@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.impl.ExplodedDosServiceImpl;
 import org.irods.jargon.ga4gh.dos.model.CreateBundleRequest;
 import org.irods.jargon.ga4gh.dos.model.CreateBundleResponse;
 import org.irods.jargon.ga4gh.dos.model.DeleteBundleResponse;
@@ -15,6 +17,7 @@ import org.irods.jargon.ga4gh.dos.model.UpdateBundleRequest;
 import org.irods.jargon.ga4gh.dos.model.UpdateBundleResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -37,12 +40,16 @@ public class BundlesApiController implements BundlesApi {
 
 	private final HttpServletRequest request;
 
+	@Autowired
+	private DosServiceFactory dosServiceFactory;
+
 	@org.springframework.beans.factory.annotation.Autowired
 	public BundlesApiController(ObjectMapper objectMapper, HttpServletRequest request) {
 		this.objectMapper = objectMapper;
 		this.request = request;
 	}
 
+	@Override
 	public ResponseEntity<CreateBundleResponse> createBundle(
 			@ApiParam(value = "", required = true) @Valid @RequestBody CreateBundleRequest body) {
 		String accept = request.getHeader("Accept");
@@ -84,6 +91,18 @@ public class BundlesApiController implements BundlesApi {
 			@ApiParam(value = "If provided will return the requested version of the selected Data Bundle. Otherwise, only the latest version is returned.") @Valid @RequestParam(value = "version", required = false) String version) {
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
+			
+			if (bundleId == null || bundleId.isEmpty()) {
+				log.error("Null or empty bundle id", e);
+				return new ResponseEntity<GetBundleResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+			
+			
+			here is where we use the bundle service
+			
+			
+			
 			try {
 				return new ResponseEntity<GetBundleResponse>(objectMapper.readValue(
 						"{  \"bundle\" : {    \"checksums\" : [ {      \"checksum\" : \"checksum\",      \"type\" : \"type\"    }, {      \"checksum\" : \"checksum\",      \"type\" : \"type\"    } ],    \"object_ids\" : [ \"object_ids\", \"object_ids\" ],    \"aliases\" : [ \"aliases\", \"aliases\" ],    \"user_metadata\" : { },    \"created\" : \"2000-01-23T04:56:07.000+00:00\",    \"description\" : \"description\",    \"id\" : \"id\",    \"updated\" : \"2000-01-23T04:56:07.000+00:00\",    \"version\" : \"version\",    \"system_metadata\" : { }  }}",
@@ -137,6 +156,7 @@ public class BundlesApiController implements BundlesApi {
 		return new ResponseEntity<ListBundlesResponse>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
+	@Override
 	public ResponseEntity<UpdateBundleResponse> updateBundle(
 			@ApiParam(value = "The ID of the Data Bundle to update", required = true) @PathVariable("bundle_id") String bundleId,
 			@ApiParam(value = "The new content for the Data Bundle identified by the given bundle_id. If the ID specified in the request body is different than that specified in the path, the Data Bundle's ID will be replaced with the one in the request body.", required = true) @Valid @RequestBody UpdateBundleRequest body) {
@@ -153,6 +173,14 @@ public class BundlesApiController implements BundlesApi {
 		}
 
 		return new ResponseEntity<UpdateBundleResponse>(HttpStatus.NOT_IMPLEMENTED);
+	}
+
+	public DosServiceFactory getDosServiceFactory() {
+		return dosServiceFactory;
+	}
+
+	public void setDosServiceFactory(DosServiceFactory dosServiceFactory) {
+		this.dosServiceFactory = dosServiceFactory;
 	}
 
 }

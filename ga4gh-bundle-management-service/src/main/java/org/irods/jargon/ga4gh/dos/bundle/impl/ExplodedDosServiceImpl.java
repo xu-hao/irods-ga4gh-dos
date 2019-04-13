@@ -52,6 +52,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		super(irodsAccessObjectFactory, irodsAccount, dosServiceFactory, dosConfiguration);
 	}
 
+	@Override
 	public IrodsDataBundle retrieveDataBundle(final String bundleId) throws DosDataNotFoundException {
 		log.info("retrieveDataBundle()");
 		if (bundleId == null || bundleId.isEmpty()) {
@@ -129,7 +130,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		List<String> dataObjectIds = new ArrayList<>();
 
 		try {
-			builder.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_META_COLL_ATTR_VALUE);
+			builder.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_META_DATA_ATTR_VALUE);
 		} catch (GenQueryBuilderException e) {
 			log.error("error building query for collections:{}", irodsAbsolutePath, e);
 			throw new MetadataQueryException("gen query error", e);
