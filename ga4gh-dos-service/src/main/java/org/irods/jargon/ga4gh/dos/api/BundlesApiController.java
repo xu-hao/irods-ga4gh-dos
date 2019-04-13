@@ -5,8 +5,13 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
-import org.irods.jargon.ga4gh.dos.bundle.impl.ExplodedDosServiceImpl;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
+import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
+import org.irods.jargon.ga4gh.dos.model.Bundle;
+import org.irods.jargon.ga4gh.dos.model.Checksum;
 import org.irods.jargon.ga4gh.dos.model.CreateBundleRequest;
 import org.irods.jargon.ga4gh.dos.model.CreateBundleResponse;
 import org.irods.jargon.ga4gh.dos.model.DeleteBundleResponse;
@@ -15,6 +20,8 @@ import org.irods.jargon.ga4gh.dos.model.GetBundleVersionsResponse;
 import org.irods.jargon.ga4gh.dos.model.ListBundlesResponse;
 import org.irods.jargon.ga4gh.dos.model.UpdateBundleRequest;
 import org.irods.jargon.ga4gh.dos.model.UpdateBundleResponse;
+import org.irods.jargon.ga4gh.dos.security.RestAuthUtils;
+import org.irods.jargon.ga4gh.dos.utils.ConversionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,25 +98,44 @@ public class BundlesApiController implements BundlesApi {
 			@ApiParam(value = "If provided will return the requested version of the selected Data Bundle. Otherwise, only the latest version is returned.") @Valid @RequestParam(value = "version", required = false) String version) {
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
-			
+
 			if (bundleId == null || bundleId.isEmpty()) {
-				log.error("Null or empty bundle id", e);
+				log.error("Null or empty bundle id", bundleId);
 				return new ResponseEntity<GetBundleResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-			
-			
-			
-			here is where we use the bundle service
-			
-			
-			
+
+			IRODSAccount irodsAccount = RestAuthUtils.irodsAccountFromContext();
+			log.debug("irodsAccount:{}", irodsAccount);
+
 			try {
-				return new ResponseEntity<GetBundleResponse>(objectMapper.readValue(
-						"{  \"bundle\" : {    \"checksums\" : [ {      \"checksum\" : \"checksum\",      \"type\" : \"type\"    }, {      \"checksum\" : \"checksum\",      \"type\" : \"type\"    } ],    \"object_ids\" : [ \"object_ids\", \"object_ids\" ],    \"aliases\" : [ \"aliases\", \"aliases\" ],    \"user_metadata\" : { },    \"created\" : \"2000-01-23T04:56:07.000+00:00\",    \"description\" : \"description\",    \"id\" : \"id\",    \"updated\" : \"2000-01-23T04:56:07.000+00:00\",    \"version\" : \"version\",    \"system_metadata\" : { }  }}",
-						GetBundleResponse.class), HttpStatus.NOT_IMPLEMENTED);
-			} catch (IOException e) {
-				log.error("Couldn't serialize response for content type application/json", e);
-				return new ResponseEntity<GetBundleResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
+				DosService dosService = this.dosServiceFactory.instanceDosService(irodsAccount);
+				IrodsDataBundle dataBundle = dosService.retrieveDataBundle(bundleId);
+				log.debug("got data bundle:{}", dataBundle);
+				GetBundleResponse response = new GetBundleResponse();
+				Bundle bundle = new Bundle();
+				bundle.addAliasesItem(dataBundle.getIrodsAbsolutePath());
+				Checksum checksum = new Checksum();
+				checksum.setChecksum(dataBundle.getBundleChecksum());
+				bundle.addChecksumsItem(checksum);
+				for (String dataObject : dataBundle.getDataObjects()) {
+					bundle.addObjectIdsItem(dataObject);
+				}
+
+				bundle.setCreated(ConversionUtils.offsetDateTimeFromDate(dataBundle.getCreateDate()));
+				bundle.setDescription(dataBundle.getDescription());
+				bundle.setId(dataBundle.getBundleUuid());
+				// bundle.setSystemMetadata(null); // TODO:implement
+				bundle.setUpdated(ConversionUtils.offsetDateTimeFromDate(dataBundle.getUpdatedDate()));
+				// bundle.setUserMetadata(null); // TODO:implement
+				bundle.setVersion(dataBundle.getVersion());
+				GetBundleResponse getBundleResponse = new GetBundleResponse();
+				getBundleResponse.setBundle(bundle);
+
+				return new ResponseEntity<GetBundleResponse>(getBundleResponse, HttpStatus.NOT_IMPLEMENTED);
+
+			} catch (DosDataNotFoundException e) {
+				log.warn("bundle not found for bundleId:{}", bundleId);
+				new ResponseEntity<GetBundleResponse>(HttpStatus.NOT_FOUND);
 			}
 		}
 
