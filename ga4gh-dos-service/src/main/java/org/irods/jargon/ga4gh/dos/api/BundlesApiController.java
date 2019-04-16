@@ -109,25 +109,24 @@ public class BundlesApiController implements BundlesApi {
 
 			try {
 				DosService dosService = this.dosServiceFactory.instanceDosService(irodsAccount);
-				IrodsDataBundle dataBundle = dosService.retrieveDataBundle(bundleId);
-				log.debug("got data bundle:{}", dataBundle);
-				GetBundleResponse response = new GetBundleResponse();
+				IrodsDataBundle irodsDataBundle = dosService.retrieveDataBundle(bundleId);
+				log.debug("got data bundle:{}", irodsDataBundle);
 				Bundle bundle = new Bundle();
-				bundle.addAliasesItem(dataBundle.getIrodsAbsolutePath());
+				bundle.addAliasesItem(irodsDataBundle.getIrodsAbsolutePath());
 				Checksum checksum = new Checksum();
-				checksum.setChecksum(dataBundle.getBundleChecksum());
+				checksum.setChecksum(irodsDataBundle.getBundleChecksum());
 				bundle.addChecksumsItem(checksum);
-				for (String dataObject : dataBundle.getDataObjects()) {
+				for (String dataObject : irodsDataBundle.getDataObjects()) {
 					bundle.addObjectIdsItem(dataObject);
 				}
 
-				bundle.setCreated(ConversionUtils.offsetDateTimeFromDate(dataBundle.getCreateDate()));
-				bundle.setDescription(dataBundle.getDescription());
-				bundle.setId(dataBundle.getBundleUuid());
+				bundle.setCreated(ConversionUtils.offsetDateTimeFromDate(irodsDataBundle.getCreateDate()));
+				bundle.setDescription(irodsDataBundle.getDescription());
+				bundle.setId(irodsDataBundle.getBundleUuid());
 				// bundle.setSystemMetadata(null); // TODO:implement
-				bundle.setUpdated(ConversionUtils.offsetDateTimeFromDate(dataBundle.getUpdatedDate()));
+				bundle.setUpdated(ConversionUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
 				// bundle.setUserMetadata(null); // TODO:implement
-				bundle.setVersion(dataBundle.getVersion());
+				bundle.setVersion(irodsDataBundle.getVersion());
 				GetBundleResponse getBundleResponse = new GetBundleResponse();
 				getBundleResponse.setBundle(bundle);
 

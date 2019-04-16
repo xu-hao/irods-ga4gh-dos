@@ -17,6 +17,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.irods.jargon.core.connection.AuthScheme;
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.connection.auth.AuthResponse;
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosRuntimeException;
@@ -24,6 +25,7 @@ import org.irods.jargon.ga4gh.dos.utils.DefaultHttpClientAndContext;
 import org.irods.jargon.ga4gh.dos.utils.RestTestingProperties;
 import org.irods.jargon.testutils.TestConfigurationException;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
+import org.irods.jargon.testutils.TestingUtilsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,7 +40,21 @@ public class RestAuthUtils {
 	private static Logger log = LoggerFactory.getLogger(RestAuthUtils.class);
 
 	/**
-	 * Retreive the account information from the security context
+	 * For testing, plug an arbitrary irodsAccount into the security context for
+	 * controller tests to pick up.
+	 * 
+	 * @param irodsAccount {@link IRODSAccount}
+	 */
+	public static void setIrodsAccountInContext(final IRODSAccount irodsAccount) {
+		AuthResponse response = new AuthResponse();
+		response.setAuthenticatedIRODSAccount(irodsAccount);
+		response.setAuthenticatingIRODSAccount(irodsAccount);
+		IrodsAuthentication authentication = new IrodsAuthentication(irodsAccount, response);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+
+	/**
+	 * Retrieve the account information from the security context
 	 * 
 	 * @return {@link IRODSAccount} for the logged in iRODS user
 	 */
