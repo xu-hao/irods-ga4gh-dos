@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
@@ -35,6 +36,13 @@ public class BundlesApiControllerTest {
 		irodsDataBundle.setIrodsAbsolutePath("/foo/bar");
 		irodsDataBundle.setUpdatedDate(new Date());
 		irodsDataBundle.setVersion("1");
+
+		AvuData avu1 = AvuData.instance("a", "b", "");
+		AvuData avu2 = AvuData.instance("c", "d", "");
+
+		irodsDataBundle.getAvus().add(avu1);
+		irodsDataBundle.getAvus().add(avu2);
+
 		Mockito.when(dosService.retrieveDataBundle(bundleId)).thenReturn(irodsDataBundle);
 		IRODSAccount irodsAccount = TestingPropertiesHelper.buildBogusIrodsAccount();
 		RestAuthUtils.setIrodsAccountInContext(irodsAccount);

@@ -49,6 +49,11 @@
 			<artifactId>ga4gh-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>gov.nih.niehs.ods</groupId>
+			<artifactId>ga4gh-bundle-management-service</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-core -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -57,22 +62,18 @@
 		<dependency>
 			<groupId>org.irods.jargon</groupId>
 			<artifactId>jargon-core</artifactId>
-			<version>${jargon.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.irods.jargon</groupId>
 			<artifactId>jargon-mdquery</artifactId>
-			<version>${jargon.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.irods.jargon</groupId>
 			<artifactId>jargon-extensions-if</artifactId>
-			<version>${jargon.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.irods.jargon</groupId>
 			<artifactId>irodsext-data-typer</artifactId>
-			<version>${jargon.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>

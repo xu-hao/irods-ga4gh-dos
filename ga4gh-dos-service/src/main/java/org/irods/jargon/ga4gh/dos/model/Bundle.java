@@ -49,10 +49,10 @@ public class Bundle {
 	private List<String> aliases = null;
 
 	@JsonProperty("system_metadata")
-	private SystemMetadata systemMetadata = null;
+	private SystemMetadata systemMetadata = new SystemMetadata();
 
 	@JsonProperty("user_metadata")
-	private UserMetadata userMetadata = null;
+	private UserMetadata userMetadata = new UserMetadata();
 
 	public Bundle id(String id) {
 		this.id = id;

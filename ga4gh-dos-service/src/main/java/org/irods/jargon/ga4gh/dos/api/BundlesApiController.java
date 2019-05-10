@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
@@ -125,7 +126,11 @@ public class BundlesApiController implements BundlesApi {
 				bundle.setId(irodsDataBundle.getBundleUuid());
 				// bundle.setSystemMetadata(null); // TODO:implement
 				bundle.setUpdated(ConversionUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
-				// bundle.setUserMetadata(null); // TODO:implement
+
+				for (AvuData avuData : irodsDataBundle.getAvus()) {
+					bundle.getUserMetadata().put(avuData.getAttribute(), avuData.getValue());
+				}
+
 				bundle.setVersion(irodsDataBundle.getVersion());
 				GetBundleResponse getBundleResponse = new GetBundleResponse();
 				getBundleResponse.setBundle(bundle);
