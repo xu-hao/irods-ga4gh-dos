@@ -14,16 +14,16 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel(description = "An object that can optionally include information about the error.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-05-14T11:28:18.659Z")
 
-public class ErrorResponse {
+public class Error {
 	@JsonProperty("msg")
 	private String msg = null;
 
 	@JsonProperty("status_code")
 	private Integer statusCode = null;
 
-	public ErrorResponse msg(String msg) {
+	public Error msg(String msg) {
 		this.msg = msg;
 		return this;
 	}
@@ -43,7 +43,7 @@ public class ErrorResponse {
 		this.msg = msg;
 	}
 
-	public ErrorResponse statusCode(Integer statusCode) {
+	public Error statusCode(Integer statusCode) {
 		this.statusCode = statusCode;
 		return this;
 	}
@@ -71,8 +71,8 @@ public class ErrorResponse {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		ErrorResponse errorResponse = (ErrorResponse) o;
-		return Objects.equals(this.msg, errorResponse.msg) && Objects.equals(this.statusCode, errorResponse.statusCode);
+		Error error = (Error) o;
+		return Objects.equals(this.msg, error.msg) && Objects.equals(this.statusCode, error.statusCode);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class ErrorResponse {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("class ErrorResponse {\n");
+		sb.append("class Error {\n");
 
 		sb.append("    msg: ").append(toIndentedString(msg)).append("\n");
 		sb.append("    statusCode: ").append(toIndentedString(statusCode)).append("\n");

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 
@@ -18,14 +19,15 @@ import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 public interface DosService {
 
 	/**
-	 * Retrieve a list of data object ids (GUIDs) for a given bundle id (GUID)
+	 * Retrieve a list of data objects for a given bundle id (GUID)
 	 * 
 	 * @param bundleId {@code String} with the bundle id (GUID)
-	 * @return {@code List} of {@code String} with the data object ids
+	 * @return {@code List} of {@link IrodsDataObject} with the data object ids
 	 * @throws BundleNotFoundException {@link BundleNotFoundException}
 	 * @throws JargonException         {@link JargonException}
 	 */
-	List<String> retrieveDataObjectsInBundle(final String bundleId) throws BundleNotFoundException, JargonException;
+	List<IrodsDataObject> retrieveDataObjectsInBundle(final String bundleId)
+			throws BundleNotFoundException, JargonException;
 
 	/**
 	 * Retrieve a data bundle (in an intermediate data transfer object) based on a

@@ -166,11 +166,12 @@
 									irods.zoneName=${jargon.test.irods.zone}
 									irods.admin.user=${jargon.test.irods.admin}
 									irods.admin.password=${jargon.test.irods.admin.password}
-									irods.auth.scheme=${metalnx.auth.scheme}
+									irods.auth.scheme=${drs.auth.scheme}
 									default.storage.resource=${jargon.test.irods.resource}
-									ssl.negotiation.policy=${metalnx.ssl.policy}
-									utilize.packing.streams=${metalnx.packing.streams}
-									compute.checksum=${metalnx.compute.checksum}
+									ssl.negotiation.policy=${drs.ssl.policy}
+									drs.rest.url.endpoint=${drs.rest.url.endpoint}
+									drs.provide.irods.urls=true
+									
 								</echo>
 							</tasks>
 						</configuration>

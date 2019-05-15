@@ -26,7 +26,7 @@ public class IrodsDataBundle {
 	/**
 	 * List of data objects contained in this bundle by their UUIDs
 	 */
-	private List<String> dataObjects = new ArrayList<>();
+	private List<IrodsDataObject> dataObjects = new ArrayList<>();
 
 	/**
 	 * Date of creation of the iRODS collection
@@ -47,6 +47,12 @@ public class IrodsDataBundle {
 	 * Hex encoded {@code String} that is the checksum of the bundle checksums
 	 */
 	private String bundleChecksum = "";
+
+	/**
+	 * Checksum type used for data bundles (md5, sha2). This will be the server
+	 * checksum setting
+	 */
+	private String bundleChecksumType = "";
 
 	/**
 	 * Description of the data bundle. TODO: do I make this an Avu that is set on
@@ -133,11 +139,11 @@ public class IrodsDataBundle {
 		this.avus = avus;
 	}
 
-	public List<String> getDataObjects() {
+	public List<IrodsDataObject> getDataObjects() {
 		return dataObjects;
 	}
 
-	public void setDataObjects(List<String> dataObjects) {
+	public void setDataObjects(List<IrodsDataObject> dataObjects) {
 		this.dataObjects = dataObjects;
 	}
 
@@ -149,10 +155,24 @@ public class IrodsDataBundle {
 				.append(dataObjects != null ? dataObjects.subList(0, Math.min(dataObjects.size(), maxLen)) : null)
 				.append(", createDate=").append(createDate).append(", updatedDate=").append(updatedDate)
 				.append(", version=").append(version).append(", bundleChecksum=").append(bundleChecksum)
-				.append(", description=").append(description).append(", irodsAbsolutePath=").append(irodsAbsolutePath)
-				.append(", avus=").append(avus != null ? avus.subList(0, Math.min(avus.size(), maxLen)) : null)
-				.append("]");
+				.append(", bundleChecksumType=").append(bundleChecksumType).append(", description=").append(description)
+				.append(", irodsAbsolutePath=").append(irodsAbsolutePath).append(", avus=")
+				.append(avus != null ? avus.subList(0, Math.min(avus.size(), maxLen)) : null).append("]");
 		return builder.toString();
+	}
+
+	/**
+	 * @return the bundleChecksumType
+	 */
+	public String getBundleChecksumType() {
+		return bundleChecksumType;
+	}
+
+	/**
+	 * @param bundleChecksumType the bundleChecksumType to set
+	 */
+	public void setBundleChecksumType(String bundleChecksumType) {
+		this.bundleChecksumType = bundleChecksumType;
 	}
 
 }

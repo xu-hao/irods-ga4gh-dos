@@ -12,13 +12,13 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Placeholder for the Info Object
+ * Useful information about the running service.
  */
-@ApiModel(description = "Placeholder for the Info Object")
+@ApiModel(description = "Useful information about the running service.")
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-05-14T11:28:18.659Z")
 
-public class ServiceInfoResponse {
+public class ServiceInfo {
 	@JsonProperty("version")
 	private String version = null;
 
@@ -34,7 +34,7 @@ public class ServiceInfoResponse {
 	@JsonProperty("license")
 	private Object license = null;
 
-	public ServiceInfoResponse version(String version) {
+	public ServiceInfo version(String version) {
 		this.version = version;
 		return this;
 	}
@@ -55,7 +55,7 @@ public class ServiceInfoResponse {
 		this.version = version;
 	}
 
-	public ServiceInfoResponse title(String title) {
+	public ServiceInfo title(String title) {
 		this.title = title;
 		return this;
 	}
@@ -75,7 +75,7 @@ public class ServiceInfoResponse {
 		this.title = title;
 	}
 
-	public ServiceInfoResponse description(String description) {
+	public ServiceInfo description(String description) {
 		this.description = description;
 		return this;
 	}
@@ -95,7 +95,7 @@ public class ServiceInfoResponse {
 		this.description = description;
 	}
 
-	public ServiceInfoResponse contact(Object contact) {
+	public ServiceInfo contact(Object contact) {
 		this.contact = contact;
 		return this;
 	}
@@ -115,7 +115,7 @@ public class ServiceInfoResponse {
 		this.contact = contact;
 	}
 
-	public ServiceInfoResponse license(Object license) {
+	public ServiceInfo license(Object license) {
 		this.license = license;
 		return this;
 	}
@@ -143,12 +143,11 @@ public class ServiceInfoResponse {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		ServiceInfoResponse serviceInfoResponse = (ServiceInfoResponse) o;
-		return Objects.equals(this.version, serviceInfoResponse.version)
-				&& Objects.equals(this.title, serviceInfoResponse.title)
-				&& Objects.equals(this.description, serviceInfoResponse.description)
-				&& Objects.equals(this.contact, serviceInfoResponse.contact)
-				&& Objects.equals(this.license, serviceInfoResponse.license);
+		ServiceInfo serviceInfo = (ServiceInfo) o;
+		return Objects.equals(this.version, serviceInfo.version) && Objects.equals(this.title, serviceInfo.title)
+				&& Objects.equals(this.description, serviceInfo.description)
+				&& Objects.equals(this.contact, serviceInfo.contact)
+				&& Objects.equals(this.license, serviceInfo.license);
 	}
 
 	@Override
@@ -159,7 +158,7 @@ public class ServiceInfoResponse {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("class ServiceInfoResponse {\n");
+		sb.append("class ServiceInfo {\n");
 
 		sb.append("    version: ").append(toIndentedString(version)).append("\n");
 		sb.append("    title: ").append(toIndentedString(title)).append("\n");

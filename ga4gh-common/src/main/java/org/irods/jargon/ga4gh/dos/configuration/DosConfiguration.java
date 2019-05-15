@@ -7,6 +7,7 @@ import org.irods.jargon.core.connection.AuthScheme;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,8 +16,9 @@ import org.springframework.stereotype.Component;
  * @author Mike Conway - NIEHS
  *
  */
-// @PropertySource("file:///etc/irods-ext/ga4gh.properties")
-@PropertySource("file:///Users/conwaymc/Documents/docker/ga4gh/etc/irods-ext/ga4gh.properties")
+
+@PropertySources({ @PropertySource(value = "classpath:test.dos.properties", ignoreResourceNotFound = true),
+		@PropertySource(value = "file:///Users/conwaymc/Documents/docker/ga4gh/etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = true) })
 
 @Component
 public class DosConfiguration {
@@ -56,6 +58,22 @@ public class DosConfiguration {
 
 	@Value("${irodsext.datatyper.detailed.determination}")
 	private boolean detailedDataTypeDetermination;
+
+	/**
+	 * {@code String} property 'drs.rest.url.endpoint'. If not blank, represents the
+	 * complete url prefix to the REST endpoint that will provide a link to the
+	 * data. This is the standard iRODS REST endpoint in the form XXX (TODO: build
+	 * rest endpoint)
+	 */
+	@Value("${drs.rest.url.endpoint}")
+	private String drsRestUrlEndpoint = "";
+
+	/**
+	 * {@code boolean} indicating whether 'irods://' form urls are provided as an
+	 * access method for data objects
+	 */
+	@Value("{drs.provide.irods.urls")
+	private boolean drsProvideIrodsUrls = true;
 
 	public AuthScheme translateAuthSchemeToEnum() {
 		String authSchemeStr = authScheme;
@@ -164,5 +182,21 @@ public class DosConfiguration {
 
 	public String getSslNegotiationPolicy() {
 		return sslNegotiationPolicy;
+	}
+
+	public String getDrsRestUrlEndpoint() {
+		return drsRestUrlEndpoint;
+	}
+
+	public void setDrsRestUrlEndpoint(String drsRestUrlEndpoint) {
+		this.drsRestUrlEndpoint = drsRestUrlEndpoint;
+	}
+
+	public boolean isDrsProvideIrodsUrls() {
+		return drsProvideIrodsUrls;
+	}
+
+	public void setDrsProvideIrodsUrls(boolean drsProvideIrodsUrls) {
+		this.drsProvideIrodsUrls = drsProvideIrodsUrls;
 	}
 }

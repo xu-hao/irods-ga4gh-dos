@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Checksum
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-05-14T11:28:18.659Z")
 
 public class Checksum {
 	@JsonProperty("checksum")
@@ -29,11 +29,11 @@ public class Checksum {
 	}
 
 	/**
-	 * The hex-string encoded checksum for the Data.
+	 * The hex-string encoded checksum for the data
 	 * 
 	 * @return checksum
 	 **/
-	@ApiModelProperty(required = true, value = "The hex-string encoded checksum for the Data.")
+	@ApiModelProperty(required = true, value = "The hex-string encoded checksum for the data")
 	@NotNull
 
 	public String getChecksum() {
@@ -52,12 +52,11 @@ public class Checksum {
 	/**
 	 * The digest method used to create the checksum. If left unspecified md5 will
 	 * be assumed. possible values: md5 # most blob stores provide a checksum using
-	 * this multipart-md5 # multipart uploads provide a specialized tag in S3 sha256
-	 * sha512
+	 * this etag # multipart uploads to blob stores sha256 sha512
 	 * 
 	 * @return type
 	 **/
-	@ApiModelProperty(value = "The digest method used to create the checksum. If left unspecified md5 will be assumed.  possible values: md5                # most blob stores provide a checksum using this multipart-md5      # multipart uploads provide a specialized tag in S3 sha256 sha512")
+	@ApiModelProperty(value = "The digest method used to create the checksum. If left unspecified md5 will be assumed.  possible values: md5               # most blob stores provide a checksum using this etag              # multipart uploads to blob stores sha256 sha512")
 
 	public String getType() {
 		return type;

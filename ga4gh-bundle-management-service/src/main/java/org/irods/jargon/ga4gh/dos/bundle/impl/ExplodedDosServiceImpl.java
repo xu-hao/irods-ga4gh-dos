@@ -9,6 +9,7 @@ import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.core.pub.domain.Collection;
+import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.query.GenQueryBuilderException;
 import org.irods.jargon.core.query.IRODSGenQueryBuilder;
 import org.irods.jargon.core.query.IRODSGenQueryFromBuilder;
@@ -23,11 +24,13 @@ import org.irods.jargon.ga4gh.dos.bundle.AbstractDosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
+import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
 import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
 import org.irods.jargon.mdquery.exception.MetadataQueryException;
 import org.slf4j.Logger;
@@ -70,10 +73,9 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			Collection collection = collectionAO.findByAbsolutePath(irodsPath);
 
 			log.info("getting rollup of objects in this bundle");
-			List<String> objects = retrieveDataObjectsInBundle(irodsPath);
+			List<IrodsDataObject> objects = retrieveDataObjectsInBundle(irodsPath);
 
 			IrodsDataBundle irodsDataBundle = new IrodsDataBundle();
-
 			irodsDataBundle.setDataObjects(objects);
 
 			List<MetaDataAndDomainData> metadata = collectionAO
@@ -111,7 +113,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	}
 
 	@Override
-	public List<String> retrieveDataObjectsInBundle(final String bundleId)
+	public List<IrodsDataObject> retrieveDataObjectsInBundle(final String bundleId)
 			throws BundleNotFoundException, JargonException {
 
 		log.info("listBundleIds()");
@@ -127,10 +129,12 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		IRODSGenQueryBuilder builder = new IRODSGenQueryBuilder(true, null);
 		IRODSQueryResultSetInterface resultSet = null;
 
-		List<String> dataObjectIds = new ArrayList<>();
+		List<IrodsDataObject> dataObjects = new ArrayList<>();
 
 		try {
-			builder.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_META_DATA_ATTR_VALUE);
+			builder.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_COLL_NAME)
+					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_DATA_NAME)
+					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_META_DATA_ATTR_VALUE);
 		} catch (GenQueryBuilderException e) {
 			log.error("error building query for collections:{}", irodsAbsolutePath, e);
 			throw new MetadataQueryException("gen query error", e);
@@ -151,16 +155,38 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			resultSet = getIrodsAccessObjectFactory().getIRODSGenQueryExecutor(getIrodsAccount())
 					.executeIRODSQueryAndCloseResultInZone(irodsQuery, 0, targetZone);
 
+			IRODSFile irodsFile;
+			IrodsDataObject irodsDataObject;
 			for (IRODSQueryResultRow row : resultSet.getResults()) {
-				dataObjectIds.add(row.getColumn(0));
+				irodsFile = this.getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
+						.instanceIRODSFile(row.getColumn(0), row.getColumn(1));
+				irodsDataObject = new IrodsDataObject();
+				irodsDataObject.setFileName(irodsFile.getName());
+				irodsDataObject.setGuid(row.getColumn(2));
+				irodsDataObject.setType(TypeEnum.OBJECT);
+				irodsDataObject.setAbsolutePath(irodsFile.getAbsolutePath());
+
+				if (this.getDosConfiguration().isDrsProvideIrodsUrls()) {
+					irodsDataObject.getAccessUrls().add(irodsFile.toURI().toString());
+				}
+
+				if (!this.getDosConfiguration().getDrsRestUrlEndpoint().isEmpty()) {
+					StringBuilder sb = new StringBuilder();
+					sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
+					sb.append(irodsFile.getAbsolutePath());
+					irodsDataObject.getAccessUrls().add(sb.toString());
+				}
+
+				log.info("adding data object:{}", irodsDataObject);
+				dataObjects.add(irodsDataObject);
+
 			}
 		} catch (GenQueryBuilderException | JargonQueryException e) {
 			log.error("error in query for bundles", e);
 			throw new JargonException("cannot query for bundles", e);
 		}
 
-		log.debug("dataObjectIds:{}", dataObjectIds);
-		return dataObjectIds;
+		return dataObjects;
 	}
 
 }

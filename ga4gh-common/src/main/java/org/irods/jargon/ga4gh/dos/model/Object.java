@@ -1,14 +1,15 @@
 package org.irods.jargon.ga4gh.dos.model;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.springframework.validation.annotation.Validated;
+import org.threeten.bp.OffsetDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -18,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Object
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-05-14T11:28:18.659Z")
 
 public class Object {
 	@JsonProperty("id")
@@ -28,7 +29,7 @@ public class Object {
 	private String name = null;
 
 	@JsonProperty("size")
-	private String size = null;
+	private Long size = null;
 
 	@JsonProperty("created")
 	private OffsetDateTime created = null;
@@ -46,9 +47,9 @@ public class Object {
 	@Valid
 	private List<Checksum> checksums = new ArrayList<Checksum>();
 
-	@JsonProperty("urls")
+	@JsonProperty("access_methods")
 	@Valid
-	private List<URL> urls = null;
+	private List<AccessMethod> accessMethods = new ArrayList<AccessMethod>();
 
 	@JsonProperty("description")
 	private String description = null;
@@ -84,11 +85,11 @@ public class Object {
 	}
 
 	/**
-	 * A string that can be optionally used to name a Data Object.
+	 * A string that can be used to name a Data Object.
 	 * 
 	 * @return name
 	 **/
-	@ApiModelProperty(value = "A string that can be optionally used to name a Data Object.")
+	@ApiModelProperty(value = "A string that can be used to name a Data Object.")
 
 	public String getName() {
 		return name;
@@ -98,24 +99,24 @@ public class Object {
 		this.name = name;
 	}
 
-	public Object size(String size) {
+	public Object size(Long size) {
 		this.size = size;
 		return this;
 	}
 
 	/**
-	 * The computed size in bytes.
+	 * The object size in bytes.
 	 * 
 	 * @return size
 	 **/
-	@ApiModelProperty(required = true, value = "The computed size in bytes.")
+	@ApiModelProperty(required = true, value = "The object size in bytes.")
 	@NotNull
 
-	public String getSize() {
+	public Long getSize() {
 		return size;
 	}
 
-	public void setSize(String size) {
+	public void setSize(Long size) {
 		this.size = size;
 	}
 
@@ -148,12 +149,12 @@ public class Object {
 	}
 
 	/**
-	 * Timestamp of update in RFC3339, identical to create timestamp in systems that
-	 * do not support updates.
+	 * Timestamp of Object update in RFC3339, identical to create timestamp in
+	 * systems that do not support updates.
 	 * 
 	 * @return updated
 	 **/
-	@ApiModelProperty(value = "Timestamp of update in RFC3339, identical to create timestamp in systems that do not support updates.")
+	@ApiModelProperty(value = "Timestamp of Object update in RFC3339, identical to create timestamp in systems that do not support updates.")
 
 	@Valid
 
@@ -191,12 +192,11 @@ public class Object {
 	}
 
 	/**
-	 * A string providing the mime-type of the Data Object. For example,
-	 * \"application/json\".
+	 * A string providing the mime-type of the Data Object.
 	 * 
 	 * @return mimeType
 	 **/
-	@ApiModelProperty(value = "A string providing the mime-type of the Data Object. For example, \"application/json\".")
+	@ApiModelProperty(example = "application/json", value = "A string providing the mime-type of the Data Object.")
 
 	public String getMimeType() {
 		return mimeType;
@@ -234,34 +234,32 @@ public class Object {
 		this.checksums = checksums;
 	}
 
-	public Object urls(List<URL> urls) {
-		this.urls = urls;
+	public Object accessMethods(List<AccessMethod> accessMethods) {
+		this.accessMethods = accessMethods;
 		return this;
 	}
 
-	public Object addUrlsItem(URL urlsItem) {
-		if (this.urls == null) {
-			this.urls = new ArrayList<URL>();
-		}
-		this.urls.add(urlsItem);
+	public Object addAccessMethodsItem(AccessMethod accessMethodsItem) {
+		this.accessMethods.add(accessMethodsItem);
 		return this;
 	}
 
 	/**
-	 * The list of URLs that can be used to access the Data Object.
+	 * The list of access methods that can be used to fetch the Data Object.
 	 * 
-	 * @return urls
+	 * @return accessMethods
 	 **/
-	@ApiModelProperty(value = "The list of URLs that can be used to access the Data Object.")
+	@ApiModelProperty(required = true, value = "The list of access methods that can be used to fetch the Data Object.")
+	@NotNull
 
 	@Valid
-
-	public List<URL> getUrls() {
-		return urls;
+	@Size(min = 1)
+	public List<AccessMethod> getAccessMethods() {
+		return accessMethods;
 	}
 
-	public void setUrls(List<URL> urls) {
-		this.urls = urls;
+	public void setAccessMethods(List<AccessMethod> accessMethods) {
+		this.accessMethods = accessMethods;
 	}
 
 	public Object description(String description) {
@@ -270,11 +268,11 @@ public class Object {
 	}
 
 	/**
-	 * A human readable description of the contents of the Data Object.
+	 * A human readable description of the Data Object.
 	 * 
 	 * @return description
 	 **/
-	@ApiModelProperty(value = "A human readable description of the contents of the Data Object.")
+	@ApiModelProperty(value = "A human readable description of the Data Object.")
 
 	public String getDescription() {
 		return description;
@@ -298,14 +296,13 @@ public class Object {
 	}
 
 	/**
-	 * A list of strings that can be used to find this Data Object. These aliases
-	 * can be used to represent the Data Object's location in a directory (e.g.
-	 * \"bucket/folder/file.name\") to make Data Objects more discoverable. They
-	 * might also be used to represent
+	 * A list of strings that can be used to find other metadata about this Data
+	 * Object from external metadata sources. These aliases can be used to represent
+	 * the Data Object's secondary accession numbers or external GUIDs.
 	 * 
 	 * @return aliases
 	 **/
-	@ApiModelProperty(value = "A list of strings that can be used to find this Data Object. These aliases can be used to represent the Data Object's location in a directory (e.g. \"bucket/folder/file.name\") to make Data Objects more discoverable. They might also be used to represent")
+	@ApiModelProperty(value = "A list of strings that can be used to find other metadata about this Data Object from external metadata sources. These aliases can be used to represent the Data Object's secondary accession numbers or external GUIDs.")
 
 	public List<String> getAliases() {
 		return aliases;
@@ -328,13 +325,14 @@ public class Object {
 				&& Objects.equals(this.size, object.size) && Objects.equals(this.created, object.created)
 				&& Objects.equals(this.updated, object.updated) && Objects.equals(this.version, object.version)
 				&& Objects.equals(this.mimeType, object.mimeType) && Objects.equals(this.checksums, object.checksums)
-				&& Objects.equals(this.urls, object.urls) && Objects.equals(this.description, object.description)
-				&& Objects.equals(this.aliases, object.aliases);
+				&& Objects.equals(this.accessMethods, object.accessMethods)
+				&& Objects.equals(this.description, object.description) && Objects.equals(this.aliases, object.aliases);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, size, created, updated, version, mimeType, checksums, urls, description, aliases);
+		return Objects.hash(id, name, size, created, updated, version, mimeType, checksums, accessMethods, description,
+				aliases);
 	}
 
 	@Override
@@ -350,7 +348,7 @@ public class Object {
 		sb.append("    version: ").append(toIndentedString(version)).append("\n");
 		sb.append("    mimeType: ").append(toIndentedString(mimeType)).append("\n");
 		sb.append("    checksums: ").append(toIndentedString(checksums)).append("\n");
-		sb.append("    urls: ").append(toIndentedString(urls)).append("\n");
+		sb.append("    accessMethods: ").append(toIndentedString(accessMethods)).append("\n");
 		sb.append("    description: ").append(toIndentedString(description)).append("\n");
 		sb.append("    aliases: ").append(toIndentedString(aliases)).append("\n");
 		sb.append("}");

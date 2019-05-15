@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.irods.jargon.ga4gh.dos.model.ServiceInfo;
+import org.irods.jargon.ga4gh.dos.model.ServiceInfoResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-05-14T11:28:18.659Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-02-07T17:18:44.860Z")
 
 @Controller
 public class ServiceInfoApiController implements ServiceInfoApi {
@@ -31,20 +31,20 @@ public class ServiceInfoApiController implements ServiceInfoApi {
 	}
 
 	@Override
-	public ResponseEntity<ServiceInfo> getServiceInfo() {
+	public ResponseEntity<ServiceInfoResponse> getServiceInfo() {
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			try {
-				return new ResponseEntity<ServiceInfo>(objectMapper.readValue(
+				return new ResponseEntity<ServiceInfoResponse>(objectMapper.readValue(
 						"{  \"license\" : \"{}\",  \"contact\" : \"{}\",  \"description\" : \"description\",  \"title\" : \"title\",  \"version\" : \"version\"}",
-						ServiceInfo.class), HttpStatus.NOT_IMPLEMENTED);
+						ServiceInfoResponse.class), HttpStatus.NOT_IMPLEMENTED);
 			} catch (IOException e) {
 				log.error("Couldn't serialize response for content type application/json", e);
-				return new ResponseEntity<ServiceInfo>(HttpStatus.INTERNAL_SERVER_ERROR);
+				return new ResponseEntity<ServiceInfoResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 
-		return new ResponseEntity<ServiceInfo>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<ServiceInfoResponse>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 }

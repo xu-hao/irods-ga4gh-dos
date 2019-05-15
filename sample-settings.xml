@@ -1,0 +1,9 @@
+<profile>
+  <id>ga4gh-dos</id>
+  <properties>
+    <drs.ssl.policy>CS_NEG_REFUSE</drs.ssl.policy>
+    <drs.provide.irods.url>true</drs.provide.irods.url>
+    <drs.rest.url.endpoint>http://example.com/rest/fileStream?path=</drs.rest.url.endpoint>
+  </properties>
+
+</profile>

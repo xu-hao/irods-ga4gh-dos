@@ -1,15 +1,17 @@
 package org.irods.jargon.ga4gh.dos.api;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
-import org.irods.jargon.ga4gh.dos.model.GetBundleResponse;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
+import org.irods.jargon.ga4gh.dos.model.Bundle;
+import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
 import org.irods.jargon.ga4gh.dos.security.RestAuthUtils;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.junit.Assert;
@@ -31,7 +33,17 @@ public class BundlesApiControllerTest {
 		irodsDataBundle.setBundleChecksum("b828w8d9");
 		irodsDataBundle.setBundleUuid(bundleId);
 		irodsDataBundle.setCreateDate(new Date());
-		irodsDataBundle.setDataObjects(new ArrayList<String>(Arrays.asList("foo", "bar")));
+
+		List<IrodsDataObject> dataObjects = new ArrayList<>();
+
+		IrodsDataObject dataObject = new IrodsDataObject();
+		dataObject.setAbsolutePath("/an/absolute/path");
+		dataObject.setFileName("foo");
+		dataObject.setGuid("abcd");
+		dataObject.setType(TypeEnum.OBJECT);
+		dataObject.getAccessUrls().add("foo");
+
+		irodsDataBundle.getDataObjects().add(dataObject);
 		irodsDataBundle.setDescription("desc");
 		irodsDataBundle.setIrodsAbsolutePath("/foo/bar");
 		irodsDataBundle.setUpdatedDate(new Date());
@@ -52,7 +64,7 @@ public class BundlesApiControllerTest {
 		request.addHeader("Accept", "application/json");
 		BundlesApiController controller = new BundlesApiController(mapper, request);
 		controller.setDosServiceFactory(dosServiceFactory);
-		ResponseEntity<GetBundleResponse> actual = controller.getBundle(bundleId, "");
+		ResponseEntity<Bundle> actual = controller.getBundle(bundleId);
 		Assert.assertNotNull("null response", actual);
 	}
 
