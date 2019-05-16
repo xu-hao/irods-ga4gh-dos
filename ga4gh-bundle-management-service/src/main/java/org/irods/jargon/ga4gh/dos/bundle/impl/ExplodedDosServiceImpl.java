@@ -6,6 +6,7 @@ import java.util.List;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.core.pub.CollectionAO;
+import org.irods.jargon.core.pub.EnvironmentalInfoAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.core.pub.domain.Collection;
@@ -73,7 +74,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			Collection collection = collectionAO.findByAbsolutePath(irodsPath);
 
 			log.info("getting rollup of objects in this bundle");
-			List<IrodsDataObject> objects = retrieveDataObjectsInBundle(irodsPath);
+			List<IrodsDataObject> objects = retrieveDataObjectsInBundle(bundleId);
 
 			IrodsDataBundle irodsDataBundle = new IrodsDataBundle();
 			irodsDataBundle.setDataObjects(objects);
@@ -96,11 +97,16 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				}
 			}
 
+			EnvironmentalInfoAO environmentalInfoAO = this.getIrodsAccessObjectFactory()
+					.getEnvironmentalInfoAO(getIrodsAccount());
+
 			irodsDataBundle.setCreateDate(collection.getCreatedAt());
 			irodsDataBundle.setDescription("iRODS exploded bundle collection"); // TODO: add special description avu?
 			irodsDataBundle.setIrodsAbsolutePath(collection.getAbsolutePath());
 			irodsDataBundle.setUpdatedDate(collection.getModifiedAt());
 			irodsDataBundle.setVersion("0"); // TODO: add special version avu?
+			irodsDataBundle.setBundleChecksumType(
+					environmentalInfoAO.retrieveClientHints(false).getHashScheme().toLowerCase());
 
 			log.info("data bundle ready:{}", irodsDataBundle);
 			return irodsDataBundle;

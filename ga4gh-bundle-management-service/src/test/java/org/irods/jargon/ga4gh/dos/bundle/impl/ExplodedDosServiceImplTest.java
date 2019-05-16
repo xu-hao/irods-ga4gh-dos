@@ -1,7 +1,5 @@
 package org.irods.jargon.ga4gh.dos.bundle.impl;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
@@ -13,6 +11,7 @@ import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
@@ -50,8 +49,46 @@ public class ExplodedDosServiceImplTest {
 	}
 
 	@Test
-	public void testRetrieveDataBundle() {
-		fail("Not yet implemented");
+	public void testRetrieveDataBundle() throws Exception {
+		String bundleDir = "testRetrieveDataBundle";
+
+		String localCollectionAbsolutePath = scratchFileUtils
+				.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH + '/' + bundleDir);
+
+		String irodsCollectionRootAbsolutePath = testingPropertiesHelper
+				.buildIRODSCollectionAbsolutePathFromTestProperties(testingProperties, IRODS_TEST_SUBDIR_PATH);
+
+		FileGenerator.generateManyFilesAndCollectionsInParentCollectionByAbsolutePath(localCollectionAbsolutePath,
+				"testRetrieveDataBundle", 3, 5, 3, "testFile", ".txt", 10, 9, 20, 200);
+
+		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+
+		IRODSFileFactory irodsFileFactory = irodsFileSystem.getIRODSFileFactory(irodsAccount);
+		IRODSFile destFile = irodsFileFactory.instanceIRODSFile(irodsCollectionRootAbsolutePath);
+		DataTransferOperations dataTransferOperationsAO = irodsFileSystem.getIRODSAccessObjectFactory()
+				.getDataTransferOperations(irodsAccount);
+		File localFile = new File(localCollectionAbsolutePath);
+
+		dataTransferOperationsAO.putOperation(localFile, destFile, null, null);
+		// bundle it up
+
+		String bundleRoot = irodsCollectionRootAbsolutePath + "/" + bundleDir;
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		dosConfiguration.setDrsRestUrlEndpoint("http://www.example.com/rest/fileStream?path=");
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+		factory.setDosConfiguration(dosConfiguration);
+
+		DosBundleManagementService bundleManagementService = factory.instanceDosBundleManagementService(irodsAccount);
+		DosService dosService = factory.instanceDosService(irodsAccount);
+		String guid = bundleManagementService.createDataBundle(bundleRoot);
+
+		IrodsDataBundle bundle = dosService.retrieveDataBundle(guid);
+		Assert.assertNotNull("null bundle", bundle);
+		Assert.assertEquals("guid incorrect", guid, bundle.getBundleUuid());
+		Assert.assertEquals("path missing", bundleRoot, bundle.getIrodsAbsolutePath());
+		Assert.assertFalse("missing checksum type", bundle.getBundleChecksumType().isEmpty());
+		Assert.assertFalse("missing bundle checksum", bundle.getBundleChecksum().isEmpty());
+		Assert.assertFalse("no bundle data objects", bundle.getDataObjects().isEmpty());
 	}
 
 	@Test
@@ -82,6 +119,7 @@ public class ExplodedDosServiceImplTest {
 
 		String bundleRoot = irodsCollectionRootAbsolutePath + "/" + bundleDir;
 		DosConfiguration dosConfiguration = new DosConfiguration();
+		dosConfiguration.setDrsRestUrlEndpoint("http://www.example.com/rest/fileStream?path=");
 		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
 		factory.setDosConfiguration(dosConfiguration);
 

@@ -250,7 +250,7 @@
 									irods.admin.password=${jargon.test.irods.admin.password}
 									irods.auth.scheme=${drs.auth.scheme}
 									default.storage.resource=${jargon.test.irods.resource}
-									ssl.negotiation.policy=${metalnx.ssl.policy}
+									ssl.negotiation.policy=${drs.ssl.policy}
 									drs.rest.url.endpoint=${drs.rest.url.endpoint}
 									drs.provide.irods.urls=true
 								</echo>
