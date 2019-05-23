@@ -49,6 +49,7 @@ public interface ObjectsApi {
 			@ApiResponse(code = 500, message = "An unexpected error occurred.", response = Error.class) })
 	@RequestMapping(value = "/objects/{object_id}", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.GET)
-	ResponseEntity<Object> getObject(@ApiParam(value = "", required = true) @PathVariable("object_id") String objectId);
+	ResponseEntity<org.irods.jargon.ga4gh.dos.model.Object> getObject(
+			@ApiParam(value = "", required = true) @PathVariable("object_id") String objectId);
 
 }

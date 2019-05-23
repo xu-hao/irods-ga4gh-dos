@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Properties;
 
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.pub.DataObjectAO;
 import org.irods.jargon.core.pub.DataTransferOperations;
 import org.irods.jargon.core.pub.IRODSFileSystem;
+import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
@@ -16,6 +18,7 @@ import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
+import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
 import org.junit.AfterClass;
@@ -136,6 +139,45 @@ public class ExplodedDosServiceImplTest {
 		Assert.assertFalse("no guid", actual.getGuid().isEmpty());
 		Assert.assertFalse("no file name", actual.getFileName().isEmpty());
 		Assert.assertEquals("wrong object type", TypeEnum.OBJECT, actual.getType());
+	}
+
+	@Test
+	public void testDataObjectIdToIrodsPath() throws Exception {
+		// create a dir with files
+
+		String testFileName = "testDataObjectIdToIrodsPath.dat";
+		String guid = "testDataObjectIdToIrodsPath";
+		String absPath = scratchFileUtils.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH);
+		String localFileName = FileGenerator.generateFileOfFixedLengthGivenName(absPath, testFileName, 10);
+
+		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+
+		// put scratch file into irods in the right place on the first resource
+
+		String targetIrodsCollection = testingPropertiesHelper
+				.buildIRODSCollectionAbsolutePathFromTestProperties(testingProperties, IRODS_TEST_SUBDIR_PATH);
+
+		String dataObjectAbsPath = targetIrodsCollection + '/' + testFileName;
+
+		DataTransferOperations dto = irodsFileSystem.getIRODSAccessObjectFactory()
+				.getDataTransferOperations(irodsAccount);
+		dto.putOperation(localFileName, targetIrodsCollection, irodsAccount.getDefaultStorageResource(), null, null);
+
+		DataObjectAO dataObjectAO = irodsFileSystem.getIRODSAccessObjectFactory().getDataObjectAO(irodsAccount);
+
+		AvuData avuData = ExplodedBundleMetadataUtils.createBundleDataObjectMarkerAvu(guid);
+
+		dataObjectAO.deleteAVUMetadata(dataObjectAbsPath, avuData);
+		dataObjectAO.addAVUMetadata(dataObjectAbsPath, avuData);
+
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		dosConfiguration.setDrsRestUrlEndpoint("http://www.example.com/rest/fileStream?path=");
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+		factory.setDosConfiguration(dosConfiguration);
+
+		DosService dosService = factory.instanceDosService(irodsAccount);
+		String actual = dosService.dataObjectIdToIrodsPath(guid);
+		Assert.assertEquals("wrong path", targetIrodsCollection + "/" + testFileName, actual);
 	}
 
 }

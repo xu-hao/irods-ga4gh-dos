@@ -6,11 +6,15 @@ import java.util.List;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.core.pub.CollectionAO;
+import org.irods.jargon.core.pub.DataObjectAO;
 import org.irods.jargon.core.pub.EnvironmentalInfoAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.core.pub.domain.Collection;
+import org.irods.jargon.core.pub.domain.DataObject;
 import org.irods.jargon.core.pub.io.IRODSFile;
+import org.irods.jargon.core.query.AVUQueryElement;
+import org.irods.jargon.core.query.AVUQueryElement.AVUQueryPart;
 import org.irods.jargon.core.query.GenQueryBuilderException;
 import org.irods.jargon.core.query.IRODSGenQueryBuilder;
 import org.irods.jargon.core.query.IRODSGenQueryFromBuilder;
@@ -54,6 +58,15 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	public ExplodedDosServiceImpl(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
 			DosServiceFactory dosServiceFactory, DosConfiguration dosConfiguration) {
 		super(irodsAccessObjectFactory, irodsAccount, dosServiceFactory, dosConfiguration);
+	}
+
+	public IrodsDataObject retrieveDataObject(final String objectId) throws DosDataNotFoundException {
+		log.info("retrieveDataObject()");
+		if (objectId == null || objectId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty objectId");
+		}
+		log.info("objectId:{}", objectId);
+		return null;
 	}
 
 	@Override
@@ -193,6 +206,37 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		}
 
 		return dataObjects;
+	}
+
+	@Override
+	public String dataObjectIdToIrodsPath(final String dataObjectId) throws DosDataNotFoundException, JargonException {
+		log.info("dataObjectIdToIrodsPath()");
+		if (dataObjectId == null || dataObjectId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty dataObjectId");
+		}
+		log.info("dataObjectId to resolve:{}", dataObjectId);
+
+		DataObjectAO dataObjectAO = this.getIrodsAccessObjectFactory().getDataObjectAO(getIrodsAccount());
+		List<AVUQueryElement> avuQuery = new ArrayList<AVUQueryElement>();
+
+		try {
+			avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.ATTRIBUTE, QueryConditionOperators.EQUAL,
+					ExplodedBundleMetadataUtils.GA4GH_DATA_OBJECT_ID_ATTRIBUTE));
+			avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.VALUE, QueryConditionOperators.EQUAL,
+					dataObjectId.trim()));
+			List<DataObject> dataObject = dataObjectAO.findDomainByMetadataQuery(avuQuery);
+			if (dataObject.isEmpty()) {
+				log.warn("no record found for dataObjectId:{}", dataObjectId);
+				throw new DosDataNotFoundException("data object not found");
+			}
+			log.info("found dataObject:{}", dataObject);
+			return dataObject.get(0).getAbsolutePath();
+
+		} catch (JargonQueryException e) {
+			log.error("Error creating query for bundles", e);
+			throw new JargonException("bundle query error", e);
+		}
+
 	}
 
 }

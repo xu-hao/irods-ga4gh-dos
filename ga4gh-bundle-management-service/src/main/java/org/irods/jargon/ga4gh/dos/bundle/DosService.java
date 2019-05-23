@@ -41,4 +41,14 @@ public interface DosService {
 	 */
 	IrodsDataBundle retrieveDataBundle(final String bundleId) throws DosDataNotFoundException;
 
+	/**
+	 * Retrieve the irods absolute path for the data object id
+	 * 
+	 * @param dataObjectId {@code String} with the ga4gh data object id
+	 * @return {@code String} with the iRODS absolute path
+	 * @throws DosDataNotFoundException {@link DosDataNotFoundException}
+	 * @throws JargonException          {@link JargonException}
+	 */
+	String dataObjectIdToIrodsPath(final String dataObjectId) throws DosDataNotFoundException, JargonException;
+
 }
