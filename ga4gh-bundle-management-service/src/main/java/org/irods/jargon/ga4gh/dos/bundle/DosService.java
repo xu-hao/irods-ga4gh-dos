@@ -7,6 +7,7 @@ import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
+import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
 
 /**
  * Interface for a backing service that serves data bundles and data objects out
@@ -17,6 +18,9 @@ import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
  *
  */
 public interface DosService {
+
+	public static final String ACCESS_IRODS = "irods";
+	public static final String ACCESS_REST = "irods-rest";
 
 	/**
 	 * Retrieve a list of data objects for a given bundle id (GUID)
@@ -50,5 +54,15 @@ public interface DosService {
 	 * @throws JargonException          {@link JargonException}
 	 */
 	String dataObjectIdToIrodsPath(final String dataObjectId) throws DosDataNotFoundException, JargonException;
+
+	/**
+	 * Retrieve a data object in a bundle based on its GUID
+	 * 
+	 * @param objectId {@code String} with the GUID of the data objecct
+	 * @return {@link IrodsDataObject}
+	 * @throws DosDataNotFoundException {@link DosDataNotFoundException}
+	 * @throws JargonException          {@link JargonException}
+	 */
+	IrodsDataObject retrieveDataObject(final String objectId) throws DosDataNotFoundException, DosSystemException;
 
 }

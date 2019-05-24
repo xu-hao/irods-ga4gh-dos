@@ -79,9 +79,19 @@ public class BundlesApiController implements BundlesApi {
 					bundleObject.setName(dataObject.getFileName());
 					bundleObject.setType(TypeEnum.OBJECT);
 
-					for (String uri : dataObject.getAccessUrls()) {
-						bundleObject.getDrsUri().add(uri);
-					}
+					/*
+					 * TODO:// implement url generation per this comment get a list of links to the
+					 * list of objects via the api...
+					 * 
+					 * example: drs://example.com/ga4gh/drs/v1/objects/{object_id} A list of full
+					 * DRS identifier URI paths that may be used obtain the Data Object or Data
+					 * Bundle. These URIs may be external to this DRS instance.
+					 */
+
+					/*
+					 * for (IrodsAccessMethod dataAccess : dataObject.getIrodsAccessMethods()) {
+					 * bundleObject.getDrsUri().add(dataAccess.getUrl()); }
+					 */
 
 					dataObjects.add(bundleObject);
 				}

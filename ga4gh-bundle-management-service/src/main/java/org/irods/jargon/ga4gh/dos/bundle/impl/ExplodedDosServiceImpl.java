@@ -25,9 +25,11 @@ import org.irods.jargon.core.query.MetaDataAndDomainData;
 import org.irods.jargon.core.query.QueryConditionOperators;
 import org.irods.jargon.core.query.RodsGenQueryEnum;
 import org.irods.jargon.core.utils.MiscIRODSUtils;
+import org.irods.jargon.core.utils.RestAuthUtils;
 import org.irods.jargon.ga4gh.dos.bundle.AbstractDosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsAccessMethod;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
@@ -54,19 +56,92 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 
 	private static final Logger log = LoggerFactory.getLogger(ExplodedDosServiceImpl.class);
 	public static final String BUNDLE_QUERY_ALIAS = "ga4ghBundleQuery";
+	public static final String BASIC_AUTH_HEADER_PREFIX = "Authorization: ";
 
 	public ExplodedDosServiceImpl(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
 			DosServiceFactory dosServiceFactory, DosConfiguration dosConfiguration) {
 		super(irodsAccessObjectFactory, irodsAccount, dosServiceFactory, dosConfiguration);
 	}
 
-	public IrodsDataObject retrieveDataObject(final String objectId) throws DosDataNotFoundException {
+	@Override
+	public IrodsDataObject retrieveDataObject(final String objectId)
+			throws DosDataNotFoundException, DosSystemException {
 		log.info("retrieveDataObject()");
 		if (objectId == null || objectId.isEmpty()) {
 			throw new IllegalArgumentException("null or empty objectId");
 		}
+
 		log.info("objectId:{}", objectId);
-		return null;
+
+		try {
+			String irodsPath = this.dataObjectIdToIrodsPath(objectId);
+			DataObjectAO dataObjectAO = this.getIrodsAccessObjectFactory().getDataObjectAO(getIrodsAccount());
+			DataObject dataObject = dataObjectAO.findByAbsolutePath(irodsPath);
+			List<MetaDataAndDomainData> metadatas = dataObjectAO.findMetadataValuesForDataObject(irodsPath);
+
+			IrodsDataObject irodsDataObject;
+
+			irodsDataObject = new IrodsDataObject();
+			irodsDataObject.setFileName(dataObject.getDataName());
+			irodsDataObject.setGuid(objectId);
+			irodsDataObject.setType(TypeEnum.OBJECT);
+			irodsDataObject.setAbsolutePath(dataObject.getAbsolutePath());
+			irodsDataObject.setSize(dataObject.getDataSize());
+			irodsDataObject.setMimeType(""); // TODO: add data profiler/mime type stuff
+
+			for (MetaDataAndDomainData metadata : metadatas) {
+				if (metadata.getAvuAttribute().equals(ExplodedBundleMetadataUtils.GA4GH_BUNDLE_CHECKSUM_ATTRIBUTE)) {
+					irodsDataObject.setChecksum(metadata.getAvuValue());
+					break;
+				}
+			}
+
+			EnvironmentalInfoAO environmentalInfoAO = this.getIrodsAccessObjectFactory()
+					.getEnvironmentalInfoAO(getIrodsAccount());
+			irodsDataObject.setChecksumType(environmentalInfoAO.retrieveClientHints(false).getHashScheme());
+
+			IRODSFile irodsFile = this.getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
+					.instanceIRODSFile(irodsPath);
+
+			addAccessUrls(irodsDataObject, irodsFile);
+			log.info("irodsDataObject:{}", irodsDataObject);
+			return irodsDataObject;
+
+		} catch (JargonException e) {
+			log.error("error accessing iRODS", e);
+			throw new DosSystemException("exception connecting to iRODS", e);
+		}
+
+	}
+
+	/**
+	 * @param irodsDataObject
+	 * @param irodsFile
+	 */
+	private void addAccessUrls(IrodsDataObject irodsDataObject, IRODSFile irodsFile) {
+		IrodsAccessMethod irodsAccessMethod;
+		if (this.getDosConfiguration().isDrsProvideIrodsUrls()) {
+			irodsAccessMethod = new IrodsAccessMethod();
+			irodsAccessMethod.setAccessId(DosService.ACCESS_IRODS);
+			irodsAccessMethod.setUrl(irodsFile.toURI().toString());
+			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.FILE);
+			irodsDataObject.getIrodsAccessMethods().add(irodsAccessMethod);
+		}
+
+		if (!this.getDosConfiguration().getDrsRestUrlEndpoint().isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
+			sb.append(irodsFile.getAbsolutePath());
+			irodsAccessMethod = new IrodsAccessMethod();
+			irodsAccessMethod.setAccessId(DosService.ACCESS_REST);
+			irodsAccessMethod.setUrl(sb.toString());
+			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.HTTPS);
+			sb = new StringBuilder();
+			sb.append(BASIC_AUTH_HEADER_PREFIX);
+			sb.append(RestAuthUtils.basicAuthTokenFromIRODSAccount(getIrodsAccount()));
+			irodsAccessMethod.getHeaders().add(sb.toString());
+			irodsDataObject.getIrodsAccessMethods().add(irodsAccessMethod);
+		}
 	}
 
 	@Override
@@ -135,6 +210,15 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	public List<IrodsDataObject> retrieveDataObjectsInBundle(final String bundleId)
 			throws BundleNotFoundException, JargonException {
 
+		/*
+		 * Note that not all values are obtained from iRODS to build the individual
+		 * IrodsDataObjects, this is to streamline the operation and save unnecessary
+		 * iRODS calls for data not used by the controller that obtains the object list.
+		 * 
+		 * More extenstive information is gathered when retrieving an individual
+		 * dataObject by id.
+		 */
+
 		log.info("listBundleIds()");
 		if (bundleId == null || bundleId.isEmpty()) {
 			throw new IllegalArgumentException("null or empty irodsAbsolutePath");
@@ -185,16 +269,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				irodsDataObject.setType(TypeEnum.OBJECT);
 				irodsDataObject.setAbsolutePath(irodsFile.getAbsolutePath());
 
-				if (this.getDosConfiguration().isDrsProvideIrodsUrls()) {
-					irodsDataObject.getAccessUrls().add(irodsFile.toURI().toString());
-				}
-
-				if (!this.getDosConfiguration().getDrsRestUrlEndpoint().isEmpty()) {
-					StringBuilder sb = new StringBuilder();
-					sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
-					sb.append(irodsFile.getAbsolutePath());
-					irodsDataObject.getAccessUrls().add(sb.toString());
-				}
+				addAccessUrls(irodsDataObject, irodsFile);
 
 				log.info("adding data object:{}", irodsDataObject);
 				dataObjects.add(irodsDataObject);

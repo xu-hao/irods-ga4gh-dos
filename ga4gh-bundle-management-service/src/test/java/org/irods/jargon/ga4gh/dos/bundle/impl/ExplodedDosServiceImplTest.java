@@ -95,6 +95,55 @@ public class ExplodedDosServiceImplTest {
 	}
 
 	@Test
+	public void testRetrieveDataObject() throws Exception {
+		String bundleDir = "testRetrieveDataObject";
+		String testFileName = "testRetrieveDataObject.txt";
+
+		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+
+		String irodsCollectionRootAbsolutePath = testingPropertiesHelper
+				.buildIRODSCollectionAbsolutePathFromTestProperties(testingProperties, IRODS_TEST_SUBDIR_PATH);
+
+		String localCollectionAbsolutePath = scratchFileUtils
+				.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH + '/' + bundleDir);
+
+		FileGenerator.generateFileOfFixedLengthGivenName(localCollectionAbsolutePath, testFileName, 1);
+
+		DataTransferOperations dto = irodsFileSystem.getIRODSAccessObjectFactory()
+				.getDataTransferOperations(irodsAccount);
+		dto.putOperation(localCollectionAbsolutePath, irodsCollectionRootAbsolutePath,
+				irodsAccount.getDefaultStorageResource(), null, null);
+
+		// bundle it up
+
+		String bundleRoot = irodsCollectionRootAbsolutePath + "/" + bundleDir;
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		dosConfiguration.setDrsRestUrlEndpoint("http://www.example.com/rest/fileStream?path=");
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+		factory.setDosConfiguration(dosConfiguration);
+
+		DosBundleManagementService bundleManagementService = factory.instanceDosBundleManagementService(irodsAccount);
+		DosService dosService = factory.instanceDosService(irodsAccount);
+		String guid = bundleManagementService.createDataBundle(bundleRoot);
+
+		IrodsDataBundle bundle = dosService.retrieveDataBundle(guid);
+		/* should be one file, retrieve it */
+
+		Assert.assertFalse("data object not found", bundle.getDataObjects().isEmpty());
+		IrodsDataObject irodsDataObject = bundle.getDataObjects().get(0);
+
+		/* get the guid and retrieve data object via service */
+
+		IrodsDataObject actual = dosService.retrieveDataObject(irodsDataObject.getGuid());
+		Assert.assertNotNull("null irodsDataObject", actual);
+		Assert.assertEquals(testFileName, actual.getFileName());
+		Assert.assertFalse("no guid", irodsDataObject.getGuid().isEmpty());
+		Assert.assertFalse("no absPath", irodsDataObject.getAbsolutePath().isEmpty());
+		Assert.assertFalse("no access methods", irodsDataObject.getIrodsAccessMethods().isEmpty());
+
+	}
+
+	@Test
 	public void testListDataObjectids() throws Exception {
 		// create a dir with files
 
