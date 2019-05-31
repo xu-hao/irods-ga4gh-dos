@@ -133,15 +133,19 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		IrodsAccessMethod irodsAccessMethod;
 		if (this.getDosConfiguration().isDrsProvideIrodsUrls()) {
 			irodsAccessMethod = new IrodsAccessMethod();
+			irodsAccessMethod.setAccessId(DosService.ACCESS_IRODS);
 			irodsAccessMethod.setUrl(irodsFile.toURI().toString());
 			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.FILE);
 			irodsDataObject.getIrodsAccessMethods().add(irodsAccessMethod);
 		}
 
 		if (!this.getDosConfiguration().getDrsRestUrlEndpoint().isEmpty()) {
-			StringBuilder sb;
+			StringBuilder sb = new StringBuilder();
+			sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
+			sb.append(irodsFile.getAbsolutePath());
 			irodsAccessMethod = new IrodsAccessMethod();
 			irodsAccessMethod.setAccessId(DosService.ACCESS_REST);
+			irodsAccessMethod.setUrl(sb.toString());
 			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.HTTPS);
 			sb = new StringBuilder();
 			sb.append(BASIC_AUTH_HEADER_PREFIX);

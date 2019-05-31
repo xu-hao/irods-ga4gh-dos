@@ -34,8 +34,6 @@ import io.swagger.annotations.ApiParam;
 @Controller
 public class BundlesApiController implements BundlesApi {
 
-	private final ObjectMapper objectMapper;
-
 	private final HttpServletRequest request;
 
 	private static final Logger log = LoggerFactory.getLogger(BundlesApiController.class);
@@ -45,7 +43,6 @@ public class BundlesApiController implements BundlesApi {
 
 	@org.springframework.beans.factory.annotation.Autowired
 	public BundlesApiController(ObjectMapper objectMapper, HttpServletRequest request) {
-		this.objectMapper = objectMapper;
 		this.request = request;
 	}
 
@@ -78,26 +75,11 @@ public class BundlesApiController implements BundlesApi {
 					bundleObject.setId(dataObject.getGuid());
 					bundleObject.setName(dataObject.getFileName());
 					bundleObject.setType(TypeEnum.OBJECT);
-
-					/*
-					 * TODO:// implement url generation per this comment get a list of links to the
-					 * list of objects via the api...
-					 * 
-					 * example: drs://example.com/ga4gh/drs/v1/objects/{object_id} A list of full
-					 * DRS identifier URI paths that may be used obtain the Data Object or Data
-					 * Bundle. These URIs may be external to this DRS instance.
-					 */
-
-					/*
-					 * for (IrodsAccessMethod dataAccess : dataObject.getIrodsAccessMethods()) {
-					 * bundleObject.getDrsUri().add(dataAccess.getUrl()); }
-					 */
-
+					bundleObject.getDrsUri().add(dataObject.getIrodsAccessMethods().get(0).getUrl());
 					dataObjects.add(bundleObject);
 				}
 
 				bundle.setContents(dataObjects);
-
 				bundle.setCreated(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getCreateDate()));
 				bundle.setDescription(irodsDataBundle.getDescription());
 				bundle.setId(irodsDataBundle.getBundleUuid());

@@ -8,6 +8,7 @@ import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsAccessMethod;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.model.Bundle;
@@ -41,7 +42,11 @@ public class BundlesApiControllerTest {
 		dataObject.setFileName("foo");
 		dataObject.setGuid("abcd");
 		dataObject.setType(TypeEnum.OBJECT);
-		dataObject.getAccessUrls().add("foo");
+		IrodsAccessMethod accessMethod = new IrodsAccessMethod();
+		accessMethod.setAccessId("foo");
+		accessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.FILE);
+		accessMethod.setUrl("http://foo.com");
+		dataObject.getIrodsAccessMethods().add(accessMethod);
 
 		irodsDataBundle.getDataObjects().add(dataObject);
 		irodsDataBundle.setDescription("desc");
