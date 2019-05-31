@@ -23,6 +23,7 @@ bin
 *.eml
 nbactions.xml
 testing.properties
+test.dos.properties
 */test-output
 JargonVersion.java
 **/${test.option.mount.basedir}

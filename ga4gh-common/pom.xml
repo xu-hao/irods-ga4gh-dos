@@ -137,6 +137,7 @@
 									test.option.gsi.file=${test.option.gsi.file}
 									test.option.mount.basedir=${test.option.mount.basedir}
 									test.option.python=${test.option.python}
+									ga4gh.access.url=http://foo.com/ga4gh/drs/v1/objects
 
 								</echo>
 							</tasks>

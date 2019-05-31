@@ -16,7 +16,7 @@ import org.irods.jargon.ga4gh.dos.model.BundleObject;
 import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
 import org.irods.jargon.ga4gh.dos.model.Checksum;
 import org.irods.jargon.ga4gh.dos.security.RestAuthUtils;
-import org.irods.jargon.ga4gh.dos.utils.ConversionUtils;
+import org.irods.jargon.ga4gh.dos.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,10 +98,10 @@ public class BundlesApiController implements BundlesApi {
 
 				bundle.setContents(dataObjects);
 
-				bundle.setCreated(ConversionUtils.offsetDateTimeFromDate(irodsDataBundle.getCreateDate()));
+				bundle.setCreated(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getCreateDate()));
 				bundle.setDescription(irodsDataBundle.getDescription());
 				bundle.setId(irodsDataBundle.getBundleUuid());
-				bundle.setUpdated(ConversionUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
+				bundle.setUpdated(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
 				bundle.setVersion(irodsDataBundle.getVersion());
 
 				return new ResponseEntity<Bundle>(bundle, HttpStatus.OK);

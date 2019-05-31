@@ -59,6 +59,9 @@ public class DosConfiguration {
 	@Value("${irodsext.datatyper.detailed.determination}")
 	private boolean detailedDataTypeDetermination;
 
+	@Value("${ga4gh.access.url}")
+	private String accessUrl = "";
+
 	/**
 	 * {@code String} property 'drs.rest.url.endpoint'. If not blank, represents the
 	 * complete url prefix to the REST endpoint that will provide a link to the
@@ -198,5 +201,28 @@ public class DosConfiguration {
 
 	public void setDrsProvideIrodsUrls(boolean drsProvideIrodsUrls) {
 		this.drsProvideIrodsUrls = drsProvideIrodsUrls;
+	}
+
+	public String getAccessUrl() {
+		return accessUrl;
+	}
+
+	public void setAccessUrl(String accessUrl) {
+		this.accessUrl = accessUrl;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("DosConfiguration [irodsHost=").append(irodsHost).append(", irodsZone=").append(irodsZone)
+				.append(", defaultStorageResource=").append(defaultStorageResource).append(", port=").append(port)
+				.append(", realm=").append(realm).append(", urlPrefix=").append(urlPrefix)
+				.append(", usePackingStreams=").append(usePackingStreams).append(", computeChecksum=")
+				.append(computeChecksum).append(", authScheme=").append(authScheme).append(", sslNegotiationPolicy=")
+				.append(sslNegotiationPolicy).append(", persistDataTypes=").append(persistDataTypes)
+				.append(", detailedDataTypeDetermination=").append(detailedDataTypeDetermination).append(", accessUrl=")
+				.append(accessUrl).append(", drsRestUrlEndpoint=").append(drsRestUrlEndpoint)
+				.append(", drsProvideIrodsUrls=").append(drsProvideIrodsUrls).append("]");
+		return builder.toString();
 	}
 }

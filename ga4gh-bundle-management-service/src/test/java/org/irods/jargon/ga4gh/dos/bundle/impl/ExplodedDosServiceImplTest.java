@@ -13,6 +13,7 @@ import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsAccessMethod;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
@@ -156,7 +157,7 @@ public class ExplodedDosServiceImplTest {
 				.buildIRODSCollectionAbsolutePathFromTestProperties(testingProperties, IRODS_TEST_SUBDIR_PATH);
 
 		FileGenerator.generateManyFilesAndCollectionsInParentCollectionByAbsolutePath(localCollectionAbsolutePath,
-				"testListDataObjectids", 3, 5, 3, "testFile", ".txt", 10, 9, 20, 200);
+				"testListDataObjectids", 2, 3, 2, "testFile", ".txt", 5, 4, 2, 3);
 
 		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
 
@@ -180,7 +181,8 @@ public class ExplodedDosServiceImplTest {
 		String guid = bundleManagementService.createDataBundle(bundleRoot);
 		Assert.assertNotNull("no guid returned", guid);
 
-		List<IrodsDataObject> dataBundles = dosService.retrieveDataObjectsInBundle(guid);
+		List<IrodsDataObject> dataBundles = dosService.retrieveDataObjectsInBundle(guid,
+				dosConfiguration.getDrsRestUrlEndpoint());
 		Assert.assertFalse("empty bundle list", dataBundles.isEmpty());
 
 		IrodsDataObject actual = dataBundles.get(0);
@@ -188,6 +190,10 @@ public class ExplodedDosServiceImplTest {
 		Assert.assertFalse("no guid", actual.getGuid().isEmpty());
 		Assert.assertFalse("no file name", actual.getFileName().isEmpty());
 		Assert.assertEquals("wrong object type", TypeEnum.OBJECT, actual.getType());
+
+		IrodsAccessMethod irodsAccessMethod = dataBundles.get(0).getIrodsAccessMethods().get(0);
+		Assert.assertEquals("/objects/" + actual.getGuid(), irodsAccessMethod.getUrl());
+
 	}
 
 	@Test

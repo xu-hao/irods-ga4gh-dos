@@ -114,6 +114,17 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 
 	}
 
+	private void addAccessUrlsForBundleObjectList(IrodsDataObject irodsDataObject, IRODSFile irodsFile, String drsUrl) {
+		IrodsAccessMethod irodsAccessMethod;
+		StringBuilder sb = new StringBuilder(drsUrl);
+		sb.append("/");
+		sb.append(irodsDataObject.getGuid());
+		irodsAccessMethod = new IrodsAccessMethod();
+		irodsAccessMethod.setUrl(sb.toString());
+		log.info("qdded access url:{}", irodsAccessMethod);
+		irodsDataObject.getIrodsAccessMethods().add(irodsAccessMethod);
+	}
+
 	/**
 	 * @param irodsDataObject
 	 * @param irodsFile
@@ -122,19 +133,15 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		IrodsAccessMethod irodsAccessMethod;
 		if (this.getDosConfiguration().isDrsProvideIrodsUrls()) {
 			irodsAccessMethod = new IrodsAccessMethod();
-			irodsAccessMethod.setAccessId(DosService.ACCESS_IRODS);
 			irodsAccessMethod.setUrl(irodsFile.toURI().toString());
 			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.FILE);
 			irodsDataObject.getIrodsAccessMethods().add(irodsAccessMethod);
 		}
 
 		if (!this.getDosConfiguration().getDrsRestUrlEndpoint().isEmpty()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
-			sb.append(irodsFile.getAbsolutePath());
+			StringBuilder sb;
 			irodsAccessMethod = new IrodsAccessMethod();
 			irodsAccessMethod.setAccessId(DosService.ACCESS_REST);
-			irodsAccessMethod.setUrl(sb.toString());
 			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.HTTPS);
 			sb = new StringBuilder();
 			sb.append(BASIC_AUTH_HEADER_PREFIX);
@@ -162,7 +169,8 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			Collection collection = collectionAO.findByAbsolutePath(irodsPath);
 
 			log.info("getting rollup of objects in this bundle");
-			List<IrodsDataObject> objects = retrieveDataObjectsInBundle(bundleId);
+			List<IrodsDataObject> objects = retrieveDataObjectsInBundle(bundleId,
+					this.getDosConfiguration().getDrsRestUrlEndpoint());
 
 			IrodsDataBundle irodsDataBundle = new IrodsDataBundle();
 			irodsDataBundle.setDataObjects(objects);
@@ -207,7 +215,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	}
 
 	@Override
-	public List<IrodsDataObject> retrieveDataObjectsInBundle(final String bundleId)
+	public List<IrodsDataObject> retrieveDataObjectsInBundle(final String bundleId, final String urlPrefix)
 			throws BundleNotFoundException, JargonException {
 
 		/*
@@ -215,7 +223,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		 * IrodsDataObjects, this is to streamline the operation and save unnecessary
 		 * iRODS calls for data not used by the controller that obtains the object list.
 		 * 
-		 * More extenstive information is gathered when retrieving an individual
+		 * More extensive information is gathered when retrieving an individual
 		 * dataObject by id.
 		 */
 
@@ -268,8 +276,11 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				irodsDataObject.setGuid(row.getColumn(2));
 				irodsDataObject.setType(TypeEnum.OBJECT);
 				irodsDataObject.setAbsolutePath(irodsFile.getAbsolutePath());
+				StringBuilder sb = new StringBuilder();
+				sb.append(this.getDosConfiguration().getAccessUrl());
+				sb.append("/objects");
 
-				addAccessUrls(irodsDataObject, irodsFile);
+				addAccessUrlsForBundleObjectList(irodsDataObject, irodsFile, sb.toString());
 
 				log.info("adding data object:{}", irodsDataObject);
 				dataObjects.add(irodsDataObject);

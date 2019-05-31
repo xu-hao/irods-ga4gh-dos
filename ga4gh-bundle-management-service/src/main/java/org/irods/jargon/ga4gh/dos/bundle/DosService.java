@@ -23,17 +23,6 @@ public interface DosService {
 	public static final String ACCESS_REST = "irods-rest";
 
 	/**
-	 * Retrieve a list of data objects for a given bundle id (GUID)
-	 * 
-	 * @param bundleId {@code String} with the bundle id (GUID)
-	 * @return {@code List} of {@link IrodsDataObject} with the data object ids
-	 * @throws BundleNotFoundException {@link BundleNotFoundException}
-	 * @throws JargonException         {@link JargonException}
-	 */
-	List<IrodsDataObject> retrieveDataObjectsInBundle(final String bundleId)
-			throws BundleNotFoundException, JargonException;
-
-	/**
 	 * Retrieve a data bundle (in an intermediate data transfer object) based on a
 	 * GA4GH bundle id
 	 * 
@@ -64,5 +53,19 @@ public interface DosService {
 	 * @throws JargonException          {@link JargonException}
 	 */
 	IrodsDataObject retrieveDataObject(final String objectId) throws DosDataNotFoundException, DosSystemException;
+
+	/**
+	 * Retrieve a list of data objects in a bundle
+	 * 
+	 * @param bundleId  {@code String} with the ga4gh data bundle id
+	 * @param urlPrefix {@code String} with the url prefix for obtaining access
+	 *                  methods for an individual data object
+	 * @return {@code List} of {@link IrodsDataObject} that can be used to build the
+	 *         bundle list in a GA4GH data bundle
+	 * @throws BundleNotFoundException {@link DosDataNotFoundException}
+	 * @throws JargonException         {@link JargonException}
+	 */
+	List<IrodsDataObject> retrieveDataObjectsInBundle(String bundleId, String urlPrefix)
+			throws BundleNotFoundException, JargonException;
 
 }

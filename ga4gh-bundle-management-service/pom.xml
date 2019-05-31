@@ -142,6 +142,8 @@
 									test.option.gsi.file=${test.option.gsi.file}
 									test.option.mount.basedir=${test.option.mount.basedir}
 									test.option.python=${test.option.python}
+									
+									
 
 								</echo>
 							</tasks>
@@ -171,6 +173,7 @@
 									ssl.negotiation.policy=${drs.ssl.policy}
 									drs.rest.url.endpoint=${drs.rest.url.endpoint}
 									drs.provide.irods.urls=true
+									ga4gh.access.url=http://foo.com/v1
 									
 								</echo>
 							</tasks>
