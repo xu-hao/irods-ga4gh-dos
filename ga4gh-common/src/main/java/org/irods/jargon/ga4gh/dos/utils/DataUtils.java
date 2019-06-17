@@ -6,6 +6,9 @@ package org.irods.jargon.ga4gh.dos.utils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
 
 import org.irods.jargon.core.exception.JargonException;
 
@@ -19,25 +22,39 @@ import org.irods.jargon.core.exception.JargonException;
 public class DataUtils {
 
 	/**
+	 * Convert from a {@link Date} to an {@link OffsetDateTime}
+	 * 
+	 * @param date {@link Date} to convert
+	 * @return {@link OffsetDateTime}
+	 */
+	public static OffsetDateTime dateToOffsetDateTime(final Date date) {
+		if (date == null) {
+			throw new IllegalArgumentException("null date");
+		}
+
+		return date.toInstant().atOffset(ZoneOffset.UTC);
+
+	}
+
+	/**
 	 * 
 	 */
 	private DataUtils() {
 	}
 
 	/**
-	 * Given path info from a URL, and a character encoding, return a decoded
-	 * path.
+	 * Given path info from a URL, and a character encoding, return a decoded path.
 	 * <p/>
-	 * Paths in URLs must be encoded because of the wide range of characters
-	 * that are used in iRODS absolute paths.
+	 * Paths in URLs must be encoded because of the wide range of characters that
+	 * are used in iRODS absolute paths.
 	 * 
 	 * @param pathInfo
 	 * @param encoding
 	 * @return
 	 * @throws JargonException
 	 */
-	public static String buildDecodedPathFromURLPathInfo(final String pathInfo,
-			final String encoding) throws JargonException {
+	public static String buildDecodedPathFromURLPathInfo(final String pathInfo, final String encoding)
+			throws JargonException {
 
 		if (pathInfo == null) {
 			throw new IllegalArgumentException("null pathInfo");
@@ -48,12 +65,12 @@ public class DataUtils {
 		}
 
 		/*
-		 * If the url extra path info for the collection has been encoded
-		 * (necessary if it contains any special character info), then it should
-		 * decode with a leading / char.
+		 * If the url extra path info for the collection has been encoded (necessary if
+		 * it contains any special character info), then it should decode with a leading
+		 * / char.
 		 * 
-		 * If it's not been encoded, then it will lack a leading slash, as this
-		 * is truncated during the URL mapping process in the framework.
+		 * If it's not been encoded, then it will lack a leading slash, as this is
+		 * truncated during the URL mapping process in the framework.
 		 */
 
 		String decodedString;
@@ -79,16 +96,14 @@ public class DataUtils {
 	}
 
 	/**
-	 * Given an iRODS absolute path, and an encoding scheme, encode for use in a
-	 * URL
+	 * Given an iRODS absolute path, and an encoding scheme, encode for use in a URL
 	 * 
 	 * @param path
 	 * @param encoding
 	 * @return
 	 * @throws JargonException
 	 */
-	public static String encodeIrodsAbsolutePath(final String path,
-			final String encoding) throws JargonException {
+	public static String encodeIrodsAbsolutePath(final String path, final String encoding) throws JargonException {
 
 		if (path == null) {
 			throw new IllegalArgumentException("null path");

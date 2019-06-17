@@ -88,6 +88,8 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			irodsDataObject.setAbsolutePath(dataObject.getAbsolutePath());
 			irodsDataObject.setSize(dataObject.getDataSize());
 			irodsDataObject.setMimeType(""); // TODO: add data profiler/mime type stuff
+			irodsDataObject.setModifyDate(dataObject.getUpdatedAt());
+			irodsDataObject.setCreateDate(dataObject.getCreatedAt());
 
 			for (MetaDataAndDomainData metadata : metadatas) {
 				if (metadata.getAvuAttribute().equals(ExplodedBundleMetadataUtils.GA4GH_BUNDLE_CHECKSUM_ATTRIBUTE)) {

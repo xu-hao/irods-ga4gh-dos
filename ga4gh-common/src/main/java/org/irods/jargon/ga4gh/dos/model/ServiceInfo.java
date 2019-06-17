@@ -29,10 +29,10 @@ public class ServiceInfo {
 	private String description = null;
 
 	@JsonProperty("contact")
-	private Object contact = null;
+	private Ga4ghObject contact = null;
 
 	@JsonProperty("license")
-	private Object license = null;
+	private Ga4ghObject license = null;
 
 	public ServiceInfo version(String version) {
 		this.version = version;
@@ -95,7 +95,7 @@ public class ServiceInfo {
 		this.description = description;
 	}
 
-	public ServiceInfo contact(Object contact) {
+	public ServiceInfo contact(Ga4ghObject contact) {
 		this.contact = contact;
 		return this;
 	}
@@ -107,15 +107,15 @@ public class ServiceInfo {
 	 **/
 	@ApiModelProperty(value = "Maintainer contact info")
 
-	public Object getContact() {
+	public Ga4ghObject getContact() {
 		return contact;
 	}
 
-	public void setContact(Object contact) {
+	public void setContact(Ga4ghObject contact) {
 		this.contact = contact;
 	}
 
-	public ServiceInfo license(Object license) {
+	public ServiceInfo license(Ga4ghObject license) {
 		this.license = license;
 		return this;
 	}
@@ -127,11 +127,11 @@ public class ServiceInfo {
 	 **/
 	@ApiModelProperty(value = "License information for the exposed API")
 
-	public Object getLicense() {
+	public Ga4ghObject getLicense() {
 		return license;
 	}
 
-	public void setLicense(Object license) {
+	public void setLicense(Ga4ghObject license) {
 		this.license = license;
 	}
 

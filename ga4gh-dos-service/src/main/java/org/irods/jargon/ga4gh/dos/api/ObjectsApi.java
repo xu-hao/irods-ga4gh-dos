@@ -35,21 +35,21 @@ public interface ObjectsApi {
 	@RequestMapping(value = "/objects/{object_id}/access/{access_id}", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.GET)
 	ResponseEntity<AccessURL> getAccessURL(
-			@ApiParam(value = "An `id` of a Data Object", required = true) @PathVariable("object_id") String objectId,
-			@ApiParam(value = "An `access_id` from the `access_methods` list of a Data Object", required = true) @PathVariable("access_id") String accessId);
+			@ApiParam(value = "An `id` of a Data Ga4ghObject", required = true) @PathVariable("object_id") String objectId,
+			@ApiParam(value = "An `access_id` from the `access_methods` list of a Data Ga4ghObject", required = true) @PathVariable("access_id") String accessId);
 
-	@ApiOperation(value = "Get info about a Data Object.", nickname = "getObject", notes = "Returns object metadata, and a list of access methods that can be used to fetch object bytes.", response = Object.class, authorizations = {
+	@ApiOperation(value = "Get info about a Data Ga4ghObject.", nickname = "getObject", notes = "Returns object metadata, and a list of access methods that can be used to fetch object bytes.", response = Object.class, authorizations = {
 			@Authorization(value = "authToken") }, tags = { "DataRepositoryService", })
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "The Data Object was found successfully.", response = Object.class),
+			@ApiResponse(code = 200, message = "The Data Ga4ghObject was found successfully.", response = Object.class),
 			@ApiResponse(code = 400, message = "The request is malformed.", response = Error.class),
 			@ApiResponse(code = 401, message = "The request is unauthorized.", response = Error.class),
 			@ApiResponse(code = 403, message = "The requester is not authorized to perform this action.", response = Error.class),
-			@ApiResponse(code = 404, message = "The requested Data Object wasn't found", response = Error.class),
+			@ApiResponse(code = 404, message = "The requested Data Ga4ghObject wasn't found", response = Error.class),
 			@ApiResponse(code = 500, message = "An unexpected error occurred.", response = Error.class) })
 	@RequestMapping(value = "/objects/{object_id}", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.GET)
-	ResponseEntity<org.irods.jargon.ga4gh.dos.model.Object> getObject(
+	ResponseEntity<org.irods.jargon.ga4gh.dos.model.Ga4ghObject> getObject(
 			@ApiParam(value = "", required = true) @PathVariable("object_id") String objectId);
 
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -66,6 +67,13 @@
 			<artifactId>mockito-all</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.swagger/swagger-annotations -->
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>1.5.22</version>
+		</dependency>
+
 
 	</dependencies>
 	<build>
@@ -79,10 +87,13 @@
 						<phase>validate</phase>
 						<configuration>
 							<tasks>
-								<delete file="${basedir}/src/test/resources/testing.properties" />
-								<touch file="${basedir}/src/test/resources/testing.properties"
+								<delete
+									file="${basedir}/src/test/resources/testing.properties" />
+								<touch
+									file="${basedir}/src/test/resources/testing.properties"
 									mkdirs="true" />
-								<echo file="${basedir}/src/test/resources/testing.properties"
+								<echo
+									file="${basedir}/src/test/resources/testing.properties"
 									append="true">
 									test.data.directory=${jargon.test.data.directory}
 									test.irods.admin=${jargon.test.irods.admin}
@@ -152,10 +163,13 @@
 						<phase>validate</phase>
 						<configuration>
 							<tasks>
-								<delete file="${basedir}/src/test/resources/test.dos.properties" />
-								<touch file="${basedir}/src/test/resources/test.dos.properties"
+								<delete
+									file="${basedir}/src/test/resources/test.dos.properties" />
+								<touch
+									file="${basedir}/src/test/resources/test.dos.properties"
 									mkdirs="true" />
-								<echo file="${basedir}/src/test/resources/test.dos.properties"
+								<echo
+									file="${basedir}/src/test/resources/test.dos.properties"
 									append="true">
 									irods.host=${jargon.test.irods.host}
 									irods.port=${jargon.test.irods.port}

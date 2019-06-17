@@ -4,6 +4,7 @@
 package org.irods.jargon.ga4gh.dos.bundle.internalmodel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
@@ -15,6 +16,21 @@ import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
  *
  */
 public class IrodsDataObject {
+
+	/**
+	 * Version number (currently not supported)
+	 */
+	private String version = "";
+
+	/**
+	 * iRODS create date
+	 */
+	private Date createDate;
+
+	/**
+	 * iRODS modify date
+	 */
+	private Date modifyDate;
 
 	/**
 	 * File size, in bytes
@@ -120,12 +136,26 @@ public class IrodsDataObject {
 	public String toString() {
 		final int maxLen = 10;
 		StringBuilder builder = new StringBuilder();
-		builder.append("IrodsDataObject [irodsAccessMethods=")
+		builder.append("IrodsDataObject [version=").append(version).append(", createDate=").append(createDate)
+				.append(", modifyDate=").append(modifyDate).append(", size=").append(size).append(", mimeType=")
+				.append(mimeType).append(", checksum=").append(checksum).append(", checksumType=").append(checksumType)
+				.append(", irodsAccessMethods=")
 				.append(irodsAccessMethods != null
 						? irodsAccessMethods.subList(0, Math.min(irodsAccessMethods.size(), maxLen))
 						: null)
 				.append(", absolutePath=").append(absolutePath).append(", fileName=").append(fileName).append(", guid=")
-				.append(guid).append(", type=").append(type).append("]");
+				.append(guid).append(", type=").append(type).append(", getGuid()=").append(getGuid())
+				.append(", getFileName()=").append(getFileName()).append(", getType()=").append(getType())
+				.append(", getAbsolutePath()=").append(getAbsolutePath()).append(", getIrodsAccessMethods()=")
+				.append(getIrodsAccessMethods() != null
+						? getIrodsAccessMethods().subList(0, Math.min(getIrodsAccessMethods().size(), maxLen))
+						: null)
+				.append(", getSize()=").append(getSize()).append(", getMimeType()=").append(getMimeType())
+				.append(", getChecksum()=").append(getChecksum()).append(", getChecksumType()=")
+				.append(getChecksumType()).append(", getCreateDate()=").append(getCreateDate())
+				.append(", getModifyDate()=").append(getModifyDate()).append(", getVersion()=").append(getVersion())
+				.append(", getClass()=").append(getClass()).append(", hashCode()=").append(hashCode())
+				.append(", toString()=").append(super.toString()).append("]");
 		return builder.toString();
 	}
 
@@ -159,6 +189,30 @@ public class IrodsDataObject {
 
 	public void setChecksumType(String checksumType) {
 		this.checksumType = checksumType;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public Date getModifyDate() {
+		return modifyDate;
+	}
+
+	public void setModifyDate(Date modifyDate) {
+		this.modifyDate = modifyDate;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 }

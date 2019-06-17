@@ -198,7 +198,7 @@ public class Bundle {
 	 * The checksum of the Data Bundle. At least one checksum must be provided. The
 	 * Data Bundle checksum is computed over a sorted concatenation of all the
 	 * checksums (names not included) within the top-level 'contents' of the Bundle
-	 * (not recursive). The list of Data Object or Bundle checksums are sorted
+	 * (not recursive). The list of Data Ga4ghObject or Bundle checksums are sorted
 	 * alphabetically (hex-code) before concatenation and a further checksum is
 	 * performed on the concatenated checksum value. Example below: Data Ojects:
 	 * md5(DO1) = 72794b6d30bc86d92e40a1aa65c880b8 md5(DO2) =
@@ -212,7 +212,7 @@ public class Bundle {
 	 * 
 	 * @return checksums
 	 **/
-	@ApiModelProperty(required = true, value = "The checksum of the Data Bundle. At least one checksum must be provided.  The Data Bundle checksum is computed over a sorted concatenation of all the checksums (names not included) within the top-level 'contents' of the Bundle (not recursive). The list of Data Object or Bundle checksums are sorted alphabetically (hex-code) before concatenation and a further checksum is performed on the concatenated checksum value. Example below: Data Ojects:   md5(DO1) = 72794b6d30bc86d92e40a1aa65c880b8   md5(DO2) = 5e089d29a18954e68a78ee6a3c6edabd Data Bundle: DB1 = md5( concat( sort( md5(DO1), md5(DO2) ) ) )     = md5( concat( sort( 72794b6d30bc86d92e40a1aa65c880b8, 5e089d29a18954e68a78ee6a3c6edabd ) ) )     = md5( concat( 5e089d29a18954e68a78ee6a3c6edabd, 72794b6d30bc86d92e40a1aa65c880b8 ) )     = md5( 5e089d29a18954e68a78ee6a3c6edabd72794b6d30bc86d92e40a1aa65c880b8 )     = f7a29a0422e7d870b10839ad6c985079")
+	@ApiModelProperty(required = true, value = "The checksum of the Data Bundle. At least one checksum must be provided.  The Data Bundle checksum is computed over a sorted concatenation of all the checksums (names not included) within the top-level 'contents' of the Bundle (not recursive). The list of Data Ga4ghObject or Bundle checksums are sorted alphabetically (hex-code) before concatenation and a further checksum is performed on the concatenated checksum value. Example below: Data Ojects:   md5(DO1) = 72794b6d30bc86d92e40a1aa65c880b8   md5(DO2) = 5e089d29a18954e68a78ee6a3c6edabd Data Bundle: DB1 = md5( concat( sort( md5(DO1), md5(DO2) ) ) )     = md5( concat( sort( 72794b6d30bc86d92e40a1aa65c880b8, 5e089d29a18954e68a78ee6a3c6edabd ) ) )     = md5( concat( 5e089d29a18954e68a78ee6a3c6edabd, 72794b6d30bc86d92e40a1aa65c880b8 ) )     = md5( 5e089d29a18954e68a78ee6a3c6edabd72794b6d30bc86d92e40a1aa65c880b8 )     = f7a29a0422e7d870b10839ad6c985079")
 	@NotNull
 
 	@Valid

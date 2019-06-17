@@ -96,11 +96,11 @@ public class BundleObject {
 	}
 
 	/**
-	 * A DRS identifier of a Data Object or a nested Data Bundle.
+	 * A DRS identifier of a Data Ga4ghObject or a nested Data Bundle.
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(required = true, value = "A DRS identifier of a Data Object or a nested Data Bundle.")
+	@ApiModelProperty(required = true, value = "A DRS identifier of a Data Ga4ghObject or a nested Data Bundle.")
 	@NotNull
 
 	public String getId() {
@@ -126,11 +126,11 @@ public class BundleObject {
 
 	/**
 	 * A list of full DRS identifier URI paths that may be used obtain the Data
-	 * Object or Data Bundle. These URIs may be external to this DRS instance.
+	 * Ga4ghObject or Data Bundle. These URIs may be external to this DRS instance.
 	 * 
 	 * @return drsUri
 	 **/
-	@ApiModelProperty(example = "\"drs://example.com/ga4gh/drs/v1/objects/{object_id}\"", value = "A list of full DRS identifier URI paths that may be used obtain the Data Object or Data Bundle. These URIs may be external to this DRS instance.")
+	@ApiModelProperty(example = "\"drs://example.com/ga4gh/drs/v1/objects/{object_id}\"", value = "A list of full DRS identifier URI paths that may be used obtain the Data Ga4ghObject or Data Bundle. These URIs may be external to this DRS instance.")
 
 	public List<String> getDrsUri() {
 		return drsUri;

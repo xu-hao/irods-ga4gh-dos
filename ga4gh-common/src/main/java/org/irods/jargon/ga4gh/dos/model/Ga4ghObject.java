@@ -1,5 +1,6 @@
 package org.irods.jargon.ga4gh.dos.model;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,19 +10,18 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.springframework.validation.annotation.Validated;
-import org.threeten.bp.OffsetDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Object
+ * Ga4ghObject
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-05-14T11:28:18.659Z")
 
-public class Object {
+public class Ga4ghObject {
 	@JsonProperty("id")
 	private String id = null;
 
@@ -58,17 +58,17 @@ public class Object {
 	@Valid
 	private List<String> aliases = null;
 
-	public Object id(String id) {
+	public Ga4ghObject id(String id) {
 		this.id = id;
 		return this;
 	}
 
 	/**
-	 * An identifier unique to this Data Object.
+	 * An identifier unique to this Data Ga4ghObject.
 	 * 
 	 * @return id
 	 **/
-	@ApiModelProperty(required = true, value = "An identifier unique to this Data Object.")
+	@ApiModelProperty(required = true, value = "An identifier unique to this Data Ga4ghObject.")
 	@NotNull
 
 	public String getId() {
@@ -79,17 +79,17 @@ public class Object {
 		this.id = id;
 	}
 
-	public Object name(String name) {
+	public Ga4ghObject name(String name) {
 		this.name = name;
 		return this;
 	}
 
 	/**
-	 * A string that can be used to name a Data Object.
+	 * A string that can be used to name a Data Ga4ghObject.
 	 * 
 	 * @return name
 	 **/
-	@ApiModelProperty(value = "A string that can be used to name a Data Object.")
+	@ApiModelProperty(value = "A string that can be used to name a Data Ga4ghObject.")
 
 	public String getName() {
 		return name;
@@ -99,7 +99,7 @@ public class Object {
 		this.name = name;
 	}
 
-	public Object size(Long size) {
+	public Ga4ghObject size(Long size) {
 		this.size = size;
 		return this;
 	}
@@ -120,7 +120,7 @@ public class Object {
 		this.size = size;
 	}
 
-	public Object created(OffsetDateTime created) {
+	public Ga4ghObject created(OffsetDateTime created) {
 		this.created = created;
 		return this;
 	}
@@ -143,18 +143,18 @@ public class Object {
 		this.created = created;
 	}
 
-	public Object updated(OffsetDateTime updated) {
+	public Ga4ghObject updated(OffsetDateTime updated) {
 		this.updated = updated;
 		return this;
 	}
 
 	/**
-	 * Timestamp of Object update in RFC3339, identical to create timestamp in
+	 * Timestamp of Ga4ghObject update in RFC3339, identical to create timestamp in
 	 * systems that do not support updates.
 	 * 
 	 * @return updated
 	 **/
-	@ApiModelProperty(value = "Timestamp of Object update in RFC3339, identical to create timestamp in systems that do not support updates.")
+	@ApiModelProperty(value = "Timestamp of Ga4ghObject update in RFC3339, identical to create timestamp in systems that do not support updates.")
 
 	@Valid
 
@@ -166,7 +166,7 @@ public class Object {
 		this.updated = updated;
 	}
 
-	public Object version(String version) {
+	public Ga4ghObject version(String version) {
 		this.version = version;
 		return this;
 	}
@@ -186,17 +186,17 @@ public class Object {
 		this.version = version;
 	}
 
-	public Object mimeType(String mimeType) {
+	public Ga4ghObject mimeType(String mimeType) {
 		this.mimeType = mimeType;
 		return this;
 	}
 
 	/**
-	 * A string providing the mime-type of the Data Object.
+	 * A string providing the mime-type of the Data Ga4ghObject.
 	 * 
 	 * @return mimeType
 	 **/
-	@ApiModelProperty(example = "application/json", value = "A string providing the mime-type of the Data Object.")
+	@ApiModelProperty(example = "application/json", value = "A string providing the mime-type of the Data Ga4ghObject.")
 
 	public String getMimeType() {
 		return mimeType;
@@ -206,22 +206,22 @@ public class Object {
 		this.mimeType = mimeType;
 	}
 
-	public Object checksums(List<Checksum> checksums) {
+	public Ga4ghObject checksums(List<Checksum> checksums) {
 		this.checksums = checksums;
 		return this;
 	}
 
-	public Object addChecksumsItem(Checksum checksumsItem) {
+	public Ga4ghObject addChecksumsItem(Checksum checksumsItem) {
 		this.checksums.add(checksumsItem);
 		return this;
 	}
 
 	/**
-	 * The checksum of the Data Object. At least one checksum must be provided.
+	 * The checksum of the Data Ga4ghObject. At least one checksum must be provided.
 	 * 
 	 * @return checksums
 	 **/
-	@ApiModelProperty(required = true, value = "The checksum of the Data Object. At least one checksum must be provided.")
+	@ApiModelProperty(required = true, value = "The checksum of the Data Ga4ghObject. At least one checksum must be provided.")
 	@NotNull
 
 	@Valid
@@ -234,22 +234,22 @@ public class Object {
 		this.checksums = checksums;
 	}
 
-	public Object accessMethods(List<AccessMethod> accessMethods) {
+	public Ga4ghObject accessMethods(List<AccessMethod> accessMethods) {
 		this.accessMethods = accessMethods;
 		return this;
 	}
 
-	public Object addAccessMethodsItem(AccessMethod accessMethodsItem) {
+	public Ga4ghObject addAccessMethodsItem(AccessMethod accessMethodsItem) {
 		this.accessMethods.add(accessMethodsItem);
 		return this;
 	}
 
 	/**
-	 * The list of access methods that can be used to fetch the Data Object.
+	 * The list of access methods that can be used to fetch the Data Ga4ghObject.
 	 * 
 	 * @return accessMethods
 	 **/
-	@ApiModelProperty(required = true, value = "The list of access methods that can be used to fetch the Data Object.")
+	@ApiModelProperty(required = true, value = "The list of access methods that can be used to fetch the Data Ga4ghObject.")
 	@NotNull
 
 	@Valid
@@ -262,17 +262,17 @@ public class Object {
 		this.accessMethods = accessMethods;
 	}
 
-	public Object description(String description) {
+	public Ga4ghObject description(String description) {
 		this.description = description;
 		return this;
 	}
 
 	/**
-	 * A human readable description of the Data Object.
+	 * A human readable description of the Data Ga4ghObject.
 	 * 
 	 * @return description
 	 **/
-	@ApiModelProperty(value = "A human readable description of the Data Object.")
+	@ApiModelProperty(value = "A human readable description of the Data Ga4ghObject.")
 
 	public String getDescription() {
 		return description;
@@ -282,12 +282,12 @@ public class Object {
 		this.description = description;
 	}
 
-	public Object aliases(List<String> aliases) {
+	public Ga4ghObject aliases(List<String> aliases) {
 		this.aliases = aliases;
 		return this;
 	}
 
-	public Object addAliasesItem(String aliasesItem) {
+	public Ga4ghObject addAliasesItem(String aliasesItem) {
 		if (this.aliases == null) {
 			this.aliases = new ArrayList<String>();
 		}
@@ -297,12 +297,12 @@ public class Object {
 
 	/**
 	 * A list of strings that can be used to find other metadata about this Data
-	 * Object from external metadata sources. These aliases can be used to represent
-	 * the Data Object's secondary accession numbers or external GUIDs.
+	 * Ga4ghObject from external metadata sources. These aliases can be used to represent
+	 * the Data Ga4ghObject's secondary accession numbers or external GUIDs.
 	 * 
 	 * @return aliases
 	 **/
-	@ApiModelProperty(value = "A list of strings that can be used to find other metadata about this Data Object from external metadata sources. These aliases can be used to represent the Data Object's secondary accession numbers or external GUIDs.")
+	@ApiModelProperty(value = "A list of strings that can be used to find other metadata about this Data Ga4ghObject from external metadata sources. These aliases can be used to represent the Data Ga4ghObject's secondary accession numbers or external GUIDs.")
 
 	public List<String> getAliases() {
 		return aliases;
@@ -320,7 +320,7 @@ public class Object {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		Object object = (Object) o;
+		Ga4ghObject object = (Ga4ghObject) o;
 		return Objects.equals(this.id, object.id) && Objects.equals(this.name, object.name)
 				&& Objects.equals(this.size, object.size) && Objects.equals(this.created, object.created)
 				&& Objects.equals(this.updated, object.updated) && Objects.equals(this.version, object.version)
@@ -338,7 +338,7 @@ public class Object {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("class Object {\n");
+		sb.append("class Ga4ghObject {\n");
 
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
 		sb.append("    name: ").append(toIndentedString(name)).append("\n");
