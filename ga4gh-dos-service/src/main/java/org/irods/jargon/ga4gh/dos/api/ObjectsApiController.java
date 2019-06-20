@@ -1,6 +1,7 @@
 package org.irods.jargon.ga4gh.dos.api;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,7 +13,9 @@ import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
 import org.irods.jargon.ga4gh.dos.model.AccessMethod;
+import org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum;
 import org.irods.jargon.ga4gh.dos.model.AccessURL;
+import org.irods.jargon.ga4gh.dos.model.Checksum;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghObject;
 import org.irods.jargon.ga4gh.dos.security.RestAuthUtils;
 import org.irods.jargon.ga4gh.dos.utils.DataUtils;
@@ -108,6 +111,7 @@ public class ObjectsApiController implements ObjectsApi {
 					log.debug("irodsAccessMethod:{}", irodsAccessMethods);
 					accessMethod = new AccessMethod();
 					accessMethod.setAccessId(irodsAccessMethods.getAccessId());
+					accessMethod.setType(TypeEnum.FILE);
 					if (!irodsAccessMethods.getUrl().isEmpty()) {
 						accessUrl = new AccessURL();
 						accessUrl.setUrl(irodsAccessMethods.getUrl());
@@ -120,9 +124,15 @@ public class ObjectsApiController implements ObjectsApi {
 
 					dataObject.getAccessMethods().add(accessMethod);
 
-					TODO create unit test
-					
 				}
+
+				dataObject.setAliases(new ArrayList<String>());
+				dataObject.getAliases().add(irodsDataObject.getAbsolutePath());
+				Checksum checksum = new Checksum();
+				checksum.setChecksum(irodsDataObject.getChecksum());
+				checksum.setType(irodsDataObject.getChecksumType());
+				dataObject.getChecksums().add(checksum);
+				return new ResponseEntity<Ga4ghObject>(dataObject, HttpStatus.OK);
 
 			} catch (DosSystemException e) {
 				log.error("Couldn't serialize response for content type application/json", e);
@@ -132,17 +142,9 @@ public class ObjectsApiController implements ObjectsApi {
 				return new ResponseEntity<Ga4ghObject>(HttpStatus.NOT_FOUND);
 			}
 
-			try {
-				return new ResponseEntity<Ga4ghObject>(objectMapper.readValue(
-						"{  \"checksums\" : [ {    \"checksum\" : \"checksum\",    \"type\" : \"type\"  }, {    \"checksum\" : \"checksum\",    \"type\" : \"type\"  } ],  \"aliases\" : [ \"aliases\", \"aliases\" ],  \"size\" : 0,  \"mime_type\" : \"application/json\",  \"access_methods\" : [ {    \"access_url\" : {      \"headers\" : {        \"Authorization\" : \"Basic Z2E0Z2g6ZHJz\"      },      \"url\" : \"url\"    },    \"access_id\" : \"access_id\",    \"type\" : \"s3\",    \"region\" : \"us-east-1\"  }, {    \"access_url\" : {      \"headers\" : {        \"Authorization\" : \"Basic Z2E0Z2g6ZHJz\"      },      \"url\" : \"url\"    },    \"access_id\" : \"access_id\",    \"type\" : \"s3\",    \"region\" : \"us-east-1\"  } ],  \"created\" : \"2000-01-23T04:56:07.000+00:00\",  \"name\" : \"name\",  \"description\" : \"description\",  \"id\" : \"id\",  \"updated\" : \"2000-01-23T04:56:07.000+00:00\",  \"version\" : \"version\"}",
-						Ga4ghObject.class), HttpStatus.NOT_IMPLEMENTED);
-			} catch (IOException e) {
-				log.error("Couldn't serialize response for content type application/json", e);
-				return new ResponseEntity<Ga4ghObject>(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
+		} else {
+			return new ResponseEntity<Ga4ghObject>(HttpStatus.BAD_REQUEST);
 		}
-
-		return new ResponseEntity<Ga4ghObject>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 	public DosServiceFactory getDosServiceFactory() {

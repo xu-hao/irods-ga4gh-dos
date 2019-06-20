@@ -96,9 +96,9 @@ public class BundlesApiController implements BundlesApi {
 				return new ResponseEntity<Bundle>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 
+		} else {
+			return new ResponseEntity<Bundle>(HttpStatus.BAD_REQUEST);
 		}
-
-		return new ResponseEntity<Bundle>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 	public DosServiceFactory getDosServiceFactory() {
