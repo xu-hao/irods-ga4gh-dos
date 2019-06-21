@@ -1,6 +1,5 @@
 package org.irods.jargon.ga4gh.dos.api;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,19 +54,55 @@ public class ObjectsApiController implements ObjectsApi {
 	public ResponseEntity<AccessURL> getAccessURL(
 			@ApiParam(value = "An `id` of a Data Ga4ghObject", required = true) @PathVariable("object_id") String objectId,
 			@ApiParam(value = "An `access_id` from the `access_methods` list of a Data Ga4ghObject", required = true) @PathVariable("access_id") String accessId) {
+
+		log.info("getAccessURL()");
+
+		if (objectId == null || objectId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty objectId");
+		}
+
+		log.info("objectId:{}", objectId);
+
+		if (accessId == null || accessId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty objectId");
+		}
+
+		log.info("accessId:{}", accessId);
+
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			try {
-				return new ResponseEntity<AccessURL>(objectMapper.readValue(
-						"{  \"headers\" : {    \"Authorization\" : \"Basic Z2E0Z2g6ZHJz\"  },  \"url\" : \"url\"}",
-						AccessURL.class), HttpStatus.NOT_IMPLEMENTED);
-			} catch (IOException e) {
+
+				IRODSAccount irodsAccount = RestAuthUtils.irodsAccountFromContext();
+				log.debug("irodsAccount:{}", irodsAccount);
+
+				DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
+
+				try {
+					IrodsAccessMethod irodsAccessMethod = dosService.createAccessUrlForDataObject(objectId, accessId);
+					AccessURL accessUrl = new AccessURL();
+					accessUrl.setHeaders(new ArrayList<String>());
+					accessUrl.setUrl(irodsAccessMethod.getUrl());
+
+					for (String header : irodsAccessMethod.getHeaders()) {
+						accessUrl.getHeaders().add(header);
+					}
+
+					log.info("accessUrl:{}", accessUrl);
+					return new ResponseEntity<AccessURL>(accessUrl, HttpStatus.OK);
+
+				} catch (DosDataNotFoundException e) {
+					log.error("Data not found for id", e);
+					return new ResponseEntity<AccessURL>(HttpStatus.NOT_FOUND);
+				}
+
+			} catch (Exception e) {
 				log.error("Couldn't serialize response for content type application/json", e);
 				return new ResponseEntity<AccessURL>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 
-		return new ResponseEntity<AccessURL>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<AccessURL>(HttpStatus.BAD_REQUEST);
 	}
 
 	@Override
