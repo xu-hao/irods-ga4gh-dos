@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -30,6 +31,10 @@
 		<dependency>
 			<groupId>org.irods.jargon</groupId>
 			<artifactId>irodsext-data-typer</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.irods.jargon</groupId>
+			<artifactId>jargon-ticket</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -84,10 +89,13 @@
 						<phase>validate</phase>
 						<configuration>
 							<tasks>
-								<delete file="${basedir}/src/test/resources/testing.properties" />
-								<touch file="${basedir}/src/test/resources/testing.properties"
+								<delete
+									file="${basedir}/src/test/resources/testing.properties" />
+								<touch
+									file="${basedir}/src/test/resources/testing.properties"
 									mkdirs="true" />
-								<echo file="${basedir}/src/test/resources/testing.properties"
+								<echo
+									file="${basedir}/src/test/resources/testing.properties"
 									append="true">
 									test.data.directory=${jargon.test.data.directory}
 									test.irods.admin=${jargon.test.irods.admin}
@@ -142,8 +150,8 @@
 									test.option.gsi.file=${test.option.gsi.file}
 									test.option.mount.basedir=${test.option.mount.basedir}
 									test.option.python=${test.option.python}
-									
-									
+
+
 
 								</echo>
 							</tasks>
@@ -158,10 +166,13 @@
 						<phase>validate</phase>
 						<configuration>
 							<tasks>
-								<delete file="${basedir}/src/test/resources/test.dos.properties" />
-								<touch file="${basedir}/src/test/resources/test.dos.properties"
+								<delete
+									file="${basedir}/src/test/resources/test.dos.properties" />
+								<touch
+									file="${basedir}/src/test/resources/test.dos.properties"
 									mkdirs="true" />
-								<echo file="${basedir}/src/test/resources/test.dos.properties"
+								<echo
+									file="${basedir}/src/test/resources/test.dos.properties"
 									append="true">
 									irods.host=${jargon.test.irods.host}
 									irods.port=${jargon.test.irods.port}
@@ -174,7 +185,7 @@
 									drs.rest.url.endpoint=${drs.rest.url.endpoint}
 									drs.provide.irods.urls=true
 									ga4gh.access.url=http://foo.com/v1
-									
+
 								</echo>
 							</tasks>
 						</configuration>

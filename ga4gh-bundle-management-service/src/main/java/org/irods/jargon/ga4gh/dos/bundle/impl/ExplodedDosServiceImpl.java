@@ -37,9 +37,14 @@ import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
+import org.irods.jargon.ga4gh.dos.model.AccessMethod;
 import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
 import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
 import org.irods.jargon.mdquery.exception.MetadataQueryException;
+import org.irods.jargon.ticket.TicketAdminService;
+import org.irods.jargon.ticket.TicketServiceFactory;
+import org.irods.jargon.ticket.TicketServiceFactoryImpl;
+import org.irods.jargon.ticket.packinstr.TicketCreateModeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +63,12 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	public static final String BUNDLE_QUERY_ALIAS = "ga4ghBundleQuery";
 	public static final String BASIC_AUTH_HEADER_PREFIX = "Authorization: ";
 
+	private final TicketServiceFactory ticketServiceFactory;
+
 	public ExplodedDosServiceImpl(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
 			DosServiceFactory dosServiceFactory, DosConfiguration dosConfiguration) {
 		super(irodsAccessObjectFactory, irodsAccount, dosServiceFactory, dosConfiguration);
+		this.ticketServiceFactory = new TicketServiceFactoryImpl(irodsAccessObjectFactory);
 	}
 
 	@Override
@@ -216,6 +224,70 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		} catch (JargonException | JargonQueryException e) {
 			log.error("error accessing iRODS", e);
 			throw new DosSystemException("exception connecting to iRODS", e);
+		}
+
+	}
+
+	@Override
+	public IrodsAccessMethod createAccessUrlForDataObject(final String dataObjectId, final String accessId)
+			throws DosDataNotFoundException, JargonException {
+
+		log.info("createAccessUrlForDataObject()");
+		if (dataObjectId == null || dataObjectId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty dataObjectId");
+		}
+
+		log.info("dataObjectId:{}", dataObjectId);
+
+		if (accessId == null || accessId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty accessId");
+		}
+
+		log.info("accessId:{}", accessId);
+
+		log.debug("looking up data object first");
+
+		IrodsDataObject irodsDataObject = this.retrieveDataObject(dataObjectId);
+
+		// data object is found
+
+		if (accessId.equals(DosService.ACCESS_REST)) {
+
+			if (this.getDosConfiguration().getDrsRestUrlEndpoint().isEmpty()) {
+				throw new DosDataNotFoundException("access method not found");
+			}
+
+			IrodsAccessMethod irodsAccessMethod = new IrodsAccessMethod();
+			/*
+			 * Right now create a ticket and assume rest, for illustrative purposes, this
+			 * would be a first release of the new REST api
+			 */
+
+			IRODSFile ticketFile = this.getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
+					.instanceIRODSFile(irodsDataObject.getAbsolutePath());
+
+			// TODO: single use ticket?
+			TicketAdminService ticketAdminService = this.ticketServiceFactory
+					.instanceTicketAdminService(getIrodsAccount());
+			String ticketId = ticketAdminService.createTicket(TicketCreateModeEnum.READ, ticketFile, "");
+			StringBuilder sb = new StringBuilder();
+			sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
+			sb.append(ticketFile.getAbsolutePath());
+			irodsAccessMethod.setAccessId(accessId);
+			irodsAccessMethod.setType(AccessMethod.TypeEnum.HTTPS);
+			irodsAccessMethod.setUrl(sb.toString());
+			sb = new StringBuilder();
+			// TODO: some pluggable method of creating a path builder?
+			sb.append("Authorization : Bearer ");
+			sb.append(ticketId);
+			irodsAccessMethod.setHeaders(new ArrayList<String>());
+			irodsAccessMethod.getHeaders().add(sb.toString());
+			log.info("irodsAccessMethod:{}", irodsAccessMethod);
+			return irodsAccessMethod;
+
+		} else {
+			log.error("access method not supported:{}", accessId);
+			throw new DosDataNotFoundException("unable to find object or access id");
 		}
 
 	}

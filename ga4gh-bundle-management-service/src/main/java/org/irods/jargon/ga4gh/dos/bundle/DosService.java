@@ -3,6 +3,7 @@ package org.irods.jargon.ga4gh.dos.bundle;
 import java.util.List;
 
 import org.irods.jargon.core.exception.JargonException;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsAccessMethod;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
@@ -62,10 +63,24 @@ public interface DosService {
 	 *                  methods for an individual data object
 	 * @return {@code List} of {@link IrodsDataObject} that can be used to build the
 	 *         bundle list in a GA4GH data bundle
-	 * @throws BundleNotFoundException {@link DosDataNotFoundException}
+	 * @throws BundleNotFoundException {@link BundleNotFoundException}
 	 * @throws JargonException         {@link JargonException}
 	 */
 	List<IrodsDataObject> retrieveDataObjectsInBundle(String bundleId, String urlPrefix)
 			throws BundleNotFoundException, JargonException;
+
+	/**
+	 * Create an access url for a data object for a specific access type
+	 * 
+	 * @param dataObjectId {@code String} with the ga4gh data object id
+	 * @param accessId     {@code String} with the access id for the given data
+	 *                     object
+	 * @return {@link IrodsAccessMethod}
+	 * @throws DosDataNotFoundException {@link DosDataNotFoundException} when data
+	 *                                  object or access method is not found
+	 * @throws JargonException          {@link JargonException}
+	 */
+	IrodsAccessMethod createAccessUrlForDataObject(final String dataObjectId, final String accessId)
+			throws DosDataNotFoundException, JargonException;
 
 }
