@@ -83,6 +83,39 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<tasks>
+								<property name="src.dir"
+									value="${project.build.sourceDirectory}" />
+								<property name="package.dir"
+									value="org/irods/jargon/ga4gh/dos/utils" />
+								<property name="package.name"
+									value="org.irods.jargon.ga4gh.dos.utils" />
+								<property name="buildtime"
+									value="${maven.build.timestamp}" />
+
+								<echo file="${src.dir}/${package.dir}/Ga4ghVersion.java"
+									message="package ${package.name};${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Ga4ghVersion.java"
+									append="true"
+									message="public final class Ga4ghVersion {${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Ga4ghVersion.java"
+									append="true"
+									message=" public static String VERSION=&quot;${project.version}&quot;;${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Ga4ghVersion.java"
+									append="true"
+									message=" public static String BUILD_TIME=&quot;${buildtime}&quot;;${line.separator}" />
+								<echo file="${src.dir}/${package.dir}/Ga4ghVersion.java"
+									append="true" message="}${line.separator}" />
+								<echo message="BUILD ${buildtime}" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
 						<id>0</id>
 						<phase>validate</phase>
 						<configuration>

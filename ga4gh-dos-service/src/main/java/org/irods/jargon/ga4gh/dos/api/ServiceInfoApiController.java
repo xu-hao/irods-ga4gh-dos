@@ -1,12 +1,13 @@
 package org.irods.jargon.ga4gh.dos.api;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.model.ServiceInfo;
+import org.irods.jargon.ga4gh.dos.utils.Ga4ghVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,9 @@ public class ServiceInfoApiController implements ServiceInfoApi {
 
 	private final HttpServletRequest request;
 
+	@Autowired
+	private DosConfiguration dosConfiguration;
+
 	@org.springframework.beans.factory.annotation.Autowired
 	public ServiceInfoApiController(ObjectMapper objectMapper, HttpServletRequest request) {
 		this.objectMapper = objectMapper;
@@ -34,17 +38,28 @@ public class ServiceInfoApiController implements ServiceInfoApi {
 	public ResponseEntity<ServiceInfo> getServiceInfo() {
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
-			try {
-				return new ResponseEntity<ServiceInfo>(objectMapper.readValue(
-						"{  \"license\" : \"{}\",  \"contact\" : \"{}\",  \"description\" : \"description\",  \"title\" : \"title\",  \"version\" : \"version\"}",
-						ServiceInfo.class), HttpStatus.NOT_IMPLEMENTED);
-			} catch (IOException e) {
-				log.error("Couldn't serialize response for content type application/json", e);
-				return new ResponseEntity<ServiceInfo>(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
+
+			ServiceInfo serviceInfo = new ServiceInfo();
+
+			serviceInfo.setContact(dosConfiguration.getContact());
+			serviceInfo.setLicense(dosConfiguration.getLicense());
+			serviceInfo.setDescription(dosConfiguration.getDescription());
+			serviceInfo.setTitle(dosConfiguration.getTitle());
+			serviceInfo.setContact(Ga4ghVersion.VERSION + " - " + Ga4ghVersion.BUILD_TIME);
+
+			return new ResponseEntity<ServiceInfo>(serviceInfo, HttpStatus.OK);
+
 		}
 
-		return new ResponseEntity<ServiceInfo>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<ServiceInfo>(HttpStatus.BAD_REQUEST);
+	}
+
+	public DosConfiguration getDosConfiguration() {
+		return dosConfiguration;
+	}
+
+	public void setDosConfiguration(DosConfiguration dosConfiguration) {
+		this.dosConfiguration = dosConfiguration;
 	}
 
 }
