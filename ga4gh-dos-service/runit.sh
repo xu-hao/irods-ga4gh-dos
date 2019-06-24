@@ -10,5 +10,5 @@ else
 fi
 
 echo "running app"
-java -jar /ga4gh-dos-0.0.1-SNAPSHOT.jar
+java -jar /ga4gh-dos-service-0.0.1-SNAPSHOT.jar
 

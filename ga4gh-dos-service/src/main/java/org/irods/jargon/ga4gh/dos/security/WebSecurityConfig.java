@@ -65,8 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	/**
-	 * @param irodsSession
-	 *            the irodsSession to set
+	 * @param irodsSession the irodsSession to set
 	 */
 	public void setIrodsSession(IRODSSession irodsSession) {
 		this.irodsSession = irodsSession;
@@ -80,8 +79,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	/**
-	 * @param irodsAccessObjectFactory
-	 *            the irodsAccessObjectFactory to set
+	 * @param irodsAccessObjectFactory the irodsAccessObjectFactory to set
 	 */
 	public void setIrodsAccessObjectFactory(IRODSAccessObjectFactory irodsAccessObjectFactory) {
 		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
@@ -112,8 +110,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	/**
-	 * @param irodsAuthenticationProvider
-	 *            the irodsAuthenticationProvider to set
+	 * @param irodsAuthenticationProvider the irodsAuthenticationProvider to set
 	 */
 	public void setIrodsAuthenticationProvider(IrodsAuthenticationProvider irodsAuthenticationProvider) {
 		this.irodsAuthenticationProvider = irodsAuthenticationProvider;
@@ -127,8 +124,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	/**
-	 * @param irodsBasicAuthEntryPoint
-	 *            the irodsBasicAuthEntryPoint to set
+	 * @param irodsBasicAuthEntryPoint the irodsBasicAuthEntryPoint to set
 	 */
 	public void setIrodsBasicAuthEntryPoint(IrodsBasicAuthEntryPoint irodsBasicAuthEntryPoint) {
 		this.irodsBasicAuthEntryPoint = irodsBasicAuthEntryPoint;

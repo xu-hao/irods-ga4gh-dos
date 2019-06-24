@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 
 @PropertySources({ @PropertySource(value = "classpath:test.dos.properties", ignoreResourceNotFound = true),
-		@PropertySource(value = "file:///Users/conwaymc/Documents/docker/ga4gh/etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = true) })
+		@PropertySource(value = "file:///etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = true) })
 
 @Component
 public class DosConfiguration {
@@ -87,7 +87,7 @@ public class DosConfiguration {
 	 * {@code boolean} indicating whether 'irods://' form urls are provided as an
 	 * access method for data objects
 	 */
-	@Value("{drs.provide.irods.urls")
+	@Value("${drs.provide.irods.urls}")
 	private boolean drsProvideIrodsUrls = true;
 
 	public AuthScheme translateAuthSchemeToEnum() {
