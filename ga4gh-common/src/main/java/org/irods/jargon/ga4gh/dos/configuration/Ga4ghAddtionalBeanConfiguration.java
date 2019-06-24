@@ -13,6 +13,7 @@ import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.irods.jargon.extensions.datatyper.DataTyperSettings;
 import org.irodsext.datatyper.IrodsextDataTypeResolutionServiceFactoryImpl;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Additional beans needed by boot app
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Bean;
  * @author Mike Conway - NIEHS
  *
  */
+@Configuration
 public class Ga4ghAddtionalBeanConfiguration {
 
 	public Ga4ghAddtionalBeanConfiguration() {
