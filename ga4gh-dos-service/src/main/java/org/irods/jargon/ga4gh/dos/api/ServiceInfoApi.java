@@ -25,8 +25,7 @@ public interface ServiceInfoApi {
 			@Authorization(value = "authToken") }, tags = { "DataRepositoryService", })
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Service information returned successfully", response = ServiceInfo.class) })
-	@RequestMapping(value = "/service-info", produces = { "application/json" }, consumes = {
-			"application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/service-info", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<ServiceInfo> getServiceInfo();
 
 }

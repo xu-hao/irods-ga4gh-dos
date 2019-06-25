@@ -67,6 +67,7 @@ public class BundlesApiController implements BundlesApi {
 				bundle.addAliasesItem(irodsDataBundle.getIrodsAbsolutePath());
 				Checksum checksum = new Checksum();
 				checksum.setChecksum(irodsDataBundle.getBundleChecksum());
+				checksum.setType(irodsDataBundle.getBundleChecksumType());
 				bundle.addChecksumsItem(checksum);
 				BundleObject bundleObject;
 				List<BundleObject> dataObjects = new ArrayList<>();
@@ -75,6 +76,7 @@ public class BundlesApiController implements BundlesApi {
 					bundleObject.setId(dataObject.getGuid());
 					bundleObject.setName(dataObject.getFileName());
 					bundleObject.setType(TypeEnum.OBJECT);
+					bundleObject.setDrsUri(new ArrayList<String>());
 					bundleObject.getDrsUri().add(dataObject.getIrodsAccessMethods().get(0).getUrl());
 					dataObjects.add(bundleObject);
 				}
@@ -85,6 +87,8 @@ public class BundlesApiController implements BundlesApi {
 				bundle.setId(irodsDataBundle.getBundleUuid());
 				bundle.setUpdated(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
 				bundle.setVersion(irodsDataBundle.getVersion());
+				bundle.setName(irodsDataBundle.getIrodsAbsolutePath());
+				bundle.setSize("0");
 
 				return new ResponseEntity<Bundle>(bundle, HttpStatus.OK);
 

@@ -12,7 +12,6 @@ import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
 import org.irods.jargon.ga4gh.dos.model.AccessMethod;
-import org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum;
 import org.irods.jargon.ga4gh.dos.model.AccessURL;
 import org.irods.jargon.ga4gh.dos.model.Checksum;
 import org.irods.jargon.ga4gh.dos.model.Ga4ghObject;
@@ -134,6 +133,9 @@ public class ObjectsApiController implements ObjectsApi {
 				dataObject.setSize(irodsDataObject.getSize());
 				dataObject.setUpdated(DataUtils.dateToOffsetDateTime(irodsDataObject.getModifyDate()));
 				dataObject.setVersion(irodsDataObject.getVersion());
+				dataObject.setAccessMethods(new ArrayList<AccessMethod>());
+				dataObject.setAliases(new ArrayList<String>());
+				dataObject.setChecksums(new ArrayList<Checksum>());
 
 				/*
 				 * Access methods
@@ -146,10 +148,11 @@ public class ObjectsApiController implements ObjectsApi {
 					log.debug("irodsAccessMethod:{}", irodsAccessMethods);
 					accessMethod = new AccessMethod();
 					accessMethod.setAccessId(irodsAccessMethods.getAccessId());
-					accessMethod.setType(TypeEnum.FILE);
+					accessMethod.setType(irodsAccessMethods.getType());
 					if (!irodsAccessMethods.getUrl().isEmpty()) {
 						accessUrl = new AccessURL();
 						accessUrl.setUrl(irodsAccessMethods.getUrl());
+						accessUrl.setHeaders(new ArrayList<String>());
 						for (String header : irodsAccessMethods.getHeaders()) {
 							accessUrl.getHeaders().add(header);
 						}

@@ -36,6 +36,7 @@ public class ServiceInfoApiController implements ServiceInfoApi {
 
 	@Override
 	public ResponseEntity<ServiceInfo> getServiceInfo() {
+		log.info("getServiceInfo()");
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 
@@ -45,7 +46,8 @@ public class ServiceInfoApiController implements ServiceInfoApi {
 			serviceInfo.setLicense(dosConfiguration.getLicense());
 			serviceInfo.setDescription(dosConfiguration.getDescription());
 			serviceInfo.setTitle(dosConfiguration.getTitle());
-			serviceInfo.setContact(Ga4ghVersion.VERSION + " - " + Ga4ghVersion.BUILD_TIME);
+			serviceInfo.setVersion(Ga4ghVersion.VERSION + " - " + Ga4ghVersion.BUILD_TIME);
+			log.info("serviceInfo:{}", serviceInfo);
 
 			return new ResponseEntity<ServiceInfo>(serviceInfo, HttpStatus.OK);
 

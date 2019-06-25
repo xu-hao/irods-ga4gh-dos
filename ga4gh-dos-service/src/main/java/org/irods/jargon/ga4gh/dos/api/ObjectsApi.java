@@ -32,7 +32,7 @@ public interface ObjectsApi {
 			@ApiResponse(code = 403, message = "The requester is not authorized to perform this action.", response = Error.class),
 			@ApiResponse(code = 404, message = "The requested access URL wasn't found", response = Error.class),
 			@ApiResponse(code = 500, message = "An unexpected error occurred.", response = Error.class) })
-	@RequestMapping(value = "/objects/{object_id}/access/{access_id}", produces = { "application/json" }, consumes = {
+	@RequestMapping(value = "/objects/{object_id}/access/{access_id}", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	ResponseEntity<AccessURL> getAccessURL(
 			@ApiParam(value = "An `id` of a Data Ga4ghObject", required = true) @PathVariable("object_id") String objectId,
@@ -47,8 +47,7 @@ public interface ObjectsApi {
 			@ApiResponse(code = 403, message = "The requester is not authorized to perform this action.", response = Error.class),
 			@ApiResponse(code = 404, message = "The requested Data Ga4ghObject wasn't found", response = Error.class),
 			@ApiResponse(code = 500, message = "An unexpected error occurred.", response = Error.class) })
-	@RequestMapping(value = "/objects/{object_id}", produces = { "application/json" }, consumes = {
-			"application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/objects/{object_id}", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<org.irods.jargon.ga4gh.dos.model.Ga4ghObject> getObject(
 			@ApiParam(value = "", required = true) @PathVariable("object_id") String objectId);
 

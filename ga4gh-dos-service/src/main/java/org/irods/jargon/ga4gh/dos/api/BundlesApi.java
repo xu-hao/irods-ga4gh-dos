@@ -32,8 +32,7 @@ public interface BundlesApi {
 			@ApiResponse(code = 403, message = "The requester is not authorized to perform this action.", response = Error.class),
 			@ApiResponse(code = 404, message = "The requested Data Bundle wasn't found.", response = Error.class),
 			@ApiResponse(code = 500, message = "An unexpected error occurred.", response = Error.class) })
-	@RequestMapping(value = "/bundles/{bundle_id}", produces = { "application/json" }, consumes = {
-			"application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/bundles/{bundle_id}", produces = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<Bundle> getBundle(@ApiParam(value = "", required = true) @PathVariable("bundle_id") String bundleId);
 
 }

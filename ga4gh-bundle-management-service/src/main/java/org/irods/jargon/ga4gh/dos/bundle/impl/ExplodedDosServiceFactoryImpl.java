@@ -29,6 +29,7 @@ public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
 	/**
 	 * {@link IRODSAccessObjectFactory} that can produce service objects
 	 */
+	@Autowired
 	private IRODSAccessObjectFactory irodsAccessObjectFactory;
 
 	public ExplodedDosServiceFactoryImpl(IRODSAccessObjectFactory irodsAccessObjectFactory) {

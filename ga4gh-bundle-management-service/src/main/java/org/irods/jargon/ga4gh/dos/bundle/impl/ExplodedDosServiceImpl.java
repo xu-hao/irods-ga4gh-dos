@@ -3,10 +3,12 @@ package org.irods.jargon.ga4gh.dos.bundle.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.irods.jargon.core.checksum.ChecksumValue;
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.DataObjectAO;
+import org.irods.jargon.core.pub.DataObjectChecksumUtilitiesAO;
 import org.irods.jargon.core.pub.EnvironmentalInfoAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.domain.AvuData;
@@ -25,7 +27,6 @@ import org.irods.jargon.core.query.MetaDataAndDomainData;
 import org.irods.jargon.core.query.QueryConditionOperators;
 import org.irods.jargon.core.query.RodsGenQueryEnum;
 import org.irods.jargon.core.utils.MiscIRODSUtils;
-import org.irods.jargon.core.utils.RestAuthUtils;
 import org.irods.jargon.ga4gh.dos.bundle.AbstractDosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
@@ -84,6 +85,8 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		try {
 			String irodsPath = this.dataObjectIdToIrodsPath(objectId);
 			DataObjectAO dataObjectAO = this.getIrodsAccessObjectFactory().getDataObjectAO(getIrodsAccount());
+			DataObjectChecksumUtilitiesAO dataObjectChecksumUtilitiesAO = this.getIrodsAccessObjectFactory()
+					.getDataObjectChecksumUtilitiesAO(getIrodsAccount());
 			DataObject dataObject = dataObjectAO.findByAbsolutePath(irodsPath);
 			List<MetaDataAndDomainData> metadatas = dataObjectAO.findMetadataValuesForDataObject(irodsPath);
 
@@ -98,13 +101,10 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			irodsDataObject.setMimeType(""); // TODO: add data profiler/mime type stuff
 			irodsDataObject.setModifyDate(dataObject.getUpdatedAt());
 			irodsDataObject.setCreateDate(dataObject.getCreatedAt());
-
-			for (MetaDataAndDomainData metadata : metadatas) {
-				if (metadata.getAvuAttribute().equals(ExplodedBundleMetadataUtils.GA4GH_BUNDLE_CHECKSUM_ATTRIBUTE)) {
-					irodsDataObject.setChecksum(metadata.getAvuValue());
-					break;
-				}
-			}
+			ChecksumValue checksumValue = dataObjectChecksumUtilitiesAO
+					.retrieveExistingChecksumForDataObject(dataObject.getAbsolutePath());
+			irodsDataObject.setChecksum(checksumValue.getBase64ChecksumValue());
+			irodsDataObject.setChecksumType(checksumValue.getChecksumEncoding().getTextValue());
 
 			EnvironmentalInfoAO environmentalInfoAO = this.getIrodsAccessObjectFactory()
 					.getEnvironmentalInfoAO(getIrodsAccount());
@@ -136,13 +136,17 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	}
 
 	/**
-	 * @param irodsDataObject
-	 * @param irodsFile
+	 * Add access urls to a data object
+	 * 
+	 * @param irodsDataObject {@link IrodsDataObject}
+	 * @param irodsFile       {@link IRODSFile}
 	 */
 	private void addAccessUrls(IrodsDataObject irodsDataObject, IRODSFile irodsFile) {
 		IrodsAccessMethod irodsAccessMethod;
 		if (this.getDosConfiguration().isDrsProvideIrodsUrls()) {
 			irodsAccessMethod = new IrodsAccessMethod();
+			irodsAccessMethod.setHeaders(new ArrayList<String>());
+			irodsAccessMethod.setRegion("");
 			irodsAccessMethod.setAccessId(DosService.ACCESS_IRODS);
 			irodsAccessMethod.setUrl(irodsFile.toURI().toString());
 			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.FILE);
@@ -150,17 +154,12 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		}
 
 		if (!this.getDosConfiguration().getDrsRestUrlEndpoint().isEmpty()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
-			sb.append(irodsFile.getAbsolutePath());
 			irodsAccessMethod = new IrodsAccessMethod();
+			irodsAccessMethod.setHeaders(new ArrayList<String>());
+			irodsAccessMethod.setRegion("");
+			irodsAccessMethod.setUrl("");
 			irodsAccessMethod.setAccessId(DosService.ACCESS_REST);
-			irodsAccessMethod.setUrl(sb.toString());
 			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.HTTPS);
-			sb = new StringBuilder();
-			sb.append(BASIC_AUTH_HEADER_PREFIX);
-			sb.append(RestAuthUtils.basicAuthTokenFromIRODSAccount(getIrodsAccount()));
-			irodsAccessMethod.getHeaders().add(sb.toString());
 			irodsDataObject.getIrodsAccessMethods().add(irodsAccessMethod);
 		}
 	}
