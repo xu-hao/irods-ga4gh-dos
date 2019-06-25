@@ -5,6 +5,7 @@ package org.irods.jargon.ga4gh.dos.bundle.impl;
 
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
+import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
@@ -32,6 +33,12 @@ public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
 	@Autowired
 	private IRODSAccessObjectFactory irodsAccessObjectFactory;
 
+	/**
+	 * {@link DataTypeResolutionServiceFactory} to detect MIME types
+	 */
+	@Autowired
+	private DataTypeResolutionServiceFactory dataTypeResolutionServiceFactory;
+
 	public ExplodedDosServiceFactoryImpl(IRODSAccessObjectFactory irodsAccessObjectFactory) {
 		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
 	}
@@ -51,7 +58,10 @@ public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
 
 	@Override
 	public DosService instanceDosService(IRODSAccount irodsAccount) {
-		return new ExplodedDosServiceImpl(this.irodsAccessObjectFactory, irodsAccount, this, dosConfiguration);
+		ExplodedDosServiceImpl explodedDosServiceImpl = new ExplodedDosServiceImpl(this.irodsAccessObjectFactory,
+				irodsAccount, this, dosConfiguration);
+		explodedDosServiceImpl.setDataTypeResolutionServiceFactory(dataTypeResolutionServiceFactory);
+		return explodedDosServiceImpl;
 	}
 
 	@Override
@@ -69,6 +79,14 @@ public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
 		return new ExplodedDosBundleManagementServiceImpl(this.irodsAccessObjectFactory, irodsAccount, this,
 				dosConfiguration);
 
+	}
+
+	public DataTypeResolutionServiceFactory getDataTypeResolutionServiceFactory() {
+		return dataTypeResolutionServiceFactory;
+	}
+
+	public void setDataTypeResolutionServiceFactory(DataTypeResolutionServiceFactory dataTypeResolutionServiceFactory) {
+		this.dataTypeResolutionServiceFactory = dataTypeResolutionServiceFactory;
 	}
 
 }

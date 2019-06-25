@@ -27,6 +27,7 @@ import org.irods.jargon.core.query.MetaDataAndDomainData;
 import org.irods.jargon.core.query.QueryConditionOperators;
 import org.irods.jargon.core.query.RodsGenQueryEnum;
 import org.irods.jargon.core.utils.MiscIRODSUtils;
+import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.AbstractDosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
@@ -65,6 +66,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	public static final String BASIC_AUTH_HEADER_PREFIX = "Authorization: ";
 
 	private final TicketServiceFactory ticketServiceFactory;
+	private DataTypeResolutionServiceFactory dataTypeResolutionServiceFactory;
 
 	public ExplodedDosServiceImpl(IRODSAccessObjectFactory irodsAccessObjectFactory, IRODSAccount irodsAccount,
 			DosServiceFactory dosServiceFactory, DosConfiguration dosConfiguration) {
@@ -88,17 +90,22 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			DataObjectChecksumUtilitiesAO dataObjectChecksumUtilitiesAO = this.getIrodsAccessObjectFactory()
 					.getDataObjectChecksumUtilitiesAO(getIrodsAccount());
 			DataObject dataObject = dataObjectAO.findByAbsolutePath(irodsPath);
-			List<MetaDataAndDomainData> metadatas = dataObjectAO.findMetadataValuesForDataObject(irodsPath);
+			dataObjectAO.findMetadataValuesForDataObject(irodsPath);
 
 			IrodsDataObject irodsDataObject;
-
 			irodsDataObject = new IrodsDataObject();
 			irodsDataObject.setFileName(dataObject.getDataName());
 			irodsDataObject.setGuid(objectId);
 			irodsDataObject.setType(TypeEnum.OBJECT);
 			irodsDataObject.setAbsolutePath(dataObject.getAbsolutePath());
 			irodsDataObject.setSize(dataObject.getDataSize());
-			irodsDataObject.setMimeType(""); // TODO: add data profiler/mime type stuff
+			if (dataTypeResolutionServiceFactory == null) {
+				log.error("no data type service factory");
+				throw new IllegalStateException("Missing dataTypeResolutionServiceFactory");
+			}
+			org.irods.jargon.extensions.datatyper.DataTypeResolutionService dataTypeResolutionService = dataTypeResolutionServiceFactory
+					.instanceDataTypeResolutionService(getIrodsAccount());
+			irodsDataObject.setMimeType(dataTypeResolutionService.quickMimeType(dataObject.getAbsolutePath()));
 			irodsDataObject.setModifyDate(dataObject.getUpdatedAt());
 			irodsDataObject.setCreateDate(dataObject.getCreatedAt());
 			ChecksumValue checksumValue = dataObjectChecksumUtilitiesAO
@@ -400,6 +407,21 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			throw new JargonException("bundle query error", e);
 		}
 
+	}
+
+	/**
+	 * @return the dataTypeResolutionServiceFactory
+	 */
+	public DataTypeResolutionServiceFactory getDataTypeResolutionServiceFactory() {
+		return dataTypeResolutionServiceFactory;
+	}
+
+	/**
+	 * @param dataTypeResolutionServiceFactory the dataTypeResolutionServiceFactory
+	 *                                         to set
+	 */
+	public void setDataTypeResolutionServiceFactory(DataTypeResolutionServiceFactory dataTypeResolutionServiceFactory) {
+		this.dataTypeResolutionServiceFactory = dataTypeResolutionServiceFactory;
 	}
 
 }
