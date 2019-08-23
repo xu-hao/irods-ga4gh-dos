@@ -31,18 +31,16 @@ import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.AbstractDosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsAccessMethod;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
-import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
 import org.irods.jargon.ga4gh.dos.model.AccessMethod;
-import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
 import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
-import org.irods.jargon.mdquery.exception.MetadataQueryException;
 import org.irods.jargon.ticket.TicketAdminService;
 import org.irods.jargon.ticket.TicketServiceFactory;
 import org.irods.jargon.ticket.TicketServiceFactoryImpl;
@@ -75,28 +73,139 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	}
 
 	@Override
-	public IrodsDataObject retrieveDataObject(final String objectId)
-			throws DosDataNotFoundException, DosSystemException {
-		log.info("retrieveDataObject()");
-		if (objectId == null || objectId.isEmpty()) {
-			throw new IllegalArgumentException("null or empty objectId");
+	public BundleInfoAndPath resolveId(final String id) throws DosDataNotFoundException, DosSystemException {
+		log.info("resolveIdToObjStat()");
+		if (id == null || id.isEmpty()) {
+			throw new IllegalArgumentException("null or empty id");
 		}
 
-		log.info("objectId:{}", objectId);
+		log.info("id:{}", id);
+
+		BundleInfoAndPath bundleInfoAndPath = null;
+
+		/*
+		 * Try and resolve as a bundle id
+		 */
 
 		try {
-			String irodsPath = this.dataObjectIdToIrodsPath(objectId);
+			bundleInfoAndPath = this.bundleIdToIrodsPath(id);
+			log.info("resolved to:{}", bundleInfoAndPath);
+			return bundleInfoAndPath;
+		} catch (DosDataNotFoundException dnf) {
+			log.info("id is not a bundle");
+		} catch (JargonException e) {
+			log.error("jargon exception", e);
+			throw new DosSystemException(e);
+		}
+
+		/*
+		 * Try and resolve as data object, or will return not found
+		 */
+
+		log.info("attempting to find as a data object");
+
+		try {
+			bundleInfoAndPath = this.dataObjectIdToIrodsPath(id);
+		} catch (JargonException e) {
+			log.error("jargon exception", e);
+			throw new DosSystemException(e);
+		}
+		log.info("resolved as data object:{}", bundleInfoAndPath);
+		return bundleInfoAndPath;
+
+	}
+
+	@Override
+	public IrodsDataBundle retrieveDataBundle(final BundleInfoAndPath bundleInfoAndPath)
+			throws DosDataNotFoundException {
+		log.info("retrieveDataBundle()");
+
+		if (bundleInfoAndPath == null) {
+			throw new IllegalArgumentException("null or empty bundleInfoAndPath");
+		}
+
+		if (!bundleInfoAndPath.isCollection()) {
+			throw new IllegalArgumentException("id is not for a collection");
+		}
+
+		log.info("bundleInfoAndPath:{}", bundleInfoAndPath);
+
+		try {
+
+			CollectionAO collectionAO = this.getIrodsAccessObjectFactory().getCollectionAO(getIrodsAccount());
+			Collection collection = collectionAO.findByAbsolutePath(bundleInfoAndPath.getIrodsPath());
+
+			log.info("getting rollup of objects in this bundle");
+			List<IrodsDataObject> objects = retrieveDataObjectsInBundle(bundleInfoAndPath.getId(),
+					this.getDosConfiguration().getDrsRestUrlEndpoint());
+
+			IrodsDataBundle irodsDataBundle = new IrodsDataBundle();
+			irodsDataBundle.setDataObjects(objects);
+
+			List<MetaDataAndDomainData> metadata = collectionAO
+					.findMetadataValuesForCollection(collection.getAbsolutePath(), 0);
+
+			// find the bundle checksum in these avus
+
+			AvuData avuData;
+
+			for (MetaDataAndDomainData metaVal : metadata) {
+				if (metaVal.getAvuAttribute().equals(ExplodedBundleMetadataUtils.GA4GH_BUNDLE_CHECKSUM_ATTRIBUTE)) {
+					irodsDataBundle.setBundleChecksum(metaVal.getAvuValue());
+				} else if (metaVal.getAvuAttribute().equals(ExplodedBundleMetadataUtils.GA4GH_BUNDLE_ID_ATTRIBUTE)) {
+					irodsDataBundle.setBundleUuid(metaVal.getAvuValue());
+				} else {
+					avuData = AvuData.instance(metaVal.getAvuAttribute(), metaVal.getAvuValue(), metaVal.getAvuUnit());
+					irodsDataBundle.getAvus().add(avuData);
+				}
+			}
+
+			EnvironmentalInfoAO environmentalInfoAO = this.getIrodsAccessObjectFactory()
+					.getEnvironmentalInfoAO(getIrodsAccount());
+
+			irodsDataBundle.setCreateDate(collection.getCreatedAt());
+			irodsDataBundle.setDescription("iRODS exploded bundle collection"); // TODO: add special description avu?
+			irodsDataBundle.setIrodsAbsolutePath(collection.getAbsolutePath());
+			irodsDataBundle.setUpdatedDate(collection.getModifiedAt());
+			irodsDataBundle.setVersion("0"); // TODO: add special version avu?
+			irodsDataBundle.setBundleChecksumType(
+					environmentalInfoAO.retrieveClientHints(false).getHashScheme().toLowerCase());
+
+			log.info("data bundle ready:{}", irodsDataBundle);
+			return irodsDataBundle;
+
+		} catch (JargonException | JargonQueryException e) {
+			log.error("error accessing iRODS", e);
+			throw new DosSystemException("exception connecting to iRODS", e);
+		}
+
+	}
+
+	@Override
+	public IrodsDataObject retrieveDataObject(final BundleInfoAndPath bundleInfoAndPath)
+			throws DosDataNotFoundException, DosSystemException {
+		log.info("retrieveDataObject()");
+		if (bundleInfoAndPath == null) {
+			throw new IllegalArgumentException("null or empty bundleInfoAndPath");
+		}
+
+		if (bundleInfoAndPath.isCollection()) {
+			throw new IllegalArgumentException("bundleInfoAndPath is for a collection");
+		}
+
+		log.info("bundleInfoAndPath:{}", bundleInfoAndPath);
+
+		try {
 			DataObjectAO dataObjectAO = this.getIrodsAccessObjectFactory().getDataObjectAO(getIrodsAccount());
 			DataObjectChecksumUtilitiesAO dataObjectChecksumUtilitiesAO = this.getIrodsAccessObjectFactory()
 					.getDataObjectChecksumUtilitiesAO(getIrodsAccount());
-			DataObject dataObject = dataObjectAO.findByAbsolutePath(irodsPath);
-			dataObjectAO.findMetadataValuesForDataObject(irodsPath);
+			DataObject dataObject = dataObjectAO.findByAbsolutePath(bundleInfoAndPath.getIrodsPath());
+			dataObjectAO.findMetadataValuesForDataObject(bundleInfoAndPath.getIrodsPath());
 
 			IrodsDataObject irodsDataObject;
 			irodsDataObject = new IrodsDataObject();
 			irodsDataObject.setFileName(dataObject.getDataName());
-			irodsDataObject.setGuid(objectId);
-			irodsDataObject.setType(TypeEnum.OBJECT);
+			irodsDataObject.setGuid(bundleInfoAndPath.getId());
 			irodsDataObject.setAbsolutePath(dataObject.getAbsolutePath());
 			irodsDataObject.setSize(dataObject.getDataSize());
 			if (dataTypeResolutionServiceFactory == null) {
@@ -118,7 +227,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			irodsDataObject.setChecksumType(environmentalInfoAO.retrieveClientHints(false).getHashScheme());
 
 			IRODSFile irodsFile = this.getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
-					.instanceIRODSFile(irodsPath);
+					.instanceIRODSFile(bundleInfoAndPath.getIrodsPath());
 
 			addAccessUrls(irodsDataObject, irodsFile);
 			log.info("irodsDataObject:{}", irodsDataObject);
@@ -172,71 +281,8 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 	}
 
 	@Override
-	public IrodsDataBundle retrieveDataBundle(final String bundleId) throws DosDataNotFoundException {
-		log.info("retrieveDataBundle()");
-		if (bundleId == null || bundleId.isEmpty()) {
-			throw new IllegalArgumentException("null or empty bundleId");
-		}
-		log.info("bundleId:{}", bundleId);
-		DosBundleManagementService dosBundleManagementService = this.getDosServiceFactory()
-				.instanceDosBundleManagementService(getIrodsAccount());
-
-		try {
-			String irodsPath = dosBundleManagementService.bundleIdToIrodsPath(bundleId);
-			log.info("resolved to path:{}", irodsPath);
-
-			CollectionAO collectionAO = this.getIrodsAccessObjectFactory().getCollectionAO(getIrodsAccount());
-			Collection collection = collectionAO.findByAbsolutePath(irodsPath);
-
-			log.info("getting rollup of objects in this bundle");
-			List<IrodsDataObject> objects = retrieveDataObjectsInBundle(bundleId,
-					this.getDosConfiguration().getDrsRestUrlEndpoint());
-
-			IrodsDataBundle irodsDataBundle = new IrodsDataBundle();
-			irodsDataBundle.setDataObjects(objects);
-
-			List<MetaDataAndDomainData> metadata = collectionAO
-					.findMetadataValuesForCollection(collection.getAbsolutePath(), 0);
-
-			// find the bundle checksum in these avus
-
-			AvuData avuData;
-
-			for (MetaDataAndDomainData metaVal : metadata) {
-				if (metaVal.getAvuAttribute().equals(ExplodedBundleMetadataUtils.GA4GH_BUNDLE_CHECKSUM_ATTRIBUTE)) {
-					irodsDataBundle.setBundleChecksum(metaVal.getAvuValue());
-				} else if (metaVal.getAvuAttribute().equals(ExplodedBundleMetadataUtils.GA4GH_BUNDLE_ID_ATTRIBUTE)) {
-					irodsDataBundle.setBundleUuid(metaVal.getAvuValue());
-				} else {
-					avuData = AvuData.instance(metaVal.getAvuAttribute(), metaVal.getAvuValue(), metaVal.getAvuUnit());
-					irodsDataBundle.getAvus().add(avuData);
-				}
-			}
-
-			EnvironmentalInfoAO environmentalInfoAO = this.getIrodsAccessObjectFactory()
-					.getEnvironmentalInfoAO(getIrodsAccount());
-
-			irodsDataBundle.setCreateDate(collection.getCreatedAt());
-			irodsDataBundle.setDescription("iRODS exploded bundle collection"); // TODO: add special description avu?
-			irodsDataBundle.setIrodsAbsolutePath(collection.getAbsolutePath());
-			irodsDataBundle.setUpdatedDate(collection.getModifiedAt());
-			irodsDataBundle.setVersion("0"); // TODO: add special version avu?
-			irodsDataBundle.setBundleChecksumType(
-					environmentalInfoAO.retrieveClientHints(false).getHashScheme().toLowerCase());
-
-			log.info("data bundle ready:{}", irodsDataBundle);
-			return irodsDataBundle;
-
-		} catch (JargonException | JargonQueryException e) {
-			log.error("error accessing iRODS", e);
-			throw new DosSystemException("exception connecting to iRODS", e);
-		}
-
-	}
-
-	@Override
 	public IrodsAccessMethod createAccessUrlForDataObject(final String dataObjectId, final String accessId)
-			throws DosDataNotFoundException, JargonException {
+			throws DosDataNotFoundException, DosSystemException {
 
 		log.info("createAccessUrlForDataObject()");
 		if (dataObjectId == null || dataObjectId.isEmpty()) {
@@ -252,8 +298,8 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		log.info("accessId:{}", accessId);
 
 		log.debug("looking up data object first");
-
-		IrodsDataObject irodsDataObject = this.retrieveDataObject(dataObjectId);
+		BundleInfoAndPath bundleInfoAndPath = this.resolveId(dataObjectId);
+		IrodsDataObject irodsDataObject = this.retrieveDataObject(bundleInfoAndPath);
 
 		// data object is found
 
@@ -269,27 +315,32 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			 * would be a first release of the new REST api
 			 */
 
-			IRODSFile ticketFile = this.getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
-					.instanceIRODSFile(irodsDataObject.getAbsolutePath());
+			try {
+				IRODSFile ticketFile = this.getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount())
+						.instanceIRODSFile(irodsDataObject.getAbsolutePath());
 
-			// TODO: single use ticket?
-			TicketAdminService ticketAdminService = this.ticketServiceFactory
-					.instanceTicketAdminService(getIrodsAccount());
-			String ticketId = ticketAdminService.createTicket(TicketCreateModeEnum.READ, ticketFile, "");
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
-			sb.append(ticketFile.getAbsolutePath());
-			irodsAccessMethod.setAccessId(accessId);
-			irodsAccessMethod.setType(AccessMethod.TypeEnum.HTTPS);
-			irodsAccessMethod.setUrl(sb.toString());
-			sb = new StringBuilder();
-			// TODO: some pluggable method of creating a path builder?
-			sb.append("Authorization : Bearer ");
-			sb.append(ticketId);
-			irodsAccessMethod.setHeaders(new ArrayList<String>());
-			irodsAccessMethod.getHeaders().add(sb.toString());
-			log.info("irodsAccessMethod:{}", irodsAccessMethod);
-			return irodsAccessMethod;
+				// TODO: single use ticket?
+				TicketAdminService ticketAdminService = this.ticketServiceFactory
+						.instanceTicketAdminService(getIrodsAccount());
+				String ticketId = ticketAdminService.createTicket(TicketCreateModeEnum.READ, ticketFile, "");
+				StringBuilder sb = new StringBuilder();
+				sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
+				sb.append(ticketFile.getAbsolutePath());
+				irodsAccessMethod.setAccessId(accessId);
+				irodsAccessMethod.setType(AccessMethod.TypeEnum.HTTPS);
+				irodsAccessMethod.setUrl(sb.toString());
+				sb = new StringBuilder();
+				// TODO: some pluggable method of creating a path builder?
+				sb.append("Authorization : Bearer ");
+				sb.append(ticketId);
+				irodsAccessMethod.setHeaders(new ArrayList<String>());
+				irodsAccessMethod.getHeaders().add(sb.toString());
+				log.info("irodsAccessMethod:{}", irodsAccessMethod);
+				return irodsAccessMethod;
+			} catch (JargonException e) {
+				log.error("jargon exception in operation", e);
+				throw new DosSystemException(e);
+			}
 
 		} else {
 			log.error("access method not supported:{}", accessId);
@@ -300,7 +351,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 
 	@Override
 	public List<IrodsDataObject> retrieveDataObjectsInBundle(final String bundleId, final String urlPrefix)
-			throws BundleNotFoundException, JargonException {
+			throws BundleNotFoundException, DosSystemException {
 
 		/*
 		 * Note that not all values are obtained from iRODS to build the individual
@@ -317,9 +368,13 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		}
 		log.info("bundleId:{}", bundleId);
 
-		DosBundleManagementService dosBundleManagementService = this.getDosServiceFactory()
-				.instanceDosBundleManagementService(getIrodsAccount());
-		String irodsAbsolutePath = dosBundleManagementService.bundleIdToIrodsPath(bundleId);
+		BundleInfoAndPath bundleInfoAndPath = null;
+		try {
+			bundleInfoAndPath = this.bundleIdToIrodsPath(bundleId);
+		} catch (JargonException e1) {
+			log.error("Jargon exception", e1);
+			throw new DosSystemException(e1);
+		}
 
 		IRODSGenQueryBuilder builder = new IRODSGenQueryBuilder(true, null);
 		IRODSQueryResultSetInterface resultSet = null;
@@ -331,12 +386,12 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_DATA_NAME)
 					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_META_DATA_ATTR_VALUE);
 		} catch (GenQueryBuilderException e) {
-			log.error("error building query for collections:{}", irodsAbsolutePath, e);
-			throw new MetadataQueryException("gen query error", e);
+			log.error("error building query for collections:{}", bundleInfoAndPath, e);
+			throw new DosSystemException("gen query error", e);
 		}
 
 		builder.addConditionAsGenQueryField(RodsGenQueryEnum.COL_COLL_NAME, QueryConditionOperators.LIKE,
-				irodsAbsolutePath.trim() + "%");
+				bundleInfoAndPath.getIrodsPath().trim() + "%");
 
 		builder.addConditionAsGenQueryField(RodsGenQueryEnum.COL_META_DATA_ATTR_NAME, QueryConditionOperators.EQUAL,
 				ExplodedBundleMetadataUtils.GA4GH_DATA_OBJECT_ID_ATTRIBUTE);
@@ -345,7 +400,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		try {
 			irodsQuery = builder.exportIRODSQueryFromBuilder(
 					getIrodsAccessObjectFactory().getJargonProperties().getMaxFilesAndDirsQueryMax());
-			String targetZone = MiscIRODSUtils.getZoneInPath(irodsAbsolutePath);
+			String targetZone = MiscIRODSUtils.getZoneInPath(bundleInfoAndPath.getIrodsPath());
 
 			resultSet = getIrodsAccessObjectFactory().getIRODSGenQueryExecutor(getIrodsAccount())
 					.executeIRODSQueryAndCloseResultInZone(irodsQuery, 0, targetZone);
@@ -358,7 +413,6 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				irodsDataObject = new IrodsDataObject();
 				irodsDataObject.setFileName(irodsFile.getName());
 				irodsDataObject.setGuid(row.getColumn(2));
-				irodsDataObject.setType(TypeEnum.OBJECT);
 				irodsDataObject.setAbsolutePath(irodsFile.getAbsolutePath());
 				StringBuilder sb = new StringBuilder();
 				sb.append(this.getDosConfiguration().getAccessUrl());
@@ -370,16 +424,16 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				dataObjects.add(irodsDataObject);
 
 			}
-		} catch (GenQueryBuilderException | JargonQueryException e) {
+		} catch (GenQueryBuilderException | JargonQueryException | JargonException e) {
 			log.error("error in query for bundles", e);
-			throw new JargonException("cannot query for bundles", e);
+			throw new DosSystemException("cannot query for bundles", e);
 		}
 
 		return dataObjects;
 	}
 
-	@Override
-	public String dataObjectIdToIrodsPath(final String dataObjectId) throws DosDataNotFoundException, JargonException {
+	public BundleInfoAndPath dataObjectIdToIrodsPath(final String dataObjectId)
+			throws DosDataNotFoundException, JargonException {
 		log.info("dataObjectIdToIrodsPath()");
 		if (dataObjectId == null || dataObjectId.isEmpty()) {
 			throw new IllegalArgumentException("null or empty dataObjectId");
@@ -394,14 +448,54 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 					ExplodedBundleMetadataUtils.GA4GH_DATA_OBJECT_ID_ATTRIBUTE));
 			avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.VALUE, QueryConditionOperators.EQUAL,
 					dataObjectId.trim()));
-			List<DataObject> dataObject = dataObjectAO.findDomainByMetadataQuery(avuQuery);
-			if (dataObject.isEmpty()) {
+			List<DataObject> dataObjects = dataObjectAO.findDomainByMetadataQuery(avuQuery);
+			if (dataObjects.isEmpty()) {
 				log.warn("no record found for dataObjectId:{}", dataObjectId);
 				throw new DosDataNotFoundException("data object not found");
 			}
-			log.info("found dataObject:{}", dataObject);
-			return dataObject.get(0).getAbsolutePath();
+			log.info("found dataObjects:{}", dataObjects);
+			DataObject dataObject = dataObjects.get(0);
+			BundleInfoAndPath bundleInfoAndPath = new BundleInfoAndPath();
+			bundleInfoAndPath.setCollection(false);
+			bundleInfoAndPath.setId(dataObjectId);
+			bundleInfoAndPath.setIrodsPath(dataObject.getAbsolutePath());
+			return bundleInfoAndPath;
 
+		} catch (JargonQueryException e) {
+			log.error("Error creating query for bundles", e);
+			throw new JargonException("bundle query error", e);
+		}
+
+	}
+
+	public BundleInfoAndPath bundleIdToIrodsPath(final String bundleId)
+			throws DosDataNotFoundException, JargonException {
+		log.info("bundleIdToIrodsPath()");
+		if (bundleId == null || bundleId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty bundleId");
+		}
+		log.info("bundleId to resolve:{}", bundleId);
+
+		CollectionAO collectionAO = this.getIrodsAccessObjectFactory().getCollectionAO(getIrodsAccount());
+		List<AVUQueryElement> avuQuery = new ArrayList<AVUQueryElement>();
+
+		try {
+			avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.ATTRIBUTE, QueryConditionOperators.EQUAL,
+					ExplodedBundleMetadataUtils.GA4GH_BUNDLE_ID_ATTRIBUTE));
+			avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.VALUE, QueryConditionOperators.EQUAL,
+					bundleId.trim()));
+			List<Collection> collections = collectionAO.findDomainByMetadataQuery(avuQuery);
+			if (collections.isEmpty()) {
+				log.warn("no record found for bundleId:{}", bundleId);
+				throw new DosDataNotFoundException("bundle not found");
+			}
+			log.info("found collections:{}", collections);
+			Collection collection = collections.get(0);
+			BundleInfoAndPath bundleInfoAndPath = new BundleInfoAndPath();
+			bundleInfoAndPath.setCollection(true);
+			bundleInfoAndPath.setId(bundleId);
+			bundleInfoAndPath.setIrodsPath(collection.getAbsolutePath());
+			return bundleInfoAndPath;
 		} catch (JargonQueryException e) {
 			log.error("Error creating query for bundles", e);
 			throw new JargonException("bundle query error", e);

@@ -2,6 +2,7 @@ package org.irods.jargon.ga4gh.dos.bundle;
 
 import org.irods.jargon.core.connection.IRODSAccount;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
+import org.irods.jargon.extensions.datatyper.DataTypeResolutionServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 
@@ -58,5 +59,9 @@ public interface DosServiceFactory {
 	 * @return {@link IRODSAccessObjectFactory}
 	 */
 	IRODSAccessObjectFactory getIrodsAccessObjectFactory();
+
+	void setDataTypeResolutionServiceFactory(DataTypeResolutionServiceFactory dataTypeResolutionServiceFactory);
+
+	DataTypeResolutionServiceFactory getDataTypeResolutionServiceFactory();
 
 }

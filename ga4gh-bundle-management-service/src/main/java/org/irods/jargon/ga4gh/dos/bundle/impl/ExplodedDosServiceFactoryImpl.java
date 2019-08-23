@@ -81,10 +81,12 @@ public class ExplodedDosServiceFactoryImpl implements DosServiceFactory {
 
 	}
 
+	@Override
 	public DataTypeResolutionServiceFactory getDataTypeResolutionServiceFactory() {
 		return dataTypeResolutionServiceFactory;
 	}
 
+	@Override
 	public void setDataTypeResolutionServiceFactory(DataTypeResolutionServiceFactory dataTypeResolutionServiceFactory) {
 		this.dataTypeResolutionServiceFactory = dataTypeResolutionServiceFactory;
 	}
