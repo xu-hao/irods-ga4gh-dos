@@ -5,7 +5,6 @@
  */
 package org.irods.jargon.ga4gh.dos.api;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,9 +12,9 @@ import javax.validation.Valid;
 
 import org.irods.jargon.ga4gh.dos.model.AccessURL;
 import org.irods.jargon.ga4gh.dos.model.Error;
+import org.irods.jargon.ga4gh.dos.model.Ga4ghObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,26 +61,9 @@ public interface ObjectsApi {
 			@ApiResponse(code = 500, message = "An unexpected error occurred.", response = Error.class) })
 	@RequestMapping(value = "/objects/{object_id}/access/{access_id}", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.GET)
-	default ResponseEntity<AccessURL> getAccessURL(
+	ResponseEntity<AccessURL> getAccessURL(
 			@ApiParam(value = "An `id` of an `Ga4ghObject`", required = true) @PathVariable("object_id") String objectId,
-			@ApiParam(value = "An `access_id` from the `access_methods` list of an `Ga4ghObject`", required = true) @PathVariable("access_id") String accessId) {
-		if (getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
-			if (getAcceptHeader().get().contains("application/json")) {
-				try {
-					return new ResponseEntity<>(getObjectMapper().get().readValue(
-							"{  \"headers\" : {    \"Authorization\" : \"Basic Z2E0Z2g6ZHJz\"  },  \"url\" : \"url\"}",
-							AccessURL.class), HttpStatus.NOT_IMPLEMENTED);
-				} catch (IOException e) {
-					log.error("Couldn't serialize response for content type application/json", e);
-					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-				}
-			}
-		} else {
-			log.warn(
-					"ObjectMapper or HttpServletRequest not configured in default ObjectsApi interface so no example is generated");
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-	}
+			@ApiParam(value = "An `access_id` from the `access_methods` list of an `Ga4ghObject`", required = true) @PathVariable("access_id") String accessId);
 
 	@ApiOperation(value = "Get info about an `Ga4ghObject`.", nickname = "getObject", notes = "Returns object metadata, and a list of access methods that can be used to fetch object bytes.", response = Object.class, authorizations = {
 			@Authorization(value = "authToken") }, tags = { "DataRepositoryService", })
@@ -95,25 +77,8 @@ public interface ObjectsApi {
 			@ApiResponse(code = 500, message = "An unexpected error occurred.", response = Error.class) })
 	@RequestMapping(value = "/objects/{object_id}", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.GET)
-	default ResponseEntity<Object> getObject(
+	ResponseEntity<Ga4ghObject> getObject(
 			@ApiParam(value = "", required = true) @PathVariable("object_id") String objectId,
-			@ApiParam(value = "If false and the object_id refers to a bundle, then the ContentsObject array contains only those objects directly contained in the bundle. That is, if the bundle contains other bundles, those other bundles are not recursively included in the result. If true and the object_id refers to a bundle, then the entire set of objects in the bundle is expanded. That is, if the bundle contains aother bundles, then those other bundles are recursively expanded and included in the result. Recursion continues through the entire sub-tree of the bundle. If the object_id refers to a blob, then the query parameter is ignored.", defaultValue = "false") @Valid @RequestParam(value = "expand", required = false, defaultValue = "false") Boolean expand) {
-		if (getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
-			if (getAcceptHeader().get().contains("application/json")) {
-				try {
-					return new ResponseEntity<>(getObjectMapper().get().readValue(
-							"{  \"checksums\" : [ {    \"checksum\" : \"checksum\",    \"type\" : \"sha-256\"  }, {    \"checksum\" : \"checksum\",    \"type\" : \"sha-256\"  } ],  \"created_time\" : \"2000-01-23T04:56:07.000+00:00\",  \"updated_time\" : \"2000-01-23T04:56:07.000+00:00\",  \"aliases\" : [ \"aliases\", \"aliases\" ],  \"description\" : \"description\",  \"self_uri\" : \"drs://drs.example.org/314159\",  \"version\" : \"version\",  \"size\" : 0,  \"mime_type\" : \"application/json\",  \"access_methods\" : [ {    \"access_url\" : {      \"headers\" : {        \"Authorization\" : \"Basic Z2E0Z2g6ZHJz\"      },      \"url\" : \"url\"    },    \"access_id\" : \"access_id\",    \"type\" : \"s3\",    \"region\" : \"us-east-1\"  }, {    \"access_url\" : {      \"headers\" : {        \"Authorization\" : \"Basic Z2E0Z2g6ZHJz\"      },      \"url\" : \"url\"    },    \"access_id\" : \"access_id\",    \"type\" : \"s3\",    \"region\" : \"us-east-1\"  } ],  \"contents\" : [ {    \"contents\" : [ null, null ],    \"name\" : \"name\",    \"id\" : \"id\",    \"drs_uri\" : \"drs://example.com/ga4gh/drs/v1/objects/{object_id}\"  }, {    \"contents\" : [ null, null ],    \"name\" : \"name\",    \"id\" : \"id\",    \"drs_uri\" : \"drs://example.com/ga4gh/drs/v1/objects/{object_id}\"  } ],  \"name\" : \"name\",  \"id\" : \"id\"}",
-							Object.class), HttpStatus.NOT_IMPLEMENTED);
-				} catch (IOException e) {
-					log.error("Couldn't serialize response for content type application/json", e);
-					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-				}
-			}
-		} else {
-			log.warn(
-					"ObjectMapper or HttpServletRequest not configured in default ObjectsApi interface so no example is generated");
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-	}
+			@ApiParam(value = "If false and the object_id refers to a bundle, then the ContentsObject array contains only those objects directly contained in the bundle. That is, if the bundle contains other bundles, those other bundles are not recursively included in the result. If true and the object_id refers to a bundle, then the entire set of objects in the bundle is expanded. That is, if the bundle contains aother bundles, then those other bundles are recursively expanded and included in the result. Recursion continues through the entire sub-tree of the bundle. If the object_id refers to a blob, then the query parameter is ignored.", defaultValue = "false") @Valid @RequestParam(value = "expand", required = false, defaultValue = "false") Boolean expand);
 
 }

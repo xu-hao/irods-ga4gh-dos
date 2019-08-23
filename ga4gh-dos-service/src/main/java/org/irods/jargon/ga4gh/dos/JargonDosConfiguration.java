@@ -13,6 +13,7 @@ import org.irods.jargon.extensions.datatyper.DataTyperSettings;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.configuration.StartupConfigurator;
 import org.irodsext.datatyper.IrodsextDataTypeResolutionServiceFactoryImpl;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,27 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class JargonDosConfiguration {
+
+	@Value("${irods.host}")
+	private String irodsHost = "";
+
+	@Value("${irods.port}")
+	private int irodsPort = 1247;
+
+	@Value("${irods.zone}")
+	private String irodsZone = "";
+
+	@Value("${proxy.user}")
+	private String proxyUser = "";
+
+	@Value("${proxy.password}")
+	private String proxyPassword = "";
+
+	@Value("${shared.jwt.key}")
+	private String jwtKey = "";
+
+	@Value("${jwt.algo}")
+	private String jwtAlgo = "";
 
 	@Bean
 	public EmbeddedServletContainerFactory servletContainer() {
@@ -80,5 +102,61 @@ public class JargonDosConfiguration {
 		dataTypeResolutionServiceFactory.setIrodsAccessObjectFactory(irodsAccessObjectFactory);
 		return dataTypeResolutionServiceFactory;
 
+	}
+
+	public String getIrodsHost() {
+		return irodsHost;
+	}
+
+	public void setIrodsHost(String irodsHost) {
+		this.irodsHost = irodsHost;
+	}
+
+	public int getIrodsPort() {
+		return irodsPort;
+	}
+
+	public void setIrodsPort(int irodsPort) {
+		this.irodsPort = irodsPort;
+	}
+
+	public String getIrodsZone() {
+		return irodsZone;
+	}
+
+	public void setIrodsZone(String irodsZone) {
+		this.irodsZone = irodsZone;
+	}
+
+	public String getProxyUser() {
+		return proxyUser;
+	}
+
+	public void setProxyUser(String proxyUser) {
+		this.proxyUser = proxyUser;
+	}
+
+	public String getProxyPassword() {
+		return proxyPassword;
+	}
+
+	public void setProxyPassword(String proxyPassword) {
+		this.proxyPassword = proxyPassword;
+	}
+
+	public String getJwtKey() {
+		return jwtKey;
+	}
+
+	public void setJwtKey(String jwtKey) {
+		this.jwtKey = jwtKey;
+	}
+
+	public String getJwtAlgo() {
+		return jwtAlgo;
+	}
+
+	public void setJwtAlgo(String jwtAlgo) {
+		this.jwtAlgo = jwtAlgo;
 	}
 }

@@ -29,6 +29,18 @@ public class DosConfiguration {
 	@Value("${irods.zone}")
 	private String irodsZone;
 
+	@Value("${proxy.user}")
+	private String proxyUser;
+
+	@Value("${proxy.password}")
+	private String proxyPassword;
+
+	@Value("${shared.jwt.key}")
+	private String sharedJwtKey;
+
+	@Value("${jwt.algo}")
+	private String jwtAlgo;
+
 	@Value("${default.storage.resource}")
 	private String defaultStorageResource;
 
@@ -270,5 +282,37 @@ public class DosConfiguration {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getProxyUser() {
+		return proxyUser;
+	}
+
+	public void setProxyUser(String proxyUser) {
+		this.proxyUser = proxyUser;
+	}
+
+	public String getProxyPassword() {
+		return proxyPassword;
+	}
+
+	public void setProxyPassword(String proxyPassword) {
+		this.proxyPassword = proxyPassword;
+	}
+
+	public String getSharedJwtKey() {
+		return sharedJwtKey;
+	}
+
+	public void setSharedJwtKey(String sharedJwtKey) {
+		this.sharedJwtKey = sharedJwtKey;
+	}
+
+	public String getJwtAlgo() {
+		return jwtAlgo;
+	}
+
+	public void setJwtAlgo(String jwtAlgo) {
+		this.jwtAlgo = jwtAlgo;
 	}
 }
