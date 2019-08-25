@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,8 +81,14 @@ public class ObjectsApiController implements ObjectsApi {
 					}
 
 					log.info("objectId:{}", objectId);
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+					String name = auth.getName();
+					log.info("name:{}", name);
 
-				} catch (IOException e) {
+					// IRODSAccount irodsAccount =
+					// this.contextAccountHelper.irodsAccountFromAuthentication(authentication)
+					return new ResponseEntity<>(HttpStatus.OK);
+				} catch (Exception e) {
 					log.error("Couldn't serialize response for content type application/json", e);
 					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 				}

@@ -3,19 +3,25 @@ package org.irods.jargon.ga4gh.dos.security;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.irods.jargon.ga4gh.dos.JargonDosConfiguration;
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -25,12 +31,19 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
+
+@PropertySources({ @PropertySource(value = "classpath:test.dos.properties", ignoreResourceNotFound = true),
+		@PropertySource(value = "file:/etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = false) })
+
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private static final Logger log = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 
-	@Autowired
-	private JargonDosConfiguration jargonDosConfiguration;
+	@Value("${irods.host}")
+	private String irodsHost;
+
+	@Autowired(required = true)
+	private DosConfiguration dosConfiguration;
 
 	public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
 		super(authenticationManager);
@@ -39,7 +52,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws IOException, ServletException {
-		UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
+		if (dosConfiguration == null) {
+			ServletContext servletContext = request.getServletContext();
+			WebApplicationContext webApplicationContext = WebApplicationContextUtils
+					.getWebApplicationContext(servletContext);
+			dosConfiguration = webApplicationContext.getBean(DosConfiguration.class);
+		}
+		UsernamePasswordAuthenticationToken authentication = getAuthentication(request, response, filterChain);
 		if (authentication == null) {
 			filterChain.doFilter(request, response);
 			return;
@@ -49,13 +68,24 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request,
+			HttpServletResponse response, FilterChain filterChain) {
 		log.info("getAuthentication()");
+		log.info("get token...");
 		String token = request.getHeader(SecurityConstants.TOKEN_HEADER);
 		log.debug("token:{}", token);
+
+		if (token == null) {
+			log.warn("no token, throw auth exception");
+			SecurityContextHolder.clearContext();
+			return null;
+		}
+
 		if (!token.isEmpty() && token.startsWith(SecurityConstants.TOKEN_PREFIX)) {
 			try {
-				String signingKey = jargonDosConfiguration.getJwtKey();
+				log.info("host was set:{}", irodsHost);
+				log.info("have dosConfiguration:{}", dosConfiguration);
+				String signingKey = dosConfiguration.getJwtKey();
 
 				Jws<Claims> parsedToken = Jwts.parser().setSigningKey(signingKey)
 						.parseClaimsJws(token.replace("Bearer ", ""));
@@ -83,12 +113,20 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		return null;
 	}
 
-	public JargonDosConfiguration getJargonDosConfiguration() {
-		return jargonDosConfiguration;
+	public DosConfiguration getDosConfiguration() {
+		return dosConfiguration;
 	}
 
-	public void setJargonDosConfiguration(JargonDosConfiguration jargonDosConfiguration) {
-		this.jargonDosConfiguration = jargonDosConfiguration;
+	public void setDosConfiguration(DosConfiguration dosConfiguration) {
+		this.dosConfiguration = dosConfiguration;
+	}
+
+	public String getIrodsHost() {
+		return irodsHost;
+	}
+
+	public void setIrodsHost(String irodsHost) {
+		this.irodsHost = irodsHost;
 	}
 
 }

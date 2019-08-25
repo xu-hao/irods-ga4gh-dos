@@ -1,4 +1,4 @@
-package org.irods.jargon.ga4gh.dos.configuration;
+package org.irods.jargon.ga4gh.dos.util.config;
 
 import java.io.IOException;
 import java.math.BigDecimal;

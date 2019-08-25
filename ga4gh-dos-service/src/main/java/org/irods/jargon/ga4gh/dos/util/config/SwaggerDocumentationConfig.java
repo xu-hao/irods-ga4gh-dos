@@ -1,4 +1,4 @@
-package org.irods.jargon.ga4gh.dos.configuration;
+package org.irods.jargon.ga4gh.dos.util.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
