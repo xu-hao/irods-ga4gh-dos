@@ -8,7 +8,6 @@ import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,18 +25,18 @@ public class ContextAccountHelper {
 	 * Build an account from an authentication that can be found in the
 	 * {@link SecurityContext}
 	 * 
-	 * @param authentication {@link UsernamePasswordAuthenticationToken}
+	 * @param userName {@code String} with user name
 	 * @return {@link IRODSAccount}
 	 */
-	public IRODSAccount irodsAccountFromAuthentication(final UsernamePasswordAuthenticationToken authentication) {
+	public IRODSAccount irodsAccountFromAuthentication(final String userName) {
 		log.info("irodsAccountFromAuthentication()");
-		if (authentication == null) {
+		if (userName == null) {
 			throw new IllegalArgumentException("Null authentication");
 		}
 
 		IRODSAccount irodsAccount = IRODSAccount.instanceWithProxy(dosConfiguration.getIrodsHost(),
 				dosConfiguration.getPort(), dosConfiguration.getProxyUser(), dosConfiguration.getProxyPassword(), "",
-				dosConfiguration.getIrodsZone(), "", authentication.getName(), "");
+				dosConfiguration.getIrodsZone(), "", userName, "");
 
 		log.debug("formulated iRODS account from auth:{}", irodsAccount);
 		return irodsAccount;
