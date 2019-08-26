@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.connection.IRODSSession;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
@@ -54,6 +55,9 @@ public class ObjectsApiController implements ObjectsApi {
 
 	@Autowired
 	DosConfiguration dosConfiguration;
+
+	@Autowired
+	IRODSSession irodsSession;
 
 	private static final Logger log = LoggerFactory.getLogger(ObjectsApiController.class);
 
@@ -149,6 +153,8 @@ public class ObjectsApiController implements ObjectsApi {
 					} catch (DosDataNotFoundException e) {
 						log.warn("data not found for objectId:{}", objectId);
 						return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+					} finally {
+						irodsSession.closeSession();
 					}
 
 				} catch (Exception e) {
@@ -195,6 +201,14 @@ public class ObjectsApiController implements ObjectsApi {
 
 	public void setDosConfiguration(DosConfiguration dosConfiguration) {
 		this.dosConfiguration = dosConfiguration;
+	}
+
+	public IRODSSession getIrodsSession() {
+		return irodsSession;
+	}
+
+	public void setIrodsSession(IRODSSession irodsSession) {
+		this.irodsSession = irodsSession;
 	}
 
 }
