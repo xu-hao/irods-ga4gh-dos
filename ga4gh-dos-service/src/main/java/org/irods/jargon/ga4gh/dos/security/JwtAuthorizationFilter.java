@@ -1,6 +1,8 @@
 package org.irods.jargon.ga4gh.dos.security;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -8,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.irods.jargon.core.utils.Base64;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Component;
@@ -64,6 +69,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			return;
 		}
 
+		log.info("setting auth into context:{}", authentication);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		filterChain.doFilter(request, response);
 	}
@@ -85,10 +91,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			try {
 				log.info("host was set:{}", irodsHost);
 				log.info("have dosConfiguration:{}", dosConfiguration);
-				String signingKey = dosConfiguration.getJwtKey();
-
+				String signingKey = dosConfiguration.getJwtKey().trim();
+				log.debug("signingkey:-{}-", signingKey);
+				signingKey = Base64.toString(signingKey.getBytes());
 				Jws<Claims> parsedToken = Jwts.parser().setSigningKey(signingKey)
-						.parseClaimsJws(token.replace("Bearer ", ""));
+						.parseClaimsJws(token.replace("Bearer ", "").trim());
 				log.debug("parsedToken:{}", parsedToken);
 
 				String username = parsedToken.getBody().getSubject();
@@ -96,7 +103,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 				if (!username.isEmpty()) {
 					log.info("processed claim for user:{}", username);
-					return new UsernamePasswordAuthenticationToken(username, null);
+					List<GrantedAuthority> granted = new ArrayList<>();
+					GrantedAuthority auth = new SimpleGrantedAuthority("authToken");
+					granted.add(auth);
+					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username,
+							"authToken", granted);
+					log.info("authToken from filter:{}", authToken);
+					return authToken;
 				}
 
 			} catch (ExpiredJwtException exception) {
@@ -110,6 +123,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			}
 		}
 
+		log.warn("no auth, returning null");
 		return null;
 	}
 
