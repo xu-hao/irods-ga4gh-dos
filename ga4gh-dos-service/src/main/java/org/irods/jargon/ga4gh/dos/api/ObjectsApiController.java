@@ -13,10 +13,12 @@ import org.irods.jargon.core.connection.IRODSSession;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsAccessMethod;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
+import org.irods.jargon.ga4gh.dos.model.AccessMethod;
 import org.irods.jargon.ga4gh.dos.model.AccessURL;
 import org.irods.jargon.ga4gh.dos.model.Checksum;
 import org.irods.jargon.ga4gh.dos.model.ContentsObject;
@@ -105,8 +107,10 @@ public class ObjectsApiController implements ObjectsApi {
 					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					String name = auth.getName();
 					log.info("name:{}", name);
-					IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
-
+					// IRODSAccount irodsAccount =
+					// this.contextAccountHelper.irodsAccountFromAuthentication(name);
+					IRODSAccount irodsAccount = IRODSAccount.instance("107.23.1.37", 1247, "drs",
+							"LookAtTheBigBrainOnDrs", "", "tempZone", "");
 					DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
 					try {
 						BundleInfoAndPath bundleInfo = dosService.resolveId(objectId);
@@ -148,7 +152,48 @@ public class ObjectsApiController implements ObjectsApi {
 
 						} else {
 							log.info("this is a data object");
-							return null;
+							IrodsDataObject irodsDataObject = dosService.retrieveDataObject(bundleInfo);
+							log.debug("have the data object:{}", irodsDataObject);
+
+							Ga4ghObject ga4ghObject = new Ga4ghObject();
+							ga4ghObject.setId(irodsDataObject.getGuid());
+							ga4ghObject.setName(irodsDataObject.getAbsolutePath());
+							ga4ghObject.setSelfUri(dosConfiguration.getDrsRestUrlEndpoint() + "/objects/" + objectId);
+							ga4ghObject.setSize(irodsDataObject.getSize());
+							ga4ghObject.setCreatedTime(
+									ServiceUtils.offsetDateTimeFromDate(irodsDataObject.getCreateDate()));
+							ga4ghObject.setUpdatedTime(
+									ServiceUtils.offsetDateTimeFromDate(irodsDataObject.getModifyDate()));
+							ga4ghObject.setVersion("");
+							ga4ghObject.setMimeType(irodsDataObject.getMimeType());
+
+							List<Checksum> checksums = new ArrayList<>();
+
+							Checksum checksum = new Checksum();
+							checksum.setChecksum(irodsDataObject.getChecksum());
+							checksum.setType(irodsDataObject.getChecksumType());
+							checksums.add(checksum);
+
+							List<AccessMethod> accessMethods = new ArrayList<>();
+
+							for (IrodsAccessMethod irodsAccessMethod : irodsDataObject.getIrodsAccessMethods()) {
+								AccessMethod accessMethod = new AccessMethod();
+								accessMethod.setAccessId(irodsAccessMethod.getAccessId());
+								AccessURL accessURL = new AccessURL();
+								accessURL.setHeaders(irodsAccessMethod.getHeaders());
+								accessURL.setUrl(irodsAccessMethod.getUrl());
+								accessMethod.setAccessUrl(accessURL);
+								accessMethods.add(accessMethod);
+							}
+
+							ga4ghObject.setDescription(""); // TODO: add formal description AVU
+							List<String> aliases = new ArrayList<>();
+							aliases.add(irodsDataObject.getAbsolutePath());
+							ga4ghObject.setAliases(aliases);
+
+							log.info("ga4ghObject:{}", ga4ghObject);
+							return new ResponseEntity<Ga4ghObject>(ga4ghObject, HttpStatus.OK);
+
 						}
 					} catch (DosDataNotFoundException e) {
 						log.warn("data not found for objectId:{}", objectId);
