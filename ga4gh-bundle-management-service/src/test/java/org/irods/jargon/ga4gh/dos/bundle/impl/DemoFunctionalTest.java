@@ -16,6 +16,7 @@ import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class DemoFunctionalTest {
@@ -33,8 +34,8 @@ public class DemoFunctionalTest {
 		testingProperties = testingPropertiesLoader.getTestProperties();
 		scratchFileUtils = new org.irods.jargon.testutils.filemanip.ScratchFileUtils(testingProperties);
 		irodsTestSetupUtilities = new org.irods.jargon.testutils.IRODSTestSetupUtilities();
-		// irodsTestSetupUtilities.initializeIrodsScratchDirectory();
-		// irodsTestSetupUtilities.initializeDirectoryForTest(IRODS_TEST_SUBDIR_PATH);
+		irodsTestSetupUtilities.initializeIrodsScratchDirectory();
+		irodsTestSetupUtilities.initializeDirectoryForTest(IRODS_TEST_SUBDIR_PATH);
 		irodsFileSystem = IRODSFileSystem.instance();
 	}
 
@@ -44,14 +45,19 @@ public class DemoFunctionalTest {
 	}
 
 	@Test
+	public void dummy() {
+
+	}
+
+	@Ignore
 	public void testRetrieveDataBundle() throws Exception {
 		String bundleDir = "/tempZone/home/drs/testbundle1";
 
-		// IRODSAccount irodsAccount =
-		// testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
 
-		IRODSAccount irodsAccount = IRODSAccount.instance("107.23.1.37", 1247, "drs", "LookAtTheBigBrainOnDrs", "",
-				"tempZone", "");
+		// IRODSAccount irodsAccount = IRODSAccount.instance("107.23.1.37", 1247, "drs",
+		// "LookAtTheBigBrainOnDrs", "",
+		// "tempZone", "");
 
 		IRODSFileFactory irodsFileFactory = irodsFileSystem.getIRODSFileFactory(irodsAccount);
 		IRODSFile destFile = irodsFileFactory.instanceIRODSFile(bundleDir);

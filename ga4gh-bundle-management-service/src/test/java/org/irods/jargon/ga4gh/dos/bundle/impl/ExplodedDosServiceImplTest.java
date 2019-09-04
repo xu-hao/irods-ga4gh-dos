@@ -155,6 +155,7 @@ public class ExplodedDosServiceImplTest {
 		Assert.assertFalse("no guid", irodsDataObject.getGuid().isEmpty());
 		Assert.assertFalse("no absPath", irodsDataObject.getAbsolutePath().isEmpty());
 		Assert.assertFalse("no access methods", irodsDataObject.getIrodsAccessMethods().isEmpty());
+		Assert.assertFalse("no checksums", irodsDataObject.getChecksum().isEmpty());
 
 	}
 

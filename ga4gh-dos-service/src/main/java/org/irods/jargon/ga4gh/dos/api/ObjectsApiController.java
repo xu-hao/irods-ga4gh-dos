@@ -107,10 +107,9 @@ public class ObjectsApiController implements ObjectsApi {
 					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					String name = auth.getName();
 					log.info("name:{}", name);
-					// IRODSAccount irodsAccount =
-					// this.contextAccountHelper.irodsAccountFromAuthentication(name);
-					IRODSAccount irodsAccount = IRODSAccount.instance("107.23.1.37", 1247, "drs",
-							"LookAtTheBigBrainOnDrs", "", "tempZone", "");
+					IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
+					// IRODSAccount irodsAccount = IRODSAccount.instance("107.23.1.37", 1247, "drs",
+					// "LookAtTheBigBrainOnDrs", "", "tempZone", "");
 					DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
 					try {
 						BundleInfoAndPath bundleInfo = dosService.resolveId(objectId);
@@ -174,6 +173,7 @@ public class ObjectsApiController implements ObjectsApi {
 							checksum.setType(irodsDataObject.getChecksumType());
 							checksums.add(checksum);
 
+							ga4ghObject.setChecksums(checksums);
 							List<AccessMethod> accessMethods = new ArrayList<>();
 
 							for (IrodsAccessMethod irodsAccessMethod : irodsDataObject.getIrodsAccessMethods()) {
@@ -185,6 +185,8 @@ public class ObjectsApiController implements ObjectsApi {
 								accessMethod.setAccessUrl(accessURL);
 								accessMethods.add(accessMethod);
 							}
+
+							ga4ghObject.setAccessMethods(accessMethods);
 
 							ga4ghObject.setDescription(""); // TODO: add formal description AVU
 							List<String> aliases = new ArrayList<>();
