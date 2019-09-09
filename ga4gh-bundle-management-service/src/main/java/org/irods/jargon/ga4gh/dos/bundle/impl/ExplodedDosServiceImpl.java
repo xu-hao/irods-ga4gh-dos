@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.irods.jargon.core.checksum.ChecksumValue;
 import org.irods.jargon.core.connection.IRODSAccount;
+import org.irods.jargon.core.exception.DataNotFoundException;
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.core.pub.CollectionAO;
 import org.irods.jargon.core.pub.DataObjectAO;
@@ -106,6 +107,9 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 
 		try {
 			bundleInfoAndPath = this.dataObjectIdToIrodsPath(id);
+		} catch (DosDataNotFoundException dnf) {
+			log.warn("not found for:{}", id);
+			throw new DosDataNotFoundException("object not found");
 		} catch (JargonException e) {
 			log.error("jargon exception", e);
 			throw new DosSystemException(e);
@@ -232,7 +236,9 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 			addAccessUrls(irodsDataObject, irodsFile);
 			log.info("irodsDataObject:{}", irodsDataObject);
 			return irodsDataObject;
-
+		} catch (DataNotFoundException dnf) {
+			log.warn("bundle not found:{}", bundleInfoAndPath);
+			throw new DosDataNotFoundException("Data not found");
 		} catch (JargonException e) {
 			log.error("error accessing iRODS", e);
 			throw new DosSystemException("exception connecting to iRODS", e);
