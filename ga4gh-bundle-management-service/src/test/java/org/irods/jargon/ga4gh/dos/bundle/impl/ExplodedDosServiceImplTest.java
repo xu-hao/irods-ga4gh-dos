@@ -148,6 +148,7 @@ public class ExplodedDosServiceImplTest {
 
 		/* get the guid and retrieve data object via service */
 		bundleInfoAndPath = dosService.resolveId(irodsDataObject.getGuid());
+		irodsDataObject = dosService.retrieveDataObject(bundleInfoAndPath);
 
 		IrodsDataObject actual = dosService.retrieveDataObject(bundleInfoAndPath);
 		Assert.assertNotNull("null irodsDataObject", actual);

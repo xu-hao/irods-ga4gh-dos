@@ -331,7 +331,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				irodsAccessMethod.setUrl(sb.toString());
 				sb = new StringBuilder();
 				// TODO: some pluggable method of creating a path builder?
-				sb.append("Authorization : Bearer ");
+				sb.append("X-API-KEY ");
 				sb.append(ticketId);
 				irodsAccessMethod.setHeaders(new ArrayList<String>());
 				irodsAccessMethod.getHeaders().add(sb.toString());

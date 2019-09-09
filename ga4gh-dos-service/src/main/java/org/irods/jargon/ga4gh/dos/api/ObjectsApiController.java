@@ -1,6 +1,5 @@
 package org.irods.jargon.ga4gh.dos.api;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,22 +71,57 @@ public class ObjectsApiController implements ObjectsApi {
 	public ResponseEntity<AccessURL> getAccessURL(
 			@ApiParam(value = "An `id` of an `Ga4ghObject`", required = true) @PathVariable("object_id") String objectId,
 			@ApiParam(value = "An `access_id` from the `access_methods` list of an `Ga4ghObject`", required = true) @PathVariable("access_id") String accessId) {
-		if (getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
-			if (getAcceptHeader().get().contains("application/json")) {
-				try {
-					return new ResponseEntity<>(getObjectMapper().get().readValue(
-							"{  \"headers\" : {    \"Authorization\" : \"Basic Z2E0Z2g6ZHJz\"  },  \"url\" : \"url\"}",
-							AccessURL.class), HttpStatus.NOT_IMPLEMENTED);
-				} catch (IOException e) {
-					log.error("Couldn't serialize response for content type application/json", e);
-					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-				}
-			}
-		} else {
-			log.warn(
-					"ObjectMapper or HttpServletRequest not configured in default ObjectsApi interface so no example is generated");
+		log.info("getAccessURL()");
+
+		if (objectId == null || objectId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty objectId");
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+		log.info("objectId:{}", objectId);
+
+		if (accessId == null || accessId.isEmpty()) {
+			throw new IllegalArgumentException("null or empty objectId");
+		}
+
+		log.info("accessId:{}", accessId);
+
+		String accept = request.getHeader("Accept");
+		if (accept != null && accept.contains("application/json")) {
+			try {
+
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				String name = auth.getName();
+				log.info("name:{}", name);
+				IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
+				log.debug("irodsAccount:{}", irodsAccount);
+
+				DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
+
+				try {
+					IrodsAccessMethod irodsAccessMethod = dosService.createAccessUrlForDataObject(objectId, accessId);
+					AccessURL accessUrl = new AccessURL();
+					accessUrl.setHeaders(new ArrayList<String>());
+					accessUrl.setUrl(irodsAccessMethod.getUrl());
+
+					for (String header : irodsAccessMethod.getHeaders()) {
+						accessUrl.getHeaders().add(header);
+					}
+
+					log.info("accessUrl:{}", accessUrl);
+					return new ResponseEntity<AccessURL>(accessUrl, HttpStatus.OK);
+
+				} catch (DosDataNotFoundException e) {
+					log.error("Data not found for id", e);
+					return new ResponseEntity<AccessURL>(HttpStatus.NOT_FOUND);
+				}
+
+			} catch (Exception e) {
+				log.error("Couldn't serialize response for content type application/json", e);
+				return new ResponseEntity<AccessURL>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+
+		return new ResponseEntity<AccessURL>(HttpStatus.BAD_REQUEST);
 	}
 
 	public ResponseEntity<Ga4ghObject> getObject(
@@ -108,8 +142,6 @@ public class ObjectsApiController implements ObjectsApi {
 					String name = auth.getName();
 					log.info("name:{}", name);
 					IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
-					// IRODSAccount irodsAccount = IRODSAccount.instance("107.23.1.37", 1247, "drs",
-					// "LookAtTheBigBrainOnDrs", "", "tempZone", "");
 					DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
 					try {
 						BundleInfoAndPath bundleInfo = dosService.resolveId(objectId);
