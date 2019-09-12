@@ -305,6 +305,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 
 		log.debug("looking up data object first");
 		BundleInfoAndPath bundleInfoAndPath = this.resolveId(dataObjectId);
+		log.debug("got bundleAndPath:{}", bundleInfoAndPath);
 		IrodsDataObject irodsDataObject = this.retrieveDataObject(bundleInfoAndPath);
 
 		// data object is found
