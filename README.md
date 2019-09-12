@@ -9,5 +9,7 @@ This is an implementation of the GA4GH data object service for the iRODS data gr
 * Swagger Hub - https://app.swaggerhub.com/apis/du3/data-repository_service/0.6.0
 
 
+Target test data...
 
 
+https://console.cloud.google.com/storage/browser/genomics-public-data/test-data/dna/wgs/hiseq2500/NA12878/
