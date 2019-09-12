@@ -14,7 +14,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableSwagger2
-@ComponentScan(basePackages = { "org.irods.jargon.ga4gh.dos" })
+@ComponentScan
+//@ComponentScan(basePackages = {
+//		"org.irods.jargon.ga4gh.dos, org.irods.jargon.ga4gh.dos.api, org.irods.jargon.ga4gh.dos.security, org.irods.jargon.ga4gh.dos.utils, org.irods.jargon.ga4gh.dos.bundle.impl, org.irods.jargon.ga4gh.dos.configuration" })
 @EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 

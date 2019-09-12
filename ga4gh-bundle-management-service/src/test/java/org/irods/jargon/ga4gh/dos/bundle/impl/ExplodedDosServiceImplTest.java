@@ -11,17 +11,19 @@ import org.irods.jargon.core.pub.IRODSFileSystem;
 import org.irods.jargon.core.pub.domain.AvuData;
 import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
+import org.irods.jargon.extensions.datatyper.DataTyperSettings;
 import org.irods.jargon.ga4gh.dos.bundle.DosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsAccessMethod;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
-import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
 import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
 import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.irods.jargon.testutils.filemanip.FileGenerator;
+import org.irodsext.datatyper.IrodsextDataTypeResolutionServiceFactoryImpl;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -86,7 +88,8 @@ public class ExplodedDosServiceImplTest {
 		DosService dosService = factory.instanceDosService(irodsAccount);
 		String guid = bundleManagementService.createDataBundle(bundleRoot);
 
-		IrodsDataBundle bundle = dosService.retrieveDataBundle(guid);
+		BundleInfoAndPath bundleInfoAndPath = dosService.resolveId(guid);
+		IrodsDataBundle bundle = dosService.retrieveDataBundle(bundleInfoAndPath);
 		Assert.assertNotNull("null bundle", bundle);
 		Assert.assertEquals("guid incorrect", guid, bundle.getBundleUuid());
 		Assert.assertEquals("path missing", bundleRoot, bundle.getIrodsAbsolutePath());
@@ -121,26 +124,39 @@ public class ExplodedDosServiceImplTest {
 		DosConfiguration dosConfiguration = new DosConfiguration();
 		dosConfiguration.setDrsRestUrlEndpoint("http://www.example.com/rest/fileStream?path=");
 		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+		IrodsextDataTypeResolutionServiceFactoryImpl dataTypeResolutionServiceFactory = new IrodsextDataTypeResolutionServiceFactoryImpl();
+		DataTyperSettings dataTyperSettings = new DataTyperSettings();
+		dataTyperSettings.setDetailedDetermination(false);
+		dataTyperSettings.setPersistDataTypes(false);
+		dataTypeResolutionServiceFactory.setDataTyperSettings(dataTyperSettings);
+		dataTypeResolutionServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
+		factory.setDataTypeResolutionServiceFactory(dataTypeResolutionServiceFactory);
+
 		factory.setDosConfiguration(dosConfiguration);
 
 		DosBundleManagementService bundleManagementService = factory.instanceDosBundleManagementService(irodsAccount);
 		DosService dosService = factory.instanceDosService(irodsAccount);
 		String guid = bundleManagementService.createDataBundle(bundleRoot);
 
-		IrodsDataBundle bundle = dosService.retrieveDataBundle(guid);
+		BundleInfoAndPath bundleInfoAndPath = dosService.resolveId(guid);
+
+		IrodsDataBundle bundle = dosService.retrieveDataBundle(bundleInfoAndPath);
 		/* should be one file, retrieve it */
 
 		Assert.assertFalse("data object not found", bundle.getDataObjects().isEmpty());
 		IrodsDataObject irodsDataObject = bundle.getDataObjects().get(0);
 
 		/* get the guid and retrieve data object via service */
+		bundleInfoAndPath = dosService.resolveId(irodsDataObject.getGuid());
+		irodsDataObject = dosService.retrieveDataObject(bundleInfoAndPath);
 
-		IrodsDataObject actual = dosService.retrieveDataObject(irodsDataObject.getGuid());
+		IrodsDataObject actual = dosService.retrieveDataObject(bundleInfoAndPath);
 		Assert.assertNotNull("null irodsDataObject", actual);
 		Assert.assertEquals(testFileName, actual.getFileName());
 		Assert.assertFalse("no guid", irodsDataObject.getGuid().isEmpty());
 		Assert.assertFalse("no absPath", irodsDataObject.getAbsolutePath().isEmpty());
 		Assert.assertFalse("no access methods", irodsDataObject.getIrodsAccessMethods().isEmpty());
+		Assert.assertFalse("no checksums", irodsDataObject.getChecksum().isEmpty());
 
 	}
 
@@ -173,18 +189,29 @@ public class ExplodedDosServiceImplTest {
 		factory.setDosConfiguration(dosConfiguration);
 
 		DosBundleManagementService bundleManagementService = factory.instanceDosBundleManagementService(irodsAccount);
+		IrodsextDataTypeResolutionServiceFactoryImpl dataTypeResolutionServiceFactory = new IrodsextDataTypeResolutionServiceFactoryImpl();
+		DataTyperSettings dataTyperSettings = new DataTyperSettings();
+		dataTyperSettings.setDetailedDetermination(false);
+		dataTyperSettings.setPersistDataTypes(false);
+		dataTypeResolutionServiceFactory.setDataTyperSettings(dataTyperSettings);
+		dataTypeResolutionServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
+		factory.setDataTypeResolutionServiceFactory(dataTypeResolutionServiceFactory);
+
 		DosService dosService = factory.instanceDosService(irodsAccount);
 		String guid = bundleManagementService.createDataBundle(bundleRoot);
 
-		IrodsDataBundle bundle = dosService.retrieveDataBundle(guid);
+		BundleInfoAndPath bundleInfoAndPath = dosService.resolveId(guid);
+
+		IrodsDataBundle bundle = dosService.retrieveDataBundle(bundleInfoAndPath);
 		/* should be one file, retrieve it */
 
 		Assert.assertFalse("data object not found", bundle.getDataObjects().isEmpty());
-		IrodsDataObject irodsDataObject = bundle.getDataObjects().get(0);
 
 		/* get the guid and retrieve data object via service */
 
-		IrodsDataObject irodsDataObjectReturned = dosService.retrieveDataObject(irodsDataObject.getGuid());
+		bundleInfoAndPath = dosService.resolveId(bundle.getDataObjects().get(0).getGuid());
+
+		IrodsDataObject irodsDataObjectReturned = dosService.retrieveDataObject(bundleInfoAndPath);
 		IrodsAccessMethod irodsAccessMethod = dosService.createAccessUrlForDataObject(irodsDataObjectReturned.getGuid(),
 				DosService.ACCESS_REST);
 
@@ -227,6 +254,14 @@ public class ExplodedDosServiceImplTest {
 		factory.setDosConfiguration(dosConfiguration);
 
 		DosBundleManagementService bundleManagementService = factory.instanceDosBundleManagementService(irodsAccount);
+		DataTyperSettings dataTyperSettings = new DataTyperSettings();
+		dataTyperSettings.setDetailedDetermination(false);
+		dataTyperSettings.setPersistDataTypes(false);
+		IrodsextDataTypeResolutionServiceFactoryImpl dataTypeResolutionServiceFactory = new IrodsextDataTypeResolutionServiceFactoryImpl();
+		dataTypeResolutionServiceFactory.setDataTyperSettings(dataTyperSettings);
+		dataTypeResolutionServiceFactory.setIrodsAccessObjectFactory(irodsFileSystem.getIRODSAccessObjectFactory());
+		factory.setDataTypeResolutionServiceFactory(dataTypeResolutionServiceFactory);
+
 		DosService dosService = factory.instanceDosService(irodsAccount);
 		String guid = bundleManagementService.createDataBundle(bundleRoot);
 		Assert.assertNotNull("no guid returned", guid);
@@ -239,7 +274,6 @@ public class ExplodedDosServiceImplTest {
 		Assert.assertFalse("no abspath", actual.getAbsolutePath().isEmpty());
 		Assert.assertFalse("no guid", actual.getGuid().isEmpty());
 		Assert.assertFalse("no file name", actual.getFileName().isEmpty());
-		Assert.assertEquals("wrong object type", TypeEnum.OBJECT, actual.getType());
 
 		IrodsAccessMethod irodsAccessMethod = dataBundles.get(0).getIrodsAccessMethods().get(0);
 		Assert.assertEquals("/objects/" + actual.getGuid(), irodsAccessMethod.getUrl());
@@ -281,8 +315,9 @@ public class ExplodedDosServiceImplTest {
 		factory.setDosConfiguration(dosConfiguration);
 
 		DosService dosService = factory.instanceDosService(irodsAccount);
-		String actual = dosService.dataObjectIdToIrodsPath(guid);
-		Assert.assertEquals("wrong path", targetIrodsCollection + "/" + testFileName, actual);
+		BundleInfoAndPath bundleInfoAndPath = dosService.resolveId(guid);
+
+		Assert.assertEquals("wrong path", targetIrodsCollection + "/" + testFileName, bundleInfoAndPath.getIrodsPath());
 	}
 
 }

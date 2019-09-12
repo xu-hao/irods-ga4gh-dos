@@ -209,6 +209,10 @@
 									irods.zoneName=${jargon.test.irods.zone}
 									irods.admin.user=${jargon.test.irods.admin}
 									irods.admin.password=${jargon.test.irods.admin.password}
+									proxy.user=${jargon.test.irods.admin}
+									proxy.password=${jargon.test.irods.admin.password}
+									jwt.algo=${jargon.search.jwtAlgo}
+									shared.jwt.key=${jargon.search.jwtSecret}
 									irods.auth.scheme=${drs.auth.scheme}
 									default.storage.resource=${jargon.test.irods.resource}
 									ssl.negotiation.policy=${drs.ssl.policy}

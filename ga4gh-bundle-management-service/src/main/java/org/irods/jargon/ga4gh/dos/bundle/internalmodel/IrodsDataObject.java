@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.irods.jargon.ga4gh.dos.model.BundleObject.TypeEnum;
-
 /**
  * Represents a data object in a data bundle in iRODS
  * 
@@ -74,11 +72,6 @@ public class IrodsDataObject {
 	private String guid = "";
 
 	/**
-	 * object|bundle (right now bundles are presented as flat, no nested bundles)
-	 */
-	private TypeEnum type = TypeEnum.OBJECT;
-
-	/**
 	 * Site-specific access urls (site specific, including irods:// and http://
 	 * access urls)
 	 */
@@ -100,14 +93,6 @@ public class IrodsDataObject {
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
-	}
-
-	public TypeEnum getType() {
-		return type;
-	}
-
-	public void setType(TypeEnum type) {
-		this.type = type;
 	}
 
 	public String getAbsolutePath() {
@@ -144,9 +129,9 @@ public class IrodsDataObject {
 						? irodsAccessMethods.subList(0, Math.min(irodsAccessMethods.size(), maxLen))
 						: null)
 				.append(", absolutePath=").append(absolutePath).append(", fileName=").append(fileName).append(", guid=")
-				.append(guid).append(", type=").append(type).append(", getGuid()=").append(getGuid())
-				.append(", getFileName()=").append(getFileName()).append(", getType()=").append(getType())
-				.append(", getAbsolutePath()=").append(getAbsolutePath()).append(", getIrodsAccessMethods()=")
+				.append(guid).append(", getGuid()=").append(getGuid()).append(", getFileName()=").append(getFileName())
+				.append(", getType()=").append(", getAbsolutePath()=").append(getAbsolutePath())
+				.append(", getIrodsAccessMethods()=")
 				.append(getIrodsAccessMethods() != null
 						? getIrodsAccessMethods().subList(0, Math.min(getIrodsAccessMethods().size(), maxLen))
 						: null)

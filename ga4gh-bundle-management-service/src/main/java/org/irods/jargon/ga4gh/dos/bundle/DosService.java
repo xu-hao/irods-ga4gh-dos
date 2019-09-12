@@ -3,6 +3,7 @@ package org.irods.jargon.ga4gh.dos.bundle;
 import java.util.List;
 
 import org.irods.jargon.core.exception.JargonException;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsAccessMethod;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataBundle;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.IrodsDataObject;
@@ -24,36 +25,15 @@ public interface DosService {
 	public static final String ACCESS_REST = "irods-rest";
 
 	/**
-	 * Retrieve a data bundle (in an intermediate data transfer object) based on a
-	 * GA4GH bundle id
-	 * 
-	 * @param bundleId {@code String} with the bundle id
-	 * @return {@link IrodsDataBundle} that is an intermediate representation of the
-	 *         data bundle without the JSON cruft
-	 * @throws DosDataNotFoundException {@link DosDataNotFoundException} for missing
-	 *                                  bundle
-	 */
-	IrodsDataBundle retrieveDataBundle(final String bundleId) throws DosDataNotFoundException;
-
-	/**
 	 * Retrieve the irods absolute path for the data object id
 	 * 
 	 * @param dataObjectId {@code String} with the ga4gh data object id
-	 * @return {@code String} with the iRODS absolute path
+	 * @return {@code BundleInfoAndPath} with the iRODS to bundle mapping
 	 * @throws DosDataNotFoundException {@link DosDataNotFoundException}
 	 * @throws JargonException          {@link JargonException}
 	 */
-	String dataObjectIdToIrodsPath(final String dataObjectId) throws DosDataNotFoundException, JargonException;
-
-	/**
-	 * Retrieve a data object in a bundle based on its GUID
-	 * 
-	 * @param objectId {@code String} with the GUID of the data objecct
-	 * @return {@link IrodsDataObject}
-	 * @throws DosDataNotFoundException {@link DosDataNotFoundException}
-	 * @throws JargonException          {@link JargonException}
-	 */
-	IrodsDataObject retrieveDataObject(final String objectId) throws DosDataNotFoundException, DosSystemException;
+	BundleInfoAndPath dataObjectIdToIrodsPath(final String dataObjectId)
+			throws DosDataNotFoundException, JargonException;
 
 	/**
 	 * Retrieve a list of data objects in a bundle
@@ -82,5 +62,39 @@ public interface DosService {
 	 */
 	IrodsAccessMethod createAccessUrlForDataObject(final String dataObjectId, final String accessId)
 			throws DosDataNotFoundException, JargonException;
+
+	/**
+	 * Given a drs id, resolve as a data object or bundle to an iRODS path
+	 * 
+	 * @param id {@code String} with the ga4gh id
+	 * @return {@link BundleInfoAndPath} that maps an id to an iRODS object
+	 * @throws DosDataNotFoundException {@link DosDataNotFoundException} when data
+	 *                                  object or access method is not found
+	 * @throws JargonException          {@link JargonException}
+	 */
+	BundleInfoAndPath resolveId(final String id) throws DosDataNotFoundException, DosSystemException;
+
+	/**
+	 * Retrieve a data object in a bundle based on its GUID
+	 * 
+	 * @param bundleInfoAndPath {@link BundleInfoAndPath} describing the object
+	 * @return {@link IrodsDataObject}
+	 * @throws DosDataNotFoundException {@link DosDataNotFoundException}
+	 * @throws JargonException          {@link JargonException}
+	 */
+	IrodsDataObject retrieveDataObject(BundleInfoAndPath bundleInfoAndPath)
+			throws DosDataNotFoundException, DosSystemException;
+
+	/**
+	 * Retrieve a data bundle (in an intermediate data transfer object) based on a
+	 * GA4GH bundle id
+	 * 
+	 * @param bundleInfoAndPath {@code BundleInfoAndPath} with the bundle id
+	 * @return {@link IrodsDataBundle} that is an intermediate representation of the
+	 *         data bundle without the JSON cruft
+	 * @throws DosDataNotFoundException {@link DosDataNotFoundException} for missing
+	 *                                  bundle
+	 */
+	IrodsDataBundle retrieveDataBundle(final BundleInfoAndPath bundleInfoAndPath) throws DosDataNotFoundException;
 
 }

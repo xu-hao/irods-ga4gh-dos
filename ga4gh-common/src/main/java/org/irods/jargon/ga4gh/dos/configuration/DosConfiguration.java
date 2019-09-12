@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 
 @PropertySources({ @PropertySource(value = "classpath:test.dos.properties", ignoreResourceNotFound = true),
-		@PropertySource(value = "file:///etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = true) })
+		@PropertySource(value = "file:/etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = false) })
 
 @Component
 public class DosConfiguration {
@@ -28,6 +28,18 @@ public class DosConfiguration {
 
 	@Value("${irods.zone}")
 	private String irodsZone;
+
+	@Value("${proxy.user}")
+	private String proxyUser;
+
+	@Value("${proxy.password}")
+	private String proxyPassword;
+
+	@Value("${shared.jwt.key}")
+	private String sharedJwtKey;
+
+	@Value("${jwt.algo}")
+	private String jwtAlgo;
 
 	@Value("${default.storage.resource}")
 	private String defaultStorageResource;
@@ -73,6 +85,9 @@ public class DosConfiguration {
 
 	@Value("${ga4gh.title}")
 	private String title = "";
+
+	@Value("${shared.jwt.key}")
+	private String jwtKey = "";
 
 	/**
 	 * {@code String} property 'drs.rest.url.endpoint'. If not blank, represents the
@@ -227,16 +242,17 @@ public class DosConfiguration {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("DosConfiguration [irodsHost=").append(irodsHost).append(", irodsZone=").append(irodsZone)
-				.append(", defaultStorageResource=").append(defaultStorageResource).append(", port=").append(port)
-				.append(", realm=").append(realm).append(", urlPrefix=").append(urlPrefix)
-				.append(", usePackingStreams=").append(usePackingStreams).append(", computeChecksum=")
+				.append(", proxyUser=").append(proxyUser).append(", sharedJwtKey=").append(sharedJwtKey)
+				.append(", jwtAlgo=").append(jwtAlgo).append(", defaultStorageResource=").append(defaultStorageResource)
+				.append(", port=").append(port).append(", realm=").append(realm).append(", urlPrefix=")
+				.append(urlPrefix).append(", usePackingStreams=").append(usePackingStreams).append(", computeChecksum=")
 				.append(computeChecksum).append(", authScheme=").append(authScheme).append(", sslNegotiationPolicy=")
 				.append(sslNegotiationPolicy).append(", persistDataTypes=").append(persistDataTypes)
 				.append(", detailedDataTypeDetermination=").append(detailedDataTypeDetermination).append(", accessUrl=")
 				.append(accessUrl).append(", contact=").append(contact).append(", license=").append(license)
-				.append(", description=").append(description).append(", title=").append(title)
-				.append(", drsRestUrlEndpoint=").append(drsRestUrlEndpoint).append(", drsProvideIrodsUrls=")
-				.append(drsProvideIrodsUrls).append("]");
+				.append(", description=").append(description).append(", title=").append(title).append(", jwtKey=")
+				.append(jwtKey).append(", drsRestUrlEndpoint=").append(drsRestUrlEndpoint)
+				.append(", drsProvideIrodsUrls=").append(drsProvideIrodsUrls).append("]");
 		return builder.toString();
 	}
 
@@ -271,4 +287,45 @@ public class DosConfiguration {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+
+	public String getProxyUser() {
+		return proxyUser;
+	}
+
+	public void setProxyUser(String proxyUser) {
+		this.proxyUser = proxyUser;
+	}
+
+	public String getProxyPassword() {
+		return proxyPassword;
+	}
+
+	public void setProxyPassword(String proxyPassword) {
+		this.proxyPassword = proxyPassword;
+	}
+
+	public String getSharedJwtKey() {
+		return sharedJwtKey;
+	}
+
+	public void setSharedJwtKey(String sharedJwtKey) {
+		this.sharedJwtKey = sharedJwtKey;
+	}
+
+	public String getJwtAlgo() {
+		return jwtAlgo;
+	}
+
+	public void setJwtAlgo(String jwtAlgo) {
+		this.jwtAlgo = jwtAlgo;
+	}
+
+	public String getJwtKey() {
+		return jwtKey;
+	}
+
+	public void setJwtKey(String jwtKey) {
+		this.jwtKey = jwtKey;
+	}
+
 }
