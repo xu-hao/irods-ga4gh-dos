@@ -159,7 +159,7 @@ public class ObjectsApiController implements ObjectsApi {
 				Ga4ghObject ga4ghObject = new Ga4ghObject();
 				ga4ghObject.setId(objectId);
 				ga4ghObject.setName(irodsDataBundle.getIrodsAbsolutePath());
-				ga4ghObject.setSelfUri(dosConfiguration.getDrsRestUrlEndpoint() + "/objects/" + objectId);
+				ga4ghObject.setSelfUri("drs://" + request.getServerName() + "/" + objectId);
 				ga4ghObject.setSize(0L);
 				ga4ghObject.setCreatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getCreateDate()));
 				ga4ghObject.setUpdatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
@@ -178,7 +178,8 @@ public class ObjectsApiController implements ObjectsApi {
 					bundleObject.setId(dataObject.getGuid());
 					bundleObject.setName(dataObject.getFileName());
 					bundleObject.setDrsUri(new ArrayList<String>());
-					bundleObject.getDrsUri().add(dataObject.getIrodsAccessMethods().get(0).getUrl());
+					bundleObject.getDrsUri().add("drs://" + request.getServerName() + "/" + dataObject.getGuid());
+					bundleObject.setContents(new ArrayList<ContentsObject>());
 					dataObjects.add(bundleObject);
 				}
 
