@@ -85,43 +85,47 @@ public class ObjectsApiController implements ObjectsApi {
 
 		log.info("accessId:{}", accessId);
 
-		String accept = request.getHeader("Accept");
-		if (accept != null && accept.contains("application/json")) {
+		// String accept = request.getHeader("Accept");
+		// if (accept != null && accept.contains("application/json")) {
+		try {
+
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String name = auth.getName();
+			log.info("name:{}", name);
+			IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
+
+			// IRODSAccount irodsAccount = IRODSAccount.instance("server4.local", 1247,
+			// "test1", "test", "", "zone1", "");
+
+			log.debug("irodsAccount:{}", irodsAccount);
+
+			DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
+
 			try {
+				IrodsAccessMethod irodsAccessMethod = dosService.createAccessUrlForDataObject(objectId, accessId);
+				AccessURL accessUrl = new AccessURL();
+				accessUrl.setHeaders(new ArrayList<String>());
+				accessUrl.setUrl(irodsAccessMethod.getUrl());
 
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				String name = auth.getName();
-				log.info("name:{}", name);
-				IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
-				log.debug("irodsAccount:{}", irodsAccount);
-
-				DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
-
-				try {
-					IrodsAccessMethod irodsAccessMethod = dosService.createAccessUrlForDataObject(objectId, accessId);
-					AccessURL accessUrl = new AccessURL();
-					accessUrl.setHeaders(new ArrayList<String>());
-					accessUrl.setUrl(irodsAccessMethod.getUrl());
-
-					for (String header : irodsAccessMethod.getHeaders()) {
-						accessUrl.getHeaders().add(header);
-					}
-
-					log.info("accessUrl:{}", accessUrl);
-					return new ResponseEntity<AccessURL>(accessUrl, HttpStatus.OK);
-
-				} catch (DosDataNotFoundException e) {
-					log.error("Data not found for id", e);
-					return new ResponseEntity<AccessURL>(HttpStatus.NOT_FOUND);
+				for (String header : irodsAccessMethod.getHeaders()) {
+					accessUrl.getHeaders().add(header);
 				}
 
-			} catch (Exception e) {
-				log.error("Couldn't serialize response for content type application/json", e);
-				return new ResponseEntity<AccessURL>(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
+				log.info("accessUrl:{}", accessUrl);
+				return new ResponseEntity<AccessURL>(accessUrl, HttpStatus.OK);
 
-		return new ResponseEntity<AccessURL>(HttpStatus.BAD_REQUEST);
+			} catch (DosDataNotFoundException e) {
+				log.error("Data not found for id", e);
+				return new ResponseEntity<AccessURL>(HttpStatus.NOT_FOUND);
+			}
+
+		} catch (Exception e) {
+			log.error("Couldn't serialize response for content type application/json", e);
+			return new ResponseEntity<AccessURL>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// }
+
+		// return new ResponseEntity<AccessURL>(HttpStatus.BAD_REQUEST);
 	}
 
 	public ResponseEntity<Ga4ghObject> getObject(
@@ -129,128 +133,130 @@ public class ObjectsApiController implements ObjectsApi {
 			@ApiParam(value = "If false and the object_id refers to a bundle, then the ContentsObject array contains only those objects directly contained in the bundle. That is, if the bundle contains other bundles, those other bundles are not recursively included in the result. If true and the object_id refers to a bundle, then the entire set of objects in the bundle is expanded. That is, if the bundle contains aother bundles, then those other bundles are recursively expanded and included in the result. Recursion continues through the entire sub-tree of the bundle. If the object_id refers to a blob, then the query parameter is ignored.", defaultValue = "false") @Valid @RequestParam(value = "expand", required = false, defaultValue = "false") Boolean expand) {
 
 		log.info("getObject()");
-		if (getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
-			if (getAcceptHeader().get().contains("application/json")) {
-				try {
-					log.info("getObject()");
-					if (objectId == null || objectId.isEmpty()) {
-						throw new IllegalArgumentException("null or empty objectId");
-					}
-
-					log.info("objectId:{}", objectId);
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-					String name = auth.getName();
-					log.info("name:{}", name);
-					IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
-					DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
-
-					BundleInfoAndPath bundleInfo = dosService.resolveId(objectId);
-					if (bundleInfo.isCollection()) {
-						log.info("this is a data bundle");
-						IrodsDataBundle irodsDataBundle = dosService.retrieveDataBundle(bundleInfo);
-						Ga4ghObject ga4ghObject = new Ga4ghObject();
-						ga4ghObject.setId(objectId);
-						ga4ghObject.setName(irodsDataBundle.getIrodsAbsolutePath());
-						ga4ghObject.setSelfUri(dosConfiguration.getDrsRestUrlEndpoint() + "/objects/" + objectId);
-						ga4ghObject.setSize(0L);
-						ga4ghObject
-								.setCreatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getCreateDate()));
-						ga4ghObject
-								.setUpdatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
-						ga4ghObject.setVersion("0");
-						ga4ghObject.setMimeType("text/directory");
-
-						ga4ghObject.addAliasesItem(irodsDataBundle.getIrodsAbsolutePath());
-						Checksum checksum = new Checksum();
-						checksum.setChecksum(irodsDataBundle.getBundleChecksum());
-						checksum.setType(irodsDataBundle.getBundleChecksumType());
-						ga4ghObject.addChecksumsItem(checksum);
-						ContentsObject bundleObject;
-						List<ContentsObject> dataObjects = new ArrayList<>();
-						for (IrodsDataObject dataObject : irodsDataBundle.getDataObjects()) {
-							bundleObject = new ContentsObject();
-							bundleObject.setId(dataObject.getGuid());
-							bundleObject.setName(dataObject.getFileName());
-							bundleObject.setDrsUri(new ArrayList<String>());
-							bundleObject.getDrsUri().add(dataObject.getIrodsAccessMethods().get(0).getUrl());
-							dataObjects.add(bundleObject);
-						}
-
-						ga4ghObject.setContents(dataObjects);
-						ga4ghObject.setDescription(irodsDataBundle.getDescription());
-						log.info("ga4ghObject:{}", ga4ghObject);
-						return new ResponseEntity<Ga4ghObject>(ga4ghObject, HttpStatus.OK);
-
-					} else {
-						log.info("this is a data object");
-						IrodsDataObject irodsDataObject = dosService.retrieveDataObject(bundleInfo);
-						log.debug("have the data object:{}", irodsDataObject);
-
-						Ga4ghObject ga4ghObject = new Ga4ghObject();
-						ga4ghObject.setId(irodsDataObject.getGuid());
-						ga4ghObject.setName(irodsDataObject.getAbsolutePath());
-						ga4ghObject.setSelfUri(dosConfiguration.getDrsRestUrlEndpoint() + "/objects/" + objectId);
-						ga4ghObject.setSize(irodsDataObject.getSize());
-						ga4ghObject
-								.setCreatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataObject.getCreateDate()));
-						ga4ghObject
-								.setUpdatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataObject.getModifyDate()));
-						ga4ghObject.setVersion("");
-						ga4ghObject.setMimeType(irodsDataObject.getMimeType());
-
-						List<Checksum> checksums = new ArrayList<>();
-
-						Checksum checksum = new Checksum();
-						checksum.setChecksum(irodsDataObject.getChecksum());
-						checksum.setType(irodsDataObject.getChecksumType());
-						checksums.add(checksum);
-
-						ga4ghObject.setChecksums(checksums);
-						List<AccessMethod> accessMethods = new ArrayList<>();
-
-						for (IrodsAccessMethod irodsAccessMethod : irodsDataObject.getIrodsAccessMethods()) {
-							AccessMethod accessMethod = new AccessMethod();
-							accessMethod.setAccessId(irodsAccessMethod.getAccessId());
-							AccessURL accessURL = new AccessURL();
-							accessURL.setHeaders(irodsAccessMethod.getHeaders());
-							accessURL.setUrl(irodsAccessMethod.getUrl());
-							accessMethod.setRegion(irodsAccessMethod.getRegion());
-							accessMethod.setAccessUrl(accessURL);
-							accessMethod.setType(irodsAccessMethod.getType());
-							accessMethods.add(accessMethod);
-
-						}
-
-						ga4ghObject.setAccessMethods(accessMethods);
-						ga4ghObject.setChecksums(checksums);
-						ga4ghObject.setContents(new ArrayList<ContentsObject>());
-						ga4ghObject.setDescription(""); // TODO: add formal description AVU
-						List<String> aliases = new ArrayList<>();
-						aliases.add(irodsDataObject.getAbsolutePath());
-						ga4ghObject.setAliases(aliases);
-
-						log.info("ga4ghObject:{}", ga4ghObject);
-						return new ResponseEntity<Ga4ghObject>(ga4ghObject, HttpStatus.OK);
-
-					}
-
-				} catch (DosDataNotFoundException e) {
-					log.warn("data not found for objectId:{}", objectId);
-					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-				} catch (Exception e) {
-					log.error("Couldn't serialize response for content type application/json", e);
-					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
-				} finally {
-					dosServiceFactory.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
-				}
+		// if (getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
+		// if (getAcceptHeader().get().contains("application/json")) {
+		try {
+			log.info("getObject()");
+			if (objectId == null || objectId.isEmpty()) {
+				throw new IllegalArgumentException("null or empty objectId");
 			}
-		} else {
-			log.warn(
-					"ObjectMapper or HttpServletRequest not configured in default ObjectsApi interface so no example is generated");
+
+			log.info("objectId:{}", objectId);
+
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String name = auth.getName();
+			log.info("name:{}", name);
+			IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
+
+			// IRODSAccount irodsAccount = IRODSAccount.instance("server4.local", 1247,
+			// "test1", "test", "", "zone1", "");
+			DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);
+
+			BundleInfoAndPath bundleInfo = dosService.resolveId(objectId);
+			if (bundleInfo.isCollection()) {
+				log.info("this is a data bundle");
+				IrodsDataBundle irodsDataBundle = dosService.retrieveDataBundle(bundleInfo);
+				Ga4ghObject ga4ghObject = new Ga4ghObject();
+				ga4ghObject.setId(objectId);
+				ga4ghObject.setName(irodsDataBundle.getIrodsAbsolutePath());
+				ga4ghObject.setSelfUri(dosConfiguration.getDrsRestUrlEndpoint() + "/objects/" + objectId);
+				ga4ghObject.setSize(0L);
+				ga4ghObject.setCreatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getCreateDate()));
+				ga4ghObject.setUpdatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
+				ga4ghObject.setVersion("0");
+				ga4ghObject.setMimeType("text/directory");
+
+				ga4ghObject.addAliasesItem(irodsDataBundle.getIrodsAbsolutePath());
+				Checksum checksum = new Checksum();
+				checksum.setChecksum(irodsDataBundle.getBundleChecksum());
+				checksum.setType(irodsDataBundle.getBundleChecksumType());
+				ga4ghObject.addChecksumsItem(checksum);
+				ContentsObject bundleObject;
+				List<ContentsObject> dataObjects = new ArrayList<>();
+				for (IrodsDataObject dataObject : irodsDataBundle.getDataObjects()) {
+					bundleObject = new ContentsObject();
+					bundleObject.setId(dataObject.getGuid());
+					bundleObject.setName(dataObject.getFileName());
+					bundleObject.setDrsUri(new ArrayList<String>());
+					bundleObject.getDrsUri().add(dataObject.getIrodsAccessMethods().get(0).getUrl());
+					dataObjects.add(bundleObject);
+				}
+
+				ga4ghObject.setContents(dataObjects);
+				ga4ghObject.setDescription(irodsDataBundle.getDescription());
+				log.info("ga4ghObject:{}", ga4ghObject);
+				return new ResponseEntity<Ga4ghObject>(ga4ghObject, HttpStatus.OK);
+
+			} else {
+				log.info("this is a data object");
+				IrodsDataObject irodsDataObject = dosService.retrieveDataObject(bundleInfo);
+				log.debug("have the data object:{}", irodsDataObject);
+
+				Ga4ghObject ga4ghObject = new Ga4ghObject();
+				ga4ghObject.setId(irodsDataObject.getGuid());
+				ga4ghObject.setName(irodsDataObject.getAbsolutePath());
+				ga4ghObject.setSelfUri(dosConfiguration.getDrsRestUrlEndpoint() + "/objects/" + objectId);
+				ga4ghObject.setSize(irodsDataObject.getSize());
+				ga4ghObject.setCreatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataObject.getCreateDate()));
+				ga4ghObject.setUpdatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataObject.getModifyDate()));
+				ga4ghObject.setVersion("");
+				ga4ghObject.setMimeType(irodsDataObject.getMimeType());
+
+				List<Checksum> checksums = new ArrayList<>();
+
+				Checksum checksum = new Checksum();
+				checksum.setChecksum(irodsDataObject.getChecksum());
+				checksum.setType(irodsDataObject.getChecksumType());
+				checksums.add(checksum);
+
+				ga4ghObject.setChecksums(checksums);
+				List<AccessMethod> accessMethods = new ArrayList<>();
+
+				for (IrodsAccessMethod irodsAccessMethod : irodsDataObject.getIrodsAccessMethods()) {
+					AccessMethod accessMethod = new AccessMethod();
+					accessMethod.setAccessId(irodsAccessMethod.getAccessId());
+					AccessURL accessURL = new AccessURL();
+					accessURL.setHeaders(irodsAccessMethod.getHeaders());
+					accessURL.setUrl(irodsAccessMethod.getUrl());
+					accessMethod.setRegion(irodsAccessMethod.getRegion());
+					accessMethod.setAccessUrl(accessURL);
+					accessMethod.setType(irodsAccessMethod.getType());
+					accessMethods.add(accessMethod);
+
+				}
+
+				ga4ghObject.setAccessMethods(accessMethods);
+				ga4ghObject.setChecksums(checksums);
+				ga4ghObject.setContents(new ArrayList<ContentsObject>());
+				ga4ghObject.setDescription(""); // TODO: add formal description AVU
+				List<String> aliases = new ArrayList<>();
+				aliases.add(irodsDataObject.getAbsolutePath());
+				ga4ghObject.setAliases(aliases);
+
+				log.info("ga4ghObject:{}", ga4ghObject);
+				return new ResponseEntity<Ga4ghObject>(ga4ghObject, HttpStatus.OK);
+
+			}
+
+		} catch (DosDataNotFoundException e) {
+			log.warn("data not found for objectId:{}", objectId);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+		} catch (Exception e) {
+			log.error("Couldn't serialize response for content type application/json", e);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+		} finally {
+			dosServiceFactory.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+		// }
+		// } else {
+		// log.warn(
+		// "ObjectMapper or HttpServletRequest not configured in default ObjectsApi
+		// interface so no example is generated");
+		// }
+		// return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
 	}
 
 	@Override

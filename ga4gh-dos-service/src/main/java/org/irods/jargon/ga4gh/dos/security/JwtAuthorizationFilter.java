@@ -37,8 +37,8 @@ import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
 
-@PropertySources({ @PropertySource(value = "classpath:test.dos.properties", ignoreResourceNotFound = true),
-		@PropertySource(value = "file:/etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = false) })
+@PropertySources({ @PropertySource(value = "classpath:/test.dos.properties", ignoreResourceNotFound = true),
+		@PropertySource(value = "file:/etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = true) })
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -57,13 +57,18 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws IOException, ServletException {
+		log.info("doFilterInternal()");
 		if (dosConfiguration == null) {
+			log.debug("dosConfiguration was null");
 			ServletContext servletContext = request.getServletContext();
 			WebApplicationContext webApplicationContext = WebApplicationContextUtils
 					.getWebApplicationContext(servletContext);
 			dosConfiguration = webApplicationContext.getBean(DosConfiguration.class);
+			log.debug("built dosConfiguration:{}", dosConfiguration);
 		}
+		log.debug("getting authentication");
 		UsernamePasswordAuthenticationToken authentication = getAuthentication(request, response, filterChain);
+		log.debug("authentication:{}", authentication);
 		if (authentication == null) {
 			filterChain.doFilter(request, response);
 			return;

@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
  *
  */
 
-@PropertySources({ @PropertySource(value = "classpath:test.dos.properties", ignoreResourceNotFound = true),
-		@PropertySource(value = "file:/etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = false) })
+@PropertySources({ @PropertySource(value = "classpath:/test.dos.properties", ignoreResourceNotFound = true),
+		@PropertySource(value = "file:/etc/irods-ext/ga4gh.properties", ignoreResourceNotFound = true) })
 
 @Component
 public class DosConfiguration {
@@ -41,9 +41,6 @@ public class DosConfiguration {
 	@Value("${jwt.algo}")
 	private String jwtAlgo;
 
-	@Value("${default.storage.resource}")
-	private String defaultStorageResource;
-
 	@Value("${irods.port}")
 	private int port;
 
@@ -52,12 +49,6 @@ public class DosConfiguration {
 
 	@Value("${web.interface.url}")
 	private String urlPrefix;
-
-	@Value("${utilize.packing.streams}")
-	private boolean usePackingStreams;
-
-	@Value("${compute.checksum}")
-	private boolean computeChecksum;
 
 	@Value("${auth.type}")
 	private String authScheme;
@@ -73,18 +64,6 @@ public class DosConfiguration {
 
 	@Value("${ga4gh.access.url}")
 	private String accessUrl = "";
-
-	@Value("${ga4gh.contact}")
-	private String contact = "";
-
-	@Value("${ga4gh.license}")
-	private String license = "";
-
-	@Value("${ga4gh.description}")
-	private String description = "";
-
-	@Value("${ga4gh.title}")
-	private String title = "";
 
 	@Value("${shared.jwt.key}")
 	private String jwtKey = "";
@@ -134,14 +113,6 @@ public class DosConfiguration {
 		this.irodsZone = irodsZone;
 	}
 
-	public String getDefaultStorageResource() {
-		return defaultStorageResource;
-	}
-
-	public void setDefaultStorageResource(String defaultStorageResource) {
-		this.defaultStorageResource = defaultStorageResource;
-	}
-
 	public int getPort() {
 		return port;
 	}
@@ -164,22 +135,6 @@ public class DosConfiguration {
 
 	public void setUrlPrefix(String urlPrefix) {
 		this.urlPrefix = urlPrefix;
-	}
-
-	public boolean isUsePackingStreams() {
-		return usePackingStreams;
-	}
-
-	public void setUsePackingStreams(boolean usePackingStreams) {
-		this.usePackingStreams = usePackingStreams;
-	}
-
-	public boolean isComputeChecksum() {
-		return computeChecksum;
-	}
-
-	public void setComputeChecksum(boolean computeChecksum) {
-		this.computeChecksum = computeChecksum;
 	}
 
 	public String getAuthScheme() {
@@ -242,50 +197,14 @@ public class DosConfiguration {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("DosConfiguration [irodsHost=").append(irodsHost).append(", irodsZone=").append(irodsZone)
-				.append(", proxyUser=").append(proxyUser).append(", sharedJwtKey=").append(sharedJwtKey)
-				.append(", jwtAlgo=").append(jwtAlgo).append(", defaultStorageResource=").append(defaultStorageResource)
-				.append(", port=").append(port).append(", realm=").append(realm).append(", urlPrefix=")
-				.append(urlPrefix).append(", usePackingStreams=").append(usePackingStreams).append(", computeChecksum=")
-				.append(computeChecksum).append(", authScheme=").append(authScheme).append(", sslNegotiationPolicy=")
+				.append(", proxyUser=").append(proxyUser).append(", jwtAlgo=").append(jwtAlgo).append(", port=")
+				.append(port).append(", realm=").append(realm).append(", urlPrefix=").append(urlPrefix)
+				.append(", authScheme=").append(authScheme).append(", sslNegotiationPolicy=")
 				.append(sslNegotiationPolicy).append(", persistDataTypes=").append(persistDataTypes)
 				.append(", detailedDataTypeDetermination=").append(detailedDataTypeDetermination).append(", accessUrl=")
-				.append(accessUrl).append(", contact=").append(contact).append(", license=").append(license)
-				.append(", description=").append(description).append(", title=").append(title).append(", jwtKey=")
-				.append(jwtKey).append(", drsRestUrlEndpoint=").append(drsRestUrlEndpoint)
-				.append(", drsProvideIrodsUrls=").append(drsProvideIrodsUrls).append("]");
+				.append(accessUrl).append(", jwtKey=").append(jwtKey).append(", drsRestUrlEndpoint=")
+				.append(drsRestUrlEndpoint).append(", drsProvideIrodsUrls=").append(drsProvideIrodsUrls).append("]");
 		return builder.toString();
-	}
-
-	public String getContact() {
-		return contact;
-	}
-
-	public void setContact(String contact) {
-		this.contact = contact;
-	}
-
-	public String getLicense() {
-		return license;
-	}
-
-	public void setLicense(String license) {
-		this.license = license;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
 	}
 
 	public String getProxyUser() {

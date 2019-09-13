@@ -270,14 +270,21 @@
 									append="true">
 									irods.host=${jargon.test.irods.host}
 									irods.port=${jargon.test.irods.port}
-									irods.zoneName=${jargon.test.irods.zone}
-									irods.admin.user=${jargon.test.irods.admin}
-									irods.admin.password=${jargon.test.irods.admin.password}
-									irods.auth.scheme=${drs.auth.scheme}
+									irods.zone=${jargon.test.irods.zone}
+									proxy.user=${jargon.test.irods.admin}
+									proxy.password=${jargon.test.irods.admin.password}
+									shared.jwt.key=${shared.jwt.key}
+									auth.type=${auth.scheme}
 									default.storage.resource=${jargon.test.irods.resource}
-									ssl.negotiation.policy=${drs.ssl.policy}
+									ssl.negotiation.policy=${ssl.negotiation.policy}
 									drs.rest.url.endpoint=${drs.rest.url.endpoint}
 									drs.provide.irods.urls=true
+									irods.realm=irods
+									web.interface.url=${web.interface.url}
+									ga4gh.access.url=${ga4gh.access.url}
+									jwt.algo=${jwt.algo}
+									irodsext.datatyper.persist.data.types=false
+									irodsext.datatyper.detailed.determination=false
 								</echo>
 							</tasks>
 						</configuration>

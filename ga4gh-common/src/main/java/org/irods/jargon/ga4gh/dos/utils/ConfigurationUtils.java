@@ -40,8 +40,8 @@ public class ConfigurationUtils {
 		sb.append("irodsPort=");
 		sb.append(dosConfiguration.getPort());
 		sb.append("\n");
-		sb.append("irodsDefResource=");
-		sb.append(dosConfiguration.getDefaultStorageResource());
+		// sb.append("irodsDefResource=");
+		// sb.append(dosConfiguration.getDefaultStorageResource());
 		sb.append("\n");
 		sb.append("irodsHome=/");
 		sb.append(dosConfiguration.getIrodsZone());

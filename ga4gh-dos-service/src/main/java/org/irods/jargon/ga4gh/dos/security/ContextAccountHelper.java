@@ -35,8 +35,8 @@ public class ContextAccountHelper {
 		}
 
 		IRODSAccount irodsAccount = IRODSAccount.instanceWithProxy(dosConfiguration.getIrodsHost(),
-				dosConfiguration.getPort(), dosConfiguration.getProxyUser(), dosConfiguration.getProxyPassword(), "",
-				dosConfiguration.getIrodsZone(), "", userName, "");
+				dosConfiguration.getPort(), userName, dosConfiguration.getProxyPassword(), "",
+				dosConfiguration.getIrodsZone(), "", dosConfiguration.getProxyUser(), "");
 
 		log.debug("formulated iRODS account from auth:{}", irodsAccount);
 		return irodsAccount;

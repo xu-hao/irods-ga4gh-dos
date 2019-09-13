@@ -17,7 +17,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private static final String[] AUTH_WHITELIST = {
 			// -- swagger ui
 			"/api-docs", "/swagger-resources", "/swagger-resources/**", "/configuration/ui", "/configuration/security",
-			"/swagger-ui.html", "/webjars/**"
+			"/swagger-ui.html", "/webjars/**", "/objects/**"
 			// other public endpoints of your API may be appended to this array
 	};
 
@@ -26,6 +26,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.cors().and().csrf().disable().authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll()
 				.antMatchers("/**").authenticated().and().addFilter(new JwtAuthorizationFilter(authenticationManager()))
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+		/*
+		 * http.cors().and().csrf().disable().authorizeRequests().antMatchers(
+		 * AUTH_WHITELIST).permitAll()
+		 * .antMatchers("/**").authenticated().and().addFilter(new
+		 * JwtAuthorizationFilter(authenticationManager()))
+		 * .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		 * 
+		 */
 
 		/*
 		 * 

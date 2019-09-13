@@ -15,8 +15,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 @ComponentScan
-//@ComponentScan(basePackages = {
-//		"org.irods.jargon.ga4gh.dos, org.irods.jargon.ga4gh.dos.api, org.irods.jargon.ga4gh.dos.security, org.irods.jargon.ga4gh.dos.utils, org.irods.jargon.ga4gh.dos.bundle.impl, org.irods.jargon.ga4gh.dos.configuration" })
 @EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 
@@ -30,6 +28,7 @@ public class Swagger2SpringBoot implements CommandLineRunner {
 	}
 
 	public static void main(String[] args) throws Exception {
+		// System.setProperty("server.servlet.context-path", "/ga4gh/drs/v1");
 		new SpringApplication(Swagger2SpringBoot.class).run(args);
 	}
 

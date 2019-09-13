@@ -38,8 +38,7 @@ public class StartupConfigurator {
 	}
 
 	/**
-	 * @param irodsSession
-	 *            the irodsSession to set
+	 * @param irodsSession the irodsSession to set
 	 */
 	public void setIrodsSession(IRODSSession irodsSession) {
 		this.irodsSession = irodsSession;
@@ -66,8 +65,8 @@ public class StartupConfigurator {
 		log.info("configuration with:{}", dosConfiguration);
 
 		SettableJargonProperties props = new SettableJargonProperties(irodsSession.getJargonProperties());
-		props.setComputeChecksumAfterTransfer(dosConfiguration.isComputeChecksum());
-		log.info("set checksum policy to:{}", dosConfiguration.isComputeChecksum());
+		// props.setComputeChecksumAfterTransfer(dosConfiguration.isComputeChecksum());
+		// log.info("set checksum policy to:{}", dosConfiguration.isComputeChecksum());
 
 		SslNegotiationPolicy policyToSet = ClientServerNegotiationPolicy
 				.findSslNegotiationPolicyFromString(dosConfiguration.getSslNegotiationPolicy());
@@ -90,8 +89,7 @@ public class StartupConfigurator {
 	}
 
 	/**
-	 * @param irodsAccessObjectFactory
-	 *            the irodsAccessObjectFactory to set
+	 * @param irodsAccessObjectFactory the irodsAccessObjectFactory to set
 	 */
 	public void setIrodsAccessObjectFactory(IRODSAccessObjectFactory irodsAccessObjectFactory) {
 		this.irodsAccessObjectFactory = irodsAccessObjectFactory;
