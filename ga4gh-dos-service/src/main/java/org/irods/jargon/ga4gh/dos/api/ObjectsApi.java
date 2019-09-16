@@ -59,7 +59,7 @@ public interface ObjectsApi {
 			@ApiResponse(code = 403, message = "The requester is not authorized to perform this action.", response = Error.class),
 			@ApiResponse(code = 404, message = "The requested access URL wasn't found", response = Error.class),
 			@ApiResponse(code = 500, message = "An unexpected error occurred.", response = Error.class) })
-	@RequestMapping(value = "/ga4gh/drs/v1/objects/{object_id}/access/{access_id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/objects/{object_id}/access/{access_id}", method = RequestMethod.GET)
 	ResponseEntity<AccessURL> getAccessURL(
 			@ApiParam(value = "An `id` of an `Ga4ghObject`", required = true) @PathVariable("object_id") String objectId,
 			@ApiParam(value = "An `access_id` from the `access_methods` list of an `Ga4ghObject`", required = true) @PathVariable("access_id") String accessId);

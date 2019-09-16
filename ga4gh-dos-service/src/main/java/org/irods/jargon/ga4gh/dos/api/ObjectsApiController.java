@@ -159,12 +159,13 @@ public class ObjectsApiController implements ObjectsApi {
 				Ga4ghObject ga4ghObject = new Ga4ghObject();
 				ga4ghObject.setId(objectId);
 				ga4ghObject.setName(irodsDataBundle.getIrodsAbsolutePath());
-				ga4ghObject.setSelfUri("drs://" + request.getServerName() + "/" + objectId);
+				ga4ghObject.setSelfUri("drs://" + this.getDosConfiguration().getDrsServerUrl() + "/" + objectId);
 				ga4ghObject.setSize(0L);
 				ga4ghObject.setCreatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getCreateDate()));
 				ga4ghObject.setUpdatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataBundle.getUpdatedDate()));
 				ga4ghObject.setVersion("0");
 				ga4ghObject.setMimeType("text/directory");
+				ga4ghObject.setAccessMethods(new ArrayList<AccessMethod>());
 
 				ga4ghObject.addAliasesItem(irodsDataBundle.getIrodsAbsolutePath());
 				Checksum checksum = new Checksum();
@@ -196,7 +197,7 @@ public class ObjectsApiController implements ObjectsApi {
 				Ga4ghObject ga4ghObject = new Ga4ghObject();
 				ga4ghObject.setId(irodsDataObject.getGuid());
 				ga4ghObject.setName(irodsDataObject.getAbsolutePath());
-				ga4ghObject.setSelfUri(irodsDataObject.getIrodsAccessMethods().get(0).getUrl());
+				ga4ghObject.setSelfUri("drs://" + this.getDosConfiguration().getDrsServerUrl() + "/" + objectId);
 				ga4ghObject.setSize(irodsDataObject.getSize());
 				ga4ghObject.setCreatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataObject.getCreateDate()));
 				ga4ghObject.setUpdatedTime(ServiceUtils.offsetDateTimeFromDate(irodsDataObject.getModifyDate()));
