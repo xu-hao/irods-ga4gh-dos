@@ -47,8 +47,8 @@ public class DosConfiguration {
 	@Value("${irods.realm}")
 	private String realm;
 
-	@Value("${web.interface.url}")
-	private String urlPrefix;
+	@Value("${drs.server.name}")
+	private String drsServerName;
 
 	@Value("${auth.type}")
 	private String authScheme;
@@ -61,9 +61,6 @@ public class DosConfiguration {
 
 	@Value("${irodsext.datatyper.detailed.determination}")
 	private boolean detailedDataTypeDetermination;
-
-	@Value("${ga4gh.access.url}")
-	private String accessUrl = "";
 
 	@Value("${shared.jwt.key}")
 	private String jwtKey = "";
@@ -129,12 +126,12 @@ public class DosConfiguration {
 		this.realm = realm;
 	}
 
-	public String getUrlPrefix() {
-		return urlPrefix;
+	public String getDrsServerUrl() {
+		return drsServerName;
 	}
 
-	public void setUrlPrefix(String urlPrefix) {
-		this.urlPrefix = urlPrefix;
+	public void setDrsServerUrl(String drsServerUrl) {
+		this.drsServerName = drsServerUrl;
 	}
 
 	public String getAuthScheme() {
@@ -185,25 +182,17 @@ public class DosConfiguration {
 		this.drsProvideIrodsUrls = drsProvideIrodsUrls;
 	}
 
-	public String getAccessUrl() {
-		return accessUrl;
-	}
-
-	public void setAccessUrl(String accessUrl) {
-		this.accessUrl = accessUrl;
-	}
-
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("DosConfiguration [irodsHost=").append(irodsHost).append(", irodsZone=").append(irodsZone)
 				.append(", proxyUser=").append(proxyUser).append(", jwtAlgo=").append(jwtAlgo).append(", port=")
-				.append(port).append(", realm=").append(realm).append(", urlPrefix=").append(urlPrefix)
+				.append(port).append(", realm=").append(realm).append(", drsServerName=").append(drsServerName)
 				.append(", authScheme=").append(authScheme).append(", sslNegotiationPolicy=")
 				.append(sslNegotiationPolicy).append(", persistDataTypes=").append(persistDataTypes)
-				.append(", detailedDataTypeDetermination=").append(detailedDataTypeDetermination).append(", accessUrl=")
-				.append(accessUrl).append(", jwtKey=").append(jwtKey).append(", drsRestUrlEndpoint=")
-				.append(drsRestUrlEndpoint).append(", drsProvideIrodsUrls=").append(drsProvideIrodsUrls).append("]");
+				.append(", detailedDataTypeDetermination=").append(detailedDataTypeDetermination).append(", jwtKey=")
+				.append(jwtKey).append(", drsRestUrlEndpoint=").append(drsRestUrlEndpoint)
+				.append(", drsProvideIrodsUrls=").append(drsProvideIrodsUrls).append("]");
 		return builder.toString();
 	}
 

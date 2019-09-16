@@ -217,7 +217,7 @@
 									drs.provide.irods.urls=true
 									irods.realm=irods
 									web.interface.url=${web.interface.url}
-									ga4gh.access.url=${ga4gh.access.url}
+									drs.server.name=${drs.server.name}
 									jwt.algo=${jwt.algo}
 									irodsext.datatyper.persist.data.types=false
 									irodsext.datatyper.detailed.determination=false

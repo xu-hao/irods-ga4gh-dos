@@ -253,7 +253,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 		sb.append(irodsDataObject.getGuid());
 		irodsAccessMethod = new IrodsAccessMethod();
 		irodsAccessMethod.setUrl(sb.toString());
-		log.info("qdded access url:{}", irodsAccessMethod);
+		log.info("Added access url:{}", irodsAccessMethod);
 		irodsDataObject.getIrodsAccessMethods().add(irodsAccessMethod);
 	}
 
@@ -422,8 +422,8 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				irodsDataObject.setGuid(row.getColumn(2));
 				irodsDataObject.setAbsolutePath(irodsFile.getAbsolutePath());
 				StringBuilder sb = new StringBuilder();
-				sb.append(this.getDosConfiguration().getAccessUrl());
-				sb.append("/objects");
+				sb.append("drs://");
+				sb.append(this.getDosConfiguration().getDrsServerUrl());
 
 				addAccessUrlsForBundleObjectList(irodsDataObject, irodsFile, sb.toString());
 
