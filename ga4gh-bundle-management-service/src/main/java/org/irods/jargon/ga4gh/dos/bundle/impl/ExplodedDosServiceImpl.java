@@ -41,6 +41,7 @@ import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
 import org.irods.jargon.ga4gh.dos.model.AccessMethod;
+import org.irods.jargon.ga4gh.dos.utils.DataUtils;
 import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
 import org.irods.jargon.ticket.TicketAdminService;
 import org.irods.jargon.ticket.TicketServiceFactory;
@@ -277,9 +278,9 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 
 		if (!this.getDosConfiguration().getDrsRestUrlEndpoint().isEmpty()) {
 			irodsAccessMethod = new IrodsAccessMethod();
-			irodsAccessMethod.setHeaders(new ArrayList<String>());
-			irodsAccessMethod.setRegion("");
-			irodsAccessMethod.setUrl("");
+			irodsAccessMethod.setHeaders(null);
+			irodsAccessMethod.setRegion(null);
+			irodsAccessMethod.setUrl(null);
 			irodsAccessMethod.setAccessId(DosService.ACCESS_REST);
 			irodsAccessMethod.setType(org.irods.jargon.ga4gh.dos.model.AccessMethod.TypeEnum.HTTPS);
 			irodsDataObject.getIrodsAccessMethods().add(irodsAccessMethod);
@@ -342,6 +343,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				sb.append(ticketId);
 				irodsAccessMethod.setHeaders(new ArrayList<String>());
 				irodsAccessMethod.getHeaders().add(sb.toString());
+				irodsAccessMethod.getHeaders().add(DataUtils.basicAuthTokenForPublic());
 				log.info("irodsAccessMethod:{}", irodsAccessMethod);
 				return irodsAccessMethod;
 			} catch (JargonException e) {

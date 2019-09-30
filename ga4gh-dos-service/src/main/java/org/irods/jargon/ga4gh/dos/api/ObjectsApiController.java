@@ -217,10 +217,15 @@ public class ObjectsApiController implements ObjectsApi {
 				for (IrodsAccessMethod irodsAccessMethod : irodsDataObject.getIrodsAccessMethods()) {
 					AccessMethod accessMethod = new AccessMethod();
 					accessMethod.setAccessId(irodsAccessMethod.getAccessId());
-					AccessURL accessURL = new AccessURL();
-					accessURL.setHeaders(irodsAccessMethod.getHeaders());
-					accessURL.setUrl(irodsAccessMethod.getUrl());
-					accessMethod.setRegion(irodsAccessMethod.getRegion());
+
+					AccessURL accessURL = null;
+					if (irodsAccessMethod.getUrl() != null) {
+						accessURL = new AccessURL();
+						accessURL.setHeaders(irodsAccessMethod.getHeaders());
+						accessURL.setUrl(irodsAccessMethod.getUrl());
+						accessMethod.setRegion(irodsAccessMethod.getRegion());
+					}
+
 					accessMethod.setAccessUrl(accessURL);
 					accessMethod.setType(irodsAccessMethod.getType());
 					accessMethods.add(accessMethod);

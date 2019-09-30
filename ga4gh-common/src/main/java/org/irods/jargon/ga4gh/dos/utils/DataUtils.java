@@ -8,6 +8,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.Date;
 
 import org.irods.jargon.core.exception.JargonException;
@@ -119,6 +120,24 @@ public class DataUtils {
 			throw new JargonException("unsupported encoding", e);
 
 		}
+	}
+
+	/**
+	 * Create a basic auth token for 'public'
+	 * 
+	 * @return {@code String} with the basic auth token
+	 */
+	public static String basicAuthTokenForPublic() {
+	
+		StringBuilder sb = new StringBuilder();
+		sb.append("Basic ");
+	
+		StringBuilder toEncode = new StringBuilder();
+		toEncode.append("public");
+		toEncode.append(":");
+	
+		sb.append(Base64.getEncoder().encodeToString(toEncode.toString().getBytes()));
+		return sb.toString();
 	}
 
 }
