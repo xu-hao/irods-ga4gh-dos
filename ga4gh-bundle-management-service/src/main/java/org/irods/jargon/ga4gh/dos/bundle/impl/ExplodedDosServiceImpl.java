@@ -343,7 +343,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				sb.append(ticketId);
 				irodsAccessMethod.setHeaders(new ArrayList<String>());
 				irodsAccessMethod.getHeaders().add(sb.toString());
-				irodsAccessMethod.getHeaders().add(DataUtils.basicAuthTokenForPublic());
+				// irodsAccessMethod.getHeaders().add(DataUtils.basicAuthTokenForPublic());
 				log.info("irodsAccessMethod:{}", irodsAccessMethod);
 				return irodsAccessMethod;
 			} catch (JargonException e) {
