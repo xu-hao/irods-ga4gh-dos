@@ -3,12 +3,14 @@
  */
 package org.irods.jargon.ga4gh.dos.console.commands;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.irods.jargon.core.connection.IRODSServerProperties;
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.core.exception.JargonRuntimeException;
+import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.ga4gh.dos.console.context.DrsConsoleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,8 @@ public class DrsBundlesCommand {
 		} catch (JargonException e) {
 			log.error("error connecting", e);
 			throw new JargonRuntimeException("error connecting", e);
+		} finally {
+			drsConsoleContext.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
 		}
 
 	}
@@ -55,6 +59,32 @@ public class DrsBundlesCommand {
 	}
 
 	public Availability ipwdAvailability() {
+		return drsConsoleContext.isInitd() ? Availability.available()
+				: Availability.unavailable("you are not connected, please do the iinit command");
+	}
+
+	@ShellMethod("Change working directory in iRODS")
+	public String icd(String directory) {
+		log.info("icd");
+		String wd = drsConsoleContext.getCwd();
+		try {
+			IRODSFile wdFile = drsConsoleContext.getIrodsFileFactory().instanceIRODSFile(wd, directory);
+			if (wdFile.exists()) {
+				log.debug("file exists");
+				drsConsoleContext.setCwd(wdFile.getCanonicalPath());
+				return drsConsoleContext.getCwd();
+			} else {
+				return "No file found at path";
+			}
+		} catch (JargonException | IOException e) {
+			log.error("exception getting file:{}", e);
+			throw new JargonRuntimeException("error getting file", e);
+		} finally {
+			drsConsoleContext.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
+		}
+	}
+
+	public Availability icdAvailability() {
 		return drsConsoleContext.isInitd() ? Availability.available()
 				: Availability.unavailable("you are not connected, please do the iinit command");
 	}

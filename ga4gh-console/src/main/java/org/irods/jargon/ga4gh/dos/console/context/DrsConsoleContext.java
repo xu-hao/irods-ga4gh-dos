@@ -11,6 +11,7 @@ import org.irods.jargon.core.exception.JargonRuntimeException;
 import org.irods.jargon.core.pub.EnvironmentalInfoAO;
 import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.IRODSFileSystem;
+import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.core.utils.MiscIRODSUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,12 +81,33 @@ public class DrsConsoleContext {
 		return irodsAccount;
 	}
 
+	/**
+	 * Get the factory for Jargon objects, this requires the init() to have been
+	 * called beforehand
+	 * 
+	 * @return {@link IRODSAccessObjectFactory}
+	 */
 	public IRODSAccessObjectFactory getIrodsAccessObjectFactory() {
 		if (!initd) {
 			throw new JargonRuntimeException("Not inited");
 		}
 		try {
 			return irodsFileSystem.getIRODSAccessObjectFactory();
+		} catch (JargonException e) {
+			log.error("unable to get iRODSAccessObjectFactory");
+			throw new JargonRuntimeException("unable to get IRDOSAccessObjectFactory", e);
+		}
+	}
+
+	/**
+	 * Return the {@link IRODSFileFactory} for the currently logged in user. init()
+	 * must have been called
+	 * 
+	 * @return {@link IRODSFileFactory}
+	 */
+	public IRODSFileFactory getIrodsFileFactory() {
+		try {
+			return getIrodsAccessObjectFactory().getIRODSFileFactory(getIrodsAccount());
 		} catch (JargonException e) {
 			log.error("unable to get iRODSAccessObjectFactory");
 			throw new JargonRuntimeException("unable to get IRDOSAccessObjectFactory", e);
