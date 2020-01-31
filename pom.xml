@@ -83,6 +83,7 @@
 		<module>ga4gh-common</module>
 		<module>ga4gh-dos-service</module>
 		<module>ga4gh-bundle-management-service</module>
+		<module>ga4gh-console</module>
 	</modules>
 
 </project>

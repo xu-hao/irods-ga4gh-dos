@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>gov.nih.niehs.ods</groupId>
+		<artifactId>ga4gh-dos</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>ga4gh-console</artifactId>
+	<name>console for managing data bundles</name>
+	<dependencies>
+		<dependency>
+			<groupId>org.irods.jargon</groupId>
+			<artifactId>jargon-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>gov.nih.niehs.ods</groupId>
+			<artifactId>ga4gh-bundle-management-service</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.shell</groupId>
+			<artifactId>spring-shell-starter</artifactId>
+			<version>2.0.0.RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+	<build>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<tasks>
+								<property name="src.dir"
+									value="${project.build.sourceDirectory}" />
+								<property name="package.dir"
+									value="org/irods/jargon/ga4gh/dos/console/utils" />
+								<property name="package.name"
+									value="org.irods.jargon.ga4gh.dos.console.utils" />
+								<property name="buildtime"
+									value="${maven.build.timestamp}" />
+
+								<echo
+									file="${src.dir}/${package.dir}/Ga4ghConsoleVersion.java"
+									message="package ${package.name};${line.separator}" />
+								<echo
+									file="${src.dir}/${package.dir}/Ga4ghConsoleVersion.java"
+									append="true"
+									message="public final class Ga4ghConsoleVersion {${line.separator}" />
+								<echo
+									file="${src.dir}/${package.dir}/Ga4ghConsoleVersion.java"
+									append="true"
+									message=" public static String VERSION=&quot;${project.version}&quot;;${line.separator}" />
+								<echo
+									file="${src.dir}/${package.dir}/Ga4ghConsoleVersion.java"
+									append="true"
+									message=" public static String BUILD_TIME=&quot;${buildtime}&quot;;${line.separator}" />
+								<echo
+									file="${src.dir}/${package.dir}/Ga4ghConsoleVersion.java"
+									append="true" message="}${line.separator}" />
+								<echo message="BUILD ${buildtime}" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>0</id>
+						<phase>validate</phase>
+						<configuration>
+							<tasks>
+								<delete
+									file="${basedir}/src/test/resources/testing.properties" />
+								<touch
+									file="${basedir}/src/test/resources/testing.properties"
+									mkdirs="true" />
+								<echo
+									file="${basedir}/src/test/resources/testing.properties"
+									append="true">
+									test.data.directory=${jargon.test.data.directory}
+									test.irods.admin=${jargon.test.irods.admin}
+									test.irods.admin.password=${jargon.test.irods.admin.password}
+									test.irods.user=${jargon.test.irods.user}
+									test.irods.password=${jargon.test.irods.password}
+									test.irods.resource=${jargon.test.irods.resource}
+									test2.irods.user=${jargon.test.irods.user2}
+									test2.irods.password=${jargon.test.irods.password2}
+									test2.irods.resource=${jargon.test.irods.resource2}
+									test3.irods.user=${jargon.test.irods.user3}
+									test3.irods.password=${jargon.test.irods.password3}
+									test3.irods.resource=${jargon.test.irods.resource3}
+									test.irods.host=${jargon.test.irods.host}
+									test.resource.host=${jargon.test.resource.host}
+									test.irods.port=${jargon.test.irods.port}
+									test.irods.zone=${jargon.test.irods.zone}
+									jargon.test.kerberos.user=${jargon.test.kerberos.user}
+									jargon.test.user.group=${jargon.test.user.group}
+									test.resource.group=${jargon.test.resource.group}
+									test.irods.userDN=${jargon.test.irods.userDN}
+									test.irods.scratch.subdir=${jargon.test.irods.scratch.subdir}
+									test.option.exercise.remoteexecstream=${jargon.test.option.exercise.remoteexecstream}
+									test.option.eirods=${test.option.eirods}
+									test.option.exercise.audit=${jargon.test.option.exercise.audit}
+									test.option.exercise.workflow=${jargon.test.option.exercise.workflow}
+									test.option.exercise.filesystem.mount=${jargon.test.option.exercise.filesystem.mount}
+									test.option.exercise.filesystem.mount.local=${jargon.test.option.exercise.filesystem.mount.local}
+									test.option.distributed.resources=${test.option.distributed.resources}
+									test.option.registration=${test.option.registration}
+									test.option.strictACL=${test.option.strictACL}
+									test.option.federated.zone=${test.option.federated.zone}
+									test.option.kerberos=${test.option.kerberos}
+									test.option.pam=${test.option.pam}
+									test.option.ssl.configured=${test.option.ssl.configured}
+									jargon.test.pam.user=${jargon.test.pam.user}
+									jargon.test.pam.password=${jargon.test.pam.password}
+									test.federated.irods.admin=${jargon.test.federated.irods.admin}
+									test.federated.irods.admin.password=${jargon.test.federated.irods.admin.password}
+									test.federated.irods.user=${jargon.test.federated.irods.user}
+									test.federated.irods.password=${jargon.test.federated.irods.password}
+									test.federated.irods.resource=${jargon.test.federated.irods.resource}
+									test.federated.irods.host=${jargon.test.federated.irods.host}
+									test.federated.irods.port=${jargon.test.federated.irods.port}
+									test.federated.irods.zone=${jargon.test.federated.irods.zone}
+									test.option.gsi=${test.option.gsi}
+									test.option.gsi.host=${test.option.gsi.host}
+									test.option.gsi.port=${test.option.gsi.port}
+									test.option.gsi.zone=${test.option.gsi.zone}
+									test.option.gsi.dn=${test.option.gsi.dn}
+									test.option.gsi.user=${test.option.gsi.user}
+									test.option.gsi.file=${test.option.gsi.file}
+									test.option.mount.basedir=${test.option.mount.basedir}
+									test.option.python=${test.option.python}
+									ga4gh.access.url=http://foo.com/ga4gh/drs/v1/objects
+
+								</echo>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<execution>
+						<!-- generate test properties as standard -->
+						<id>2</id>
+						<phase>validate</phase>
+						<configuration>
+							<tasks>
+								<delete
+									file="${basedir}/src/test/resources/test.dos.properties" />
+								<touch
+									file="${basedir}/src/test/resources/test.dos.properties"
+									mkdirs="true" />
+								<echo
+									file="${basedir}/src/test/resources/test.dos.properties"
+									append="true">
+									irods.host=${jargon.test.irods.host}
+									irods.port=${jargon.test.irods.port}
+									irods.zone=${jargon.test.irods.zone}
+									proxy.user=${jargon.test.irods.admin}
+									proxy.password=${jargon.test.irods.admin.password}
+									shared.jwt.key=${shared.jwt.key}
+									auth.type=${auth.scheme}
+									default.storage.resource=${jargon.test.irods.resource}
+									ssl.negotiation.policy=${ssl.negotiation.policy}
+									drs.rest.url.endpoint=${drs.rest.url.endpoint}
+									drs.provide.irods.urls=true
+									irods.realm=irods
+									web.interface.url=${web.interface.url}
+									drs.server.name=${drs.server.name}
+									jwt.algo=${jwt.algo}
+									irodsext.datatyper.persist.data.types=false
+									irodsext.datatyper.detailed.determination=false
+
+								</echo>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<debug>true</debug>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

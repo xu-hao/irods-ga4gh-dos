@@ -16,7 +16,6 @@ import org.irods.jargon.testutils.TestingPropertiesHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DemoFunctionalTest {
@@ -32,10 +31,8 @@ public class DemoFunctionalTest {
 	public static void setUpBeforeClass() throws Exception {
 		org.irods.jargon.testutils.TestingPropertiesHelper testingPropertiesLoader = new TestingPropertiesHelper();
 		testingProperties = testingPropertiesLoader.getTestProperties();
-		scratchFileUtils = new org.irods.jargon.testutils.filemanip.ScratchFileUtils(testingProperties);
-		irodsTestSetupUtilities = new org.irods.jargon.testutils.IRODSTestSetupUtilities();
-		irodsTestSetupUtilities.initializeIrodsScratchDirectory();
-		irodsTestSetupUtilities.initializeDirectoryForTest(IRODS_TEST_SUBDIR_PATH);
+		// irodsTestSetupUtilities = new
+		// org.irods.jargon.testutils.IRODSTestSetupUtilities();
 		irodsFileSystem = IRODSFileSystem.instance();
 	}
 
@@ -49,15 +46,51 @@ public class DemoFunctionalTest {
 
 	}
 
-	@Ignore
+	@Test
+	public void testRetrieveDataBundle2s3() throws Exception {
+		String bundleDir = "/tempZone/home/drs/testbundle2-s3";
+
+		// IRODSAccount irodsAccount =
+		// testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+
+		IRODSAccount irodsAccount = IRODSAccount.instance("ga4gh.irods.org", 1247, "drs", "LookAtTheBigBrainOnDrs", "",
+				"tempZone", "");
+
+		IRODSFileFactory irodsFileFactory = irodsFileSystem.getIRODSFileFactory(irodsAccount);
+		IRODSFile destFile = irodsFileFactory.instanceIRODSFile(bundleDir);
+
+		// IRODSAccount testLoginAccount = IRODSAccount.instance(dosConfiguraiton, port,
+		// userName, password, homeDirectory, zone, defaultStorageResource)
+
+		String bundleRoot = bundleDir;
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		dosConfiguration.setDrsRestUrlEndpoint("http://www.example.com/rest/fileStream?path=");
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+		factory.setDosConfiguration(dosConfiguration);
+
+		DosBundleManagementService bundleManagementService = factory.instanceDosBundleManagementService(irodsAccount);
+		DosService dosService = factory.instanceDosService(irodsAccount);
+		String guid = bundleManagementService.createDataBundle(bundleRoot);
+
+		BundleInfoAndPath bundleInfoAndPath = dosService.resolveId(guid);
+		IrodsDataBundle bundle = dosService.retrieveDataBundle(bundleInfoAndPath);
+		Assert.assertNotNull("null bundle", bundle);
+		Assert.assertEquals("guid incorrect", guid, bundle.getBundleUuid());
+		Assert.assertEquals("path missing", bundleRoot, bundle.getIrodsAbsolutePath());
+		Assert.assertFalse("missing checksum type", bundle.getBundleChecksumType().isEmpty());
+		Assert.assertFalse("missing bundle checksum", bundle.getBundleChecksum().isEmpty());
+		Assert.assertFalse("no bundle data objects", bundle.getDataObjects().isEmpty());
+	}
+
+	@Test
 	public void testRetrieveDataBundle() throws Exception {
 		String bundleDir = "/tempZone/home/drs/testbundle1";
 
-		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+		// IRODSAccount irodsAccount =
+		// testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
 
-		// IRODSAccount irodsAccount = IRODSAccount.instance("107.23.1.37", 1247, "drs",
-		// "LookAtTheBigBrainOnDrs", "",
-		// "tempZone", "");
+		IRODSAccount irodsAccount = IRODSAccount.instance("ga4gh.irods.org", 1247, "drs", "LookAtTheBigBrainOnDrs", "",
+				"tempZone", "");
 
 		IRODSFileFactory irodsFileFactory = irodsFileSystem.getIRODSFileFactory(irodsAccount);
 		IRODSFile destFile = irodsFileFactory.instanceIRODSFile(bundleDir);
