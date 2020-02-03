@@ -67,7 +67,7 @@ public class DrsBundlesCommand {
 	}
 
 	@ShellMethod("List directory contents")
-	public String ils(String directory) {
+	public String ils() {
 		log.info("ils");
 		String wd = drsConsoleContext.getCwd();
 		try {
