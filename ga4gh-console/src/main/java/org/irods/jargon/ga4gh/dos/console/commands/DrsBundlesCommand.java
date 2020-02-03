@@ -10,7 +10,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.irods.jargon.core.connection.IRODSServerProperties;
 import org.irods.jargon.core.exception.JargonException;
 import org.irods.jargon.core.exception.JargonRuntimeException;
+import org.irods.jargon.core.pub.CollectionAndDataObjectListAndSearchAO;
 import org.irods.jargon.core.pub.io.IRODSFile;
+import org.irods.jargon.core.query.CollectionAndDataObjectListingEntry;
+import org.irods.jargon.core.query.CollectionAndDataObjectListingEntry.ObjectType;
 import org.irods.jargon.ga4gh.dos.console.context.DrsConsoleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +62,48 @@ public class DrsBundlesCommand {
 	}
 
 	public Availability ipwdAvailability() {
+		return drsConsoleContext.isInitd() ? Availability.available()
+				: Availability.unavailable("you are not connected, please do the iinit command");
+	}
+
+	@ShellMethod("List directory contents")
+	public String ils(String directory) {
+		log.info("ils");
+		String wd = drsConsoleContext.getCwd();
+		try {
+			CollectionAndDataObjectListAndSearchAO collectionAndDataObjectListAndSearchAO = drsConsoleContext
+					.getIrodsAccessObjectFactory()
+					.getCollectionAndDataObjectListAndSearchAO(drsConsoleContext.getIrodsAccount());
+			List<CollectionAndDataObjectListingEntry> entries = collectionAndDataObjectListAndSearchAO
+					.listDataObjectsAndCollectionsUnderPath(wd);
+			StringBuilder sb = new StringBuilder();
+			char cr = '\r';
+			char tab = '\t';
+			sb.append(wd);
+			sb.append(cr);
+			for (CollectionAndDataObjectListingEntry entry : entries) {
+				sb.append(tab);
+				sb.append(entry.getPathOrName());
+				sb.append(tab);
+				sb.append(entry.getObjectType());
+				sb.append(tab);
+				if (entry.getObjectType() == ObjectType.DATA_OBJECT) {
+					sb.append(entry.getDataSize());
+				}
+				sb.append(cr);
+			}
+
+			return sb.toString();
+
+		} catch (JargonException e) {
+			log.error("exception getting file:{}", e);
+			throw new JargonRuntimeException("error getting file", e);
+		} finally {
+			drsConsoleContext.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
+		}
+	}
+
+	public Availability ilsAvailability() {
 		return drsConsoleContext.isInitd() ? Availability.available()
 				: Availability.unavailable("you are not connected, please do the iinit command");
 	}
