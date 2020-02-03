@@ -4,9 +4,11 @@
 package org.irods.jargon.ga4gh.dos.bundlemgmnt;
 
 import java.security.MessageDigest;
+import java.util.List;
 
 import org.irods.jargon.core.exception.DataNotFoundException;
 import org.irods.jargon.core.exception.JargonException;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.DuplicateBundleException;
 
@@ -45,7 +47,7 @@ public interface DosBundleManagementService {
 	 * @throws DuplicateBundleException {@link DuplicateBundleException}
 	 * @throws JargonException          {@link JargonException}
 	 */
-	String createDataBundle(final String bundleRootAbsolutePath)
+	public String createDataBundle(final String bundleRootAbsolutePath)
 			throws DataNotFoundException, DuplicateBundleException, JargonException;
 
 	/**
@@ -62,7 +64,7 @@ public interface DosBundleManagementService {
 	 * @param dataBundleId {@code String} with a bundle identifier
 	 * @throws JargonException {@link JargonException}
 	 */
-	void deleteDataBundle(final String dataBundleId) throws JargonException;
+	public void deleteDataBundle(final String dataBundleId) throws JargonException;
 
 	/**
 	 * Utility method to determine the configured checksum algorithm on the iRODS
@@ -70,7 +72,7 @@ public interface DosBundleManagementService {
 	 * 
 	 * @return {@link MessageDigest} with the iRODS checksum type
 	 */
-	MessageDigest determineMessageDigestFromIrods();
+	public MessageDigest determineMessageDigestFromIrods();
 
 	/**
 	 * Resolve the iRODS path to the object or collection that represents the bundle
@@ -80,6 +82,14 @@ public interface DosBundleManagementService {
 	 * @throws BundleNotFoundException {@link BundleNotFoundException}
 	 * @throws JargonException         {@link JargonException}
 	 */
-	String bundleIdToIrodsPath(final String dataBundleId) throws BundleNotFoundException, JargonException;
+	public String bundleIdToIrodsPath(final String dataBundleId) throws BundleNotFoundException, JargonException;
+
+	/**
+	 * List all the bundles on the given iRODS grid
+	 * 
+	 * @return {@code List} of {@link BundleInfoAndPath}
+	 * @throws JargonException {@link JargonException}
+	 */
+	List<BundleInfoAndPath> listAllBundles() throws JargonException;
 
 }

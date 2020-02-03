@@ -28,6 +28,7 @@ import org.irods.jargon.core.query.AVUQueryElement.AVUQueryPart;
 import org.irods.jargon.core.query.GenQueryBuilderException;
 import org.irods.jargon.core.query.IRODSGenQueryBuilder;
 import org.irods.jargon.core.query.IRODSGenQueryFromBuilder;
+import org.irods.jargon.core.query.IRODSQueryResultRow;
 import org.irods.jargon.core.query.IRODSQueryResultSetInterface;
 import org.irods.jargon.core.query.JargonQueryException;
 import org.irods.jargon.core.query.MetaDataAndDomainData;
@@ -37,6 +38,7 @@ import org.irods.jargon.core.utils.MiscIRODSUtils;
 import org.irods.jargon.datautils.visitor.IrodsVisitedComposite;
 import org.irods.jargon.ga4gh.dos.bundle.AbstractDosService;
 import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.DuplicateBundleException;
@@ -76,6 +78,55 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractDosService i
 	}
 
 	@Override
+	public List<BundleInfoAndPath> listAllBundles() throws JargonException {
+		log.info("listAllBundles()");
+		IRODSGenQueryBuilder builder = new IRODSGenQueryBuilder(true, null);
+		IRODSQueryResultSetInterface resultSet = null;
+
+		try {
+			builder.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_COLL_PARENT_NAME)
+					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_COLL_NAME)
+					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_COLL_OWNER_ZONE)
+					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_META_COLL_ATTR_NAME)
+					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_META_COLL_ATTR_VALUE);
+		} catch (GenQueryBuilderException e) {
+			log.error("error building query for collections:{}", e);
+			throw new MetadataQueryException("gen query error", e);
+		}
+
+		builder.addConditionAsGenQueryField(RodsGenQueryEnum.COL_META_COLL_ATTR_NAME, QueryConditionOperators.EQUAL,
+				ExplodedBundleMetadataUtils.GA4GH_BUNDLE_ID_ATTRIBUTE);
+
+		builder.addConditionAsGenQueryField(RodsGenQueryEnum.COL_COLL_NAME, QueryConditionOperators.LIKE,
+				MiscIRODSUtils.buildPathZoneAndHome(this.getIrodsAccount().getZone()) + '%');
+
+		IRODSGenQueryFromBuilder irodsQuery;
+		try {
+			irodsQuery = builder.exportIRODSQueryFromBuilder(
+					getIrodsAccessObjectFactory().getJargonProperties().getMaxFilesAndDirsQueryMax());
+
+			resultSet = getIrodsAccessObjectFactory().getIRODSGenQueryExecutor(getIrodsAccount())
+					.executeIRODSQueryAndCloseResultInZone(irodsQuery, 0, "");
+
+			List<BundleInfoAndPath> bundles = new ArrayList<>();
+			BundleInfoAndPath bundleInfo;
+			for (IRODSQueryResultRow row : resultSet.getResults()) {
+				bundleInfo = new BundleInfoAndPath();
+				bundleInfo.setCollection(true);
+				bundleInfo.setId(row.getColumn(4));
+				bundleInfo.setIrodsPath(row.getColumn(1));
+				bundles.add(bundleInfo);
+			}
+
+			return bundles;
+		} catch (GenQueryBuilderException | JargonQueryException e) {
+			log.error("error in query for bundles", e);
+			throw new JargonException("cannot query for bundles", e);
+		}
+
+	}
+
+	@Override
 	public String createDataBundle(String bundleRootAbsolutePath)
 			throws DataNotFoundException, DuplicateBundleException, JargonException {
 
@@ -86,6 +137,12 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractDosService i
 		}
 
 		log.info("bundleRootPath:{}", bundleRootAbsolutePath);
+
+		// is there a bundle here?
+		if (isThereABundleAtThisCollectionLevel(bundleRootAbsolutePath)) {
+			log.warn("bundle already exists");
+			throw new DuplicateBundleException("A bundle already exists");
+		}
 
 		// look for any bundles in children
 		if (areThereExistingBundles(bundleRootAbsolutePath)) {
@@ -110,6 +167,46 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractDosService i
 		log.info("successfully created bundle with id:{}", bundleId);
 		return bundleId;
 
+	}
+
+	public boolean isThereABundleAtThisCollectionLevel(final String bundlePath) throws JargonException {
+		log.info("isThereABundleAtThisCollectionLevel()");
+		if (bundlePath == null || bundlePath.isEmpty()) {
+			throw new IllegalArgumentException("null or empty bundlePath");
+		}
+
+		log.info("bundlePath:{}", bundlePath);
+
+		IRODSGenQueryBuilder builder = new IRODSGenQueryBuilder(true, null);
+		IRODSQueryResultSetInterface resultSet = null;
+
+		try {
+			builder.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_COLL_NAME)
+					.addSelectAsGenQueryValue(RodsGenQueryEnum.COL_COLL_OWNER_ZONE);
+		} catch (GenQueryBuilderException e) {
+			log.error("error building query for collections:{}", bundlePath, e);
+			throw new MetadataQueryException("gen query error", e);
+		}
+
+		builder.addConditionAsGenQueryField(RodsGenQueryEnum.COL_COLL_NAME, QueryConditionOperators.EQUAL, bundlePath);
+
+		builder.addConditionAsGenQueryField(RodsGenQueryEnum.COL_META_COLL_ATTR_NAME, QueryConditionOperators.EQUAL,
+				ExplodedBundleMetadataUtils.GA4GH_BUNDLE_ID_ATTRIBUTE);
+
+		IRODSGenQueryFromBuilder irodsQuery;
+		try {
+			irodsQuery = builder.exportIRODSQueryFromBuilder(
+					getIrodsAccessObjectFactory().getJargonProperties().getMaxFilesAndDirsQueryMax());
+			String targetZone = MiscIRODSUtils.getZoneInPath(bundlePath);
+
+			resultSet = getIrodsAccessObjectFactory().getIRODSGenQueryExecutor(getIrodsAccount())
+					.executeIRODSQueryAndCloseResultInZone(irodsQuery, 0, targetZone);
+		} catch (GenQueryBuilderException | JargonQueryException e) {
+			log.error("error in query for bundles", e);
+			throw new JargonException("cannot query for bundles", e);
+		}
+
+		return resultSet.getResults().size() > 0;
 	}
 
 	/**
@@ -159,7 +256,7 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractDosService i
 			throw new JargonException("cannot query for bundles", e);
 		}
 
-		return resultSet.getTotalRecords() > 0;
+		return resultSet.getResults().size() > 0;
 
 	}
 

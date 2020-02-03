@@ -13,6 +13,9 @@ import org.irods.jargon.core.pub.IRODSAccessObjectFactory;
 import org.irods.jargon.core.pub.IRODSFileSystem;
 import org.irods.jargon.core.pub.io.IRODSFileFactory;
 import org.irods.jargon.core.utils.MiscIRODSUtils;
+import org.irods.jargon.ga4gh.dos.bundle.DosServiceFactory;
+import org.irods.jargon.ga4gh.dos.bundle.impl.ExplodedDosServiceFactoryImpl;
+import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,6 +33,7 @@ public class DrsConsoleContext {
 
 	private IRODSAccount irodsAccount;
 	private IRODSFileSystem irodsFileSystem;
+	private DosServiceFactory dosServiceFactory;
 	private String cwd = "";
 	private boolean initd = false;
 
@@ -70,7 +74,14 @@ public class DrsConsoleContext {
 					.getEnvironmentalInfoAO(irodsAccount);
 			IRODSServerProperties irodsServerProps = environmentalInfoAO.getIRODSServerProperties();
 			log.debug("IRODSServerProperties:{}", irodsServerProps);
+			/*
+			 * Doesn't really need the config in a non-web context so just take defaults
+			 */
+			DosConfiguration dosConfiguration = new DosConfiguration();
+			dosServiceFactory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+			dosServiceFactory.setDosConfiguration(dosConfiguration);
 			this.initd = true;
+
 			return irodsServerProps;
 		} finally {
 			irodsFileSystem.closeAndEatExceptions();
@@ -135,6 +146,10 @@ public class DrsConsoleContext {
 
 	public boolean isInitd() {
 		return initd;
+	}
+
+	public DosServiceFactory getDosServiceFactory() {
+		return dosServiceFactory;
 	}
 
 }

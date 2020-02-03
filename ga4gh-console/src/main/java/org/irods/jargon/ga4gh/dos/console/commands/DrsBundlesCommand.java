@@ -14,6 +14,8 @@ import org.irods.jargon.core.pub.CollectionAndDataObjectListAndSearchAO;
 import org.irods.jargon.core.pub.io.IRODSFile;
 import org.irods.jargon.core.query.CollectionAndDataObjectListingEntry;
 import org.irods.jargon.core.query.CollectionAndDataObjectListingEntry.ObjectType;
+import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
+import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
 import org.irods.jargon.ga4gh.dos.console.context.DrsConsoleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +54,63 @@ public class DrsBundlesCommand {
 		} finally {
 			drsConsoleContext.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
 		}
+	}
 
+	@ShellMethod("List all DRS bundles")
+	public String ilistdrsb() {
+		log.info("ilistdrsb");
+
+		try {
+			DosBundleManagementService dosBundleManagmentService = drsConsoleContext.getDosServiceFactory()
+					.instanceDosBundleManagementService(drsConsoleContext.getIrodsAccount());
+			List<BundleInfoAndPath> bundleInfoAndPathList = dosBundleManagmentService.listAllBundles();
+			StringBuilder sb = new StringBuilder();
+			char cr = '\n';
+			char tab = '\t';
+
+			for (BundleInfoAndPath bundleInfo : bundleInfoAndPathList) {
+				sb.append(bundleInfo.getId());
+				sb.append(tab);
+				sb.append(bundleInfo.getIrodsPath());
+				sb.append(cr);
+			}
+
+			return sb.toString();
+		} catch (JargonException e) {
+			log.error("exception creating bundle:{}", e);
+			throw new JargonRuntimeException("exception creating bundle", e);
+		} finally {
+			drsConsoleContext.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
+		}
+	}
+
+	public Availability ilistdrsbAvailability() {
+		return drsConsoleContext.isInitd() ? Availability.available()
+				: Availability.unavailable("you are not connected, please do the iinit command");
+	}
+
+	@ShellMethod("Make a DRS bundle at current directory")
+	public String imakedrsb() {
+		log.info("imakedrsb");
+		String wd = drsConsoleContext.getCwd();
+		log.info("wd:{}", wd);
+		try {
+			DosBundleManagementService dosBundleManagmentService = drsConsoleContext.getDosServiceFactory()
+					.instanceDosBundleManagementService(drsConsoleContext.getIrodsAccount());
+			String guid = dosBundleManagmentService.createDataBundle(wd);
+			log.info("created bundle with guid:{}", guid);
+			return "created bundle with GUID:" + guid;
+		} catch (JargonException e) {
+			log.error("exception creating bundle:{}", e);
+			throw new JargonRuntimeException("exception creating bundle", e);
+		} finally {
+			drsConsoleContext.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
+		}
+	}
+
+	public Availability imakedrsbAvailability() {
+		return drsConsoleContext.isInitd() ? Availability.available()
+				: Availability.unavailable("you are not connected, please do the iinit command");
 	}
 
 	@ShellMethod("Print working directory in iRODS")
