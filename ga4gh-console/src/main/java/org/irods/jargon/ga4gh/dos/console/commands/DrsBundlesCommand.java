@@ -194,7 +194,7 @@ public class DrsBundlesCommand {
 			List<CollectionAndDataObjectListingEntry> entries = collectionAndDataObjectListAndSearchAO
 					.listDataObjectsAndCollectionsUnderPath(wd);
 			StringBuilder sb = new StringBuilder();
-			char cr = '\r';
+			char cr = '\n';
 			char tab = '\t';
 			sb.append(wd);
 			sb.append(cr);
