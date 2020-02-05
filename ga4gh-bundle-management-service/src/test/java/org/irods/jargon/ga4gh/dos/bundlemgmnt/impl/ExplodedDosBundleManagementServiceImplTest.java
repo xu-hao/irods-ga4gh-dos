@@ -157,6 +157,47 @@ public class ExplodedDosBundleManagementServiceImplTest {
 	}
 
 	@Test
+	public void testIrodsPathToBundleId() throws Exception {
+
+		// create a dir with files
+
+		String bundleDir = "testIrodsPathToBundleId";
+
+		String localCollectionAbsolutePath = scratchFileUtils
+				.createAndReturnAbsoluteScratchPath(IRODS_TEST_SUBDIR_PATH + '/' + bundleDir);
+
+		String irodsCollectionRootAbsolutePath = testingPropertiesHelper
+				.buildIRODSCollectionAbsolutePathFromTestProperties(testingProperties, IRODS_TEST_SUBDIR_PATH);
+
+		FileGenerator.generateManyFilesAndCollectionsInParentCollectionByAbsolutePath(localCollectionAbsolutePath,
+				"testPutCollectionWithTwoFiles", 1, 2, 3, "testFile", ".txt", 2, 2, 20, 25);
+
+		IRODSAccount irodsAccount = testingPropertiesHelper.buildIRODSAccountFromTestProperties(testingProperties);
+
+		IRODSFileFactory irodsFileFactory = irodsFileSystem.getIRODSFileFactory(irodsAccount);
+		IRODSFile destFile = irodsFileFactory.instanceIRODSFile(irodsCollectionRootAbsolutePath);
+		DataTransferOperations dataTransferOperationsAO = irodsFileSystem.getIRODSAccessObjectFactory()
+				.getDataTransferOperations(irodsAccount);
+		File localFile = new File(localCollectionAbsolutePath);
+
+		dataTransferOperationsAO.putOperation(localFile, destFile, null, null);
+		// bundle it up
+
+		String bundleRoot = irodsCollectionRootAbsolutePath + "/" + bundleDir;
+
+		DosConfiguration dosConfiguration = new DosConfiguration();
+		DosServiceFactory factory = new ExplodedDosServiceFactoryImpl(irodsFileSystem.getIRODSAccessObjectFactory());
+
+		DosBundleManagementService explodedDosService = new ExplodedDosBundleManagementServiceImpl(
+				irodsFileSystem.getIRODSAccessObjectFactory(), irodsAccount, factory, dosConfiguration);
+		String guid = explodedDosService.createDataBundle(bundleRoot);
+
+		String actual = explodedDosService.irodsPathToBundleId(bundleRoot);
+		Assert.assertEquals("did not get guid back for bundle", guid, actual);
+
+	}
+
+	@Test
 	public void testDeleteDataBundle() throws Exception {
 		// create a dir with files
 

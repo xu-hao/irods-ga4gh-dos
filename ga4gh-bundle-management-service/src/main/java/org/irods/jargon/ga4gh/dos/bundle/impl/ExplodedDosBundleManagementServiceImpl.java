@@ -330,6 +330,39 @@ public class ExplodedDosBundleManagementServiceImpl extends AbstractDosService i
 	}
 
 	@Override
+	public String irodsPathToBundleId(final String irodsPath) throws BundleNotFoundException, JargonException {
+		log.info("irodsPathToBundleId()");
+		if (irodsPath == null || irodsPath.isEmpty()) {
+			throw new IllegalArgumentException("null or empty irodsPath");
+		}
+		log.info("irodsPath to resolve:{}", irodsPath);
+
+		CollectionAO collectionAO = this.getIrodsAccessObjectFactory().getCollectionAO(getIrodsAccount());
+		List<AVUQueryElement> avuQuery = new ArrayList<AVUQueryElement>();
+
+		try {
+			avuQuery.add(AVUQueryElement.instanceForValueQuery(AVUQueryPart.ATTRIBUTE, QueryConditionOperators.EQUAL,
+					ExplodedBundleMetadataUtils.GA4GH_BUNDLE_ID_ATTRIBUTE));
+
+			List<MetaDataAndDomainData> metadata = collectionAO.findMetadataValuesByMetadataQueryForCollection(avuQuery,
+					irodsPath);
+			if (metadata.isEmpty()) {
+				log.info("no bundle found in path:{}", irodsPath);
+				throw new BundleNotFoundException("bundle was not found");
+			}
+
+			log.info("found metadata:{}", metadata.get(0));
+			String bundleGuidFromPath = metadata.get(0).getAvuValue();
+			log.info("guid:{}", bundleGuidFromPath);
+			return bundleGuidFromPath;
+		} catch (JargonQueryException e) {
+			log.error("Error creating query for bundles", e);
+			throw new JargonException("bundle query error", e);
+		}
+
+	}
+
+	@Override
 	public String bundleIdToIrodsPath(final String dataBundleId) throws BundleNotFoundException, JargonException {
 		log.info("bundleIdToIrodsPath()");
 		if (dataBundleId == null || dataBundleId.isEmpty()) {

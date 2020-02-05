@@ -16,6 +16,8 @@ import org.irods.jargon.core.query.CollectionAndDataObjectListingEntry;
 import org.irods.jargon.core.query.CollectionAndDataObjectListingEntry.ObjectType;
 import org.irods.jargon.ga4gh.dos.bundle.internalmodel.BundleInfoAndPath;
 import org.irods.jargon.ga4gh.dos.bundlemgmnt.DosBundleManagementService;
+import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.BundleNotFoundException;
+import org.irods.jargon.ga4gh.dos.bundlemgmnt.exception.DuplicateBundleException;
 import org.irods.jargon.ga4gh.dos.console.context.DrsConsoleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +91,60 @@ public class DrsBundlesCommand {
 				: Availability.unavailable("you are not connected, please do the iinit command");
 	}
 
+	@ShellMethod("Remove a DRS bundle by directory path or GUID")
+	public String irmdrsb(@ShellOption(defaultValue = "") String path, @ShellOption(defaultValue = "") String guid) {
+		log.info("irmdrsb");
+
+		if (path == null) {
+			throw new IllegalArgumentException("null path");
+		}
+
+		if (guid == null) {
+			throw new IllegalArgumentException("null guid");
+		}
+
+		log.info("path:{}", path);
+		log.info("guid:{}", guid);
+
+		String wd = drsConsoleContext.getCwd();
+		log.info("wd:{}", wd);
+
+		String targetGuid = "";
+
+		try {
+
+			DosBundleManagementService dosBundleManagmentService = drsConsoleContext.getDosServiceFactory()
+					.instanceDosBundleManagementService(drsConsoleContext.getIrodsAccount());
+
+			if (!guid.isEmpty()) {
+				log.info("deleting by guid:{}", guid);
+				targetGuid = guid;
+			} else if (!path.isEmpty()) {
+				log.info("deleting by path:{}", path);
+				targetGuid = dosBundleManagmentService.irodsPathToBundleId(path);
+			} else {
+				return "No --path or --guid specified";
+			}
+
+			dosBundleManagmentService.deleteDataBundle(targetGuid);
+			return "Removed data bundle:" + targetGuid;
+
+		} catch (BundleNotFoundException bnf) {
+			log.warn("bundle not found, will ignore");
+			return "Bundle was not found, ignoring";
+		} catch (JargonException e) {
+			log.error("exception creating bundle:{}", e);
+			throw new JargonRuntimeException("exception creating bundle", e);
+		} finally {
+			drsConsoleContext.getIrodsAccessObjectFactory().closeSessionAndEatExceptions();
+		}
+	}
+
+	public Availability irmdrsbAvailability() {
+		return drsConsoleContext.isInitd() ? Availability.available()
+				: Availability.unavailable("you are not connected, please do the iinit command");
+	}
+
 	@ShellMethod("Make a DRS bundle at current directory")
 	public String imakedrsb() {
 		log.info("imakedrsb");
@@ -100,6 +156,9 @@ public class DrsBundlesCommand {
 			String guid = dosBundleManagmentService.createDataBundle(wd);
 			log.info("created bundle with guid:{}", guid);
 			return "created bundle with GUID:" + guid;
+		} catch (DuplicateBundleException e) {
+			log.warn("duplicate bundle in:{}", wd, e);
+			return "Duplicate bundle found in " + wd;
 		} catch (JargonException e) {
 			log.error("exception creating bundle:{}", e);
 			throw new JargonRuntimeException("exception creating bundle", e);

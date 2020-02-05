@@ -92,4 +92,18 @@ public interface DosBundleManagementService {
 	 */
 	List<BundleInfoAndPath> listAllBundles() throws JargonException;
 
+	/**
+	 * Find the data bundle GUID given an iRODS collection path. Note that currently
+	 * this method expect the bundle to be defined at the collection level, and does
+	 * not search child directories for the root of the bundle.
+	 * 
+	 * @param irodsPath {@code String} with an iRODS collection path that is the
+	 *                  root of the bundle
+	 * @return {@code String} with the GUID for the bundle at this path
+	 * @throws BundleNotFoundException {@link BundleNotFoundException} if no bundle
+	 *                                 found at this collection
+	 * @throws JargonException         {@link JargonException}
+	 */
+	String irodsPathToBundleId(String irodsPath) throws BundleNotFoundException, JargonException;
+
 }
