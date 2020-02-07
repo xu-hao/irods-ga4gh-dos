@@ -76,7 +76,7 @@ The DRS console is a docker image that is a thin client to iRODS. This can be st
 built as part of this package. It can be found under the ga4gh-console. The docker container can be started with the following:
 
 ```
-(base) ~/Documents/workspace-niehs-dev/ga4gh-dos/ga4gh-console @ ALMBP-02010755(conwaymc): docker run -it  michael-conway/ga4gh-console:0.0.1
+(base) ~/Documents/workspace-niehs-dev/ga4gh-dos/ga4gh-console @ ALMBP-02010755(conwaymc): docker run -it  michaelconway/ga4gh-console:0.0.1
 No cert to import
 exec drscon.sh to run drs console
 / # 
