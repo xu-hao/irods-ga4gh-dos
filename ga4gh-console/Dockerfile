@@ -11,6 +11,6 @@ ENTRYPOINT ["/runit.sh"]
 
 
 
-# build: docker build -t diceunc/ga4gh-dos:0.0.1 .
+# build: docker build -t michael-conway/ga4gh-console:0.0.1 .
 
-# run:  docker run -d --rm -p 8080:8080 -v /etc/irods-ext:/etc/irods-ext  --add-host irods420.irodslocal:172.16.250.101 diceunc/ga4gh-dos:0.0.1
+# run:  docker run -it  michael-conway/ga4gh-console:0.0.1

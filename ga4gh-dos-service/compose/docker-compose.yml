@@ -1,0 +1,23 @@
+# env variables
+# IRODS_EXT_PATH=[path to the irods-ext directory containing the irods-rest and ga4gh-drs configuration files. See
+# RUNNING.md in this directory
+#
+version: '3'
+services:
+  irods-rest:
+    image: michael-conway/irods-rest2:1.0.0 
+    container_name: irods-rest
+    volumes:
+      - ${IRODS_EXT_PATH}:/etc/irods-ext:ro
+    networks:
+      - drsnet
+  irods-drs: 
+    container_name: irods-drs
+    image: michael-conway/ga4gh-drs:0.0.1
+    depends_on: 
+      - irods=rest
+    networks:
+       - drsnet
+networks:
+  drsnet:
+
