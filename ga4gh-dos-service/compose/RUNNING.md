@@ -171,7 +171,6 @@ shell:>ilistdrsb
 b670ec6a-78d2-438f-a180-885f49a016b4	/zone1/home/test1/study
 
 shell:>
-
 	
 ```
 
@@ -179,13 +178,50 @@ Note that the bundle GUID is provided...You can use this in your DRS requests
 
 ### Authenticate and obtain a bearer token
 
-The iRODS REST api has a tokens endpoint, pass a valid iRODS user/password and get the token for later CURL operations...
+The iRODS REST api has a tokens endpoint, pass a valid iRODS user/password and get the token for later CURL operations. Here is a CURL example:
 
+```
+ curl -X POST   http://localhost:8888/irods-rest2/token   --user test1:test(base) ~/Documents/workspace-niehs-dev/ga4gh-dos/ga4gh-dos-service/compose @ ALMBP-02010755(conwaymc): curl -X POST   http://localhost:8888/irods-rest2/token   --user test1:test
+eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MSIsImlzcyI6Imlyb2RzLXJlc3QyIiwiaWF0IjoxNTgxMTAyMTkxfQ._XeZqqUi4MHmsxQdTyr-XcktnRaqtvRUToCGJq2rwL0QfGO9OSlKgf2OzknQtvl4F_i10oN-FBcT_uDO5gBuFg
 
+```
 
+### Utilize the given token in interactions with DRS
 
+Here is an (abridged) example of retrieving a data bundle via CURL given the Bearer token obtained via the REST API
 
+```
 
+curl -X GET \
+  'http://localhost:8080/ga4gh/drs/v1/objects/b670ec6a-78d2-438f-a180-885f49a016b4?expand=false' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MSIsImlzcyI6Imlyb2RzLXJlc3QyIiwiaWF0IjoxNTgxMTAyMTkxfQ._XeZqqUi4MHmsxQdTyr-XcktnRaqtvRUToCGJq2rwL0QfGO9OSlKgf2OzknQtvl4F_i10oN-FBcT_uDO5gBuFg'
+(base) ~/Documents/workspace-niehs-dev/ga4gh-dos/ga4gh-dos-service/compose @ ALMBP-02010755(conwaymc): curl -X GET \
+>   'http://localhost:8080/ga4gh/drs/v1/objects/b670ec6a-78d2-438f-a180-885f49a016b4?expand=false' \
+>   -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MSIsImlzcyI6Imlyb2RzLXJlc3QyIiwiaWF0IjoxNTgxMTAyMTkxfQ._XeZqqUi4MHmsxQdTyr-XcktnRaqtvRUToCGJq2rwL0QfGO9OSlKgf2OzknQtvl4F_i10oN-FBcT_uDO5gBuFg'
+{"id":"b670ec6a-78d2-438f-a180-885f49a016b4","name":"/zone1/home/test1/study","self_uri":"drs://localhost/b670ec6a-78d2-438f-a180-885f49a016b4","size":0,"created_time":"2019-09-06T15:28:03Z","updated_time":"2019-09-06T15:28:03Z","version":"0","mime_type":"text/directory","checksums":[{"checksum":"736e715a72017f1e6ce67e9e5d7d0dc4e6b6d29e6150f7dc1f011697910c3bdf","type":"sha256"}],"access_methods":[],"contents":[{"name":"file1.json","id":"39e87c10-dbb6-4d45-9e21-1257ea337104","drs_uri":["drs://localhost/39e87c10-dbb6-4d45-9e21-1257ea337104"],"contents":[]},{"name":"file2.pdf","id":"ca8d9a9c-c3d1-417a-8663-6904d9870be1","drs_uri":["drs://localhost/ca8d9a9c-c3d1-417a-8663-6904d9870be1"],"contents":[]},{"name":"file3.pdf","id":"1c1c9892-d22f-4eef-882b-378d2a8dc3be","drs_uri":["drs://localhost/1c1c9892-d22f-4eef-882b-378d2a8dc3be"],"contents":[]},description":"iRODS exploded bundle collection","aliases":["/zone1/home/test1/study"]}(base) ~/Documents/workspace-niehs-dev/ga4gh-dos/ga4gh-dos-service/compose @ ALMBP-02010755(conwaymc): 
+
+```
+
+### Obtain file contents via an access url using the REST API endpoint
+
+Here one of the data objects is selected to obtain an access url
+
+```
+curl -X GET \
+  http://localhost:8080/ga4gh/drs/v1/objects/01c167a9-6367-4d7b-895b-02c151514e79/access/irods-rest \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MSIsImlzcyI6Imlyb2RzLXJlc3QyIiwiaWF0IjoxNTgxMTAyMTkxfQ._XeZqqUi4MHmsxQdTyr-XcktnRaqtvRUToCGJq2rwL0QfGO9OSlKgf2OzknQtvl4F_i10oN-FBcT_uDO5gBuFg'
+  
+  ...
+  
+  {
+    "url": "http://irods-rest:8888/fileStream?path=/zone1/home/test1/study/MuscleNGS/10-17-2017 POLG Muscle NGS project proposal.docx",
+    "headers": [
+        "X-API-KEY iU7Gc3dmeC1ECQ3"
+    ]
+}
+
+```
 
 
 
