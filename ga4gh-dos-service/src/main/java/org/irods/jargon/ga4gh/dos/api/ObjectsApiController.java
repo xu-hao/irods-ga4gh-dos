@@ -94,9 +94,6 @@ public class ObjectsApiController implements ObjectsApi {
 			log.info("name:{}", name);
 			IRODSAccount irodsAccount = this.contextAccountHelper.irodsAccountFromAuthentication(name);
 
-			// IRODSAccount irodsAccount = IRODSAccount.instance("server4.local", 1247,
-			// "test1", "test", "", "zone1", "");
-
 			log.debug("irodsAccount:{}", irodsAccount);
 
 			DosService dosService = dosServiceFactory.instanceDosService(irodsAccount);

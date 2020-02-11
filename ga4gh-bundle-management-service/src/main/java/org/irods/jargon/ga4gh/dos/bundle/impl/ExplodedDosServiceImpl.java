@@ -1,5 +1,8 @@
 package org.irods.jargon.ga4gh.dos.bundle.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +44,6 @@ import org.irods.jargon.ga4gh.dos.configuration.DosConfiguration;
 import org.irods.jargon.ga4gh.dos.exception.DosDataNotFoundException;
 import org.irods.jargon.ga4gh.dos.exception.DosSystemException;
 import org.irods.jargon.ga4gh.dos.model.AccessMethod;
-import org.irods.jargon.ga4gh.dos.utils.DataUtils;
 import org.irods.jargon.ga4gh.dos.utils.ExplodedBundleMetadataUtils;
 import org.irods.jargon.ticket.TicketAdminService;
 import org.irods.jargon.ticket.TicketServiceFactory;
@@ -333,7 +335,7 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				String ticketId = ticketAdminService.createTicket(TicketCreateModeEnum.READ, ticketFile, "");
 				StringBuilder sb = new StringBuilder();
 				sb.append(this.getDosConfiguration().getDrsRestUrlEndpoint());
-				sb.append(ticketFile.getAbsolutePath());
+				sb.append((URLEncoder.encode(ticketFile.getAbsolutePath(), StandardCharsets.UTF_8.toString())));
 				irodsAccessMethod.setAccessId(accessId);
 				irodsAccessMethod.setType(AccessMethod.TypeEnum.HTTPS);
 				irodsAccessMethod.setUrl(sb.toString());
@@ -346,8 +348,8 @@ public class ExplodedDosServiceImpl extends AbstractDosService implements DosSer
 				// irodsAccessMethod.getHeaders().add(DataUtils.basicAuthTokenForPublic());
 				log.info("irodsAccessMethod:{}", irodsAccessMethod);
 				return irodsAccessMethod;
-			} catch (JargonException e) {
-				log.error("jargon exception in operation", e);
+			} catch (JargonException | UnsupportedEncodingException e) {
+				log.error("jargon exception in create access URL", e);
 				throw new DosSystemException(e);
 			}
 
