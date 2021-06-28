@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  ga4gh-dos-service:
+    container_name: ga4gh-dos-service
+    image: ga4gh-dos-service:0.0.1
+    restart: always
+    network_mode: host
+    volumes:
+      - ./etc/irods-ext:/etc/irods-ext
