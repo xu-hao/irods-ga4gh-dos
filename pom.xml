@@ -12,7 +12,7 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<springfox-version>2.7.0</springfox-version>
-		<jargon.version>4.3.1.0-SNAPSHOT</jargon.version>
+		<jargon.version>4.3.2.2-RELEASE</jargon.version>
 		<spring.security.version>4.2.4.RELEASE</spring.security.version>
 		<spring.boot.starter.version>1.5.9.RELEASE</spring.boot.starter.version>
 	</properties>
@@ -21,6 +21,21 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.5.9.RELEASE</version>
 	</parent>
+	<repositories>
+	<repository>
+            <id>dice.repository</id>
+            <name>dice.repository</name>
+            <url>https://raw.github.com/DICE-UNC/DICE-Maven/master/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </repository>
+	</repositories>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

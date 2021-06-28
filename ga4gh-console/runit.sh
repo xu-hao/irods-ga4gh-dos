@@ -10,4 +10,4 @@ else
 fi
 
 echo "exec drscon.sh to run drs console"
-sh
+sh drscon.sh
